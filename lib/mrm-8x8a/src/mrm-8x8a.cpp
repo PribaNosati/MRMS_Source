@@ -23,19 +23,19 @@ Mrm_8x8a::~Mrm_8x8a()
 
 
 ActionBase* Mrm_8x8a::actionCheck() {
-	//return NULL;// AAA 28, if uncommented, works
+	//return NULL;// BBB 28, if uncommented, works
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) { 
-		//  continue; // AAA 30
+		//  continue; // BBB 30
 		for (uint8_t switchNumber = 0; switchNumber < MRM_8x8A_SWITCHES_COUNT; switchNumber++){
-			// continue; // AAA 31, works if uncommented
+			// continue; // BBB 31, works if uncommented
 			if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL){
-			// if ((*lastOn)[deviceNumber][switchNumber] == false){ // AAA 35 - this works } && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL){
-			//if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber)){// AAA 36 } && (*offOnAction)[deviceNumber][switchNumber] != NULL){
-				return (*offOnAction)[deviceNumber][switchNumber]; // AAA 32, fail if only this commented
+			// if ((*lastOn)[deviceNumber][switchNumber] == false){ // BBB 35 - this works } && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL){
+			//if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber)){// BBB 36 } && (*offOnAction)[deviceNumber][switchNumber] != NULL){
+				return (*offOnAction)[deviceNumber][switchNumber]; // BBB 32, fail if only this commented
 			}
-			else if ((*lastOn)[deviceNumber][switchNumber] == true && !switchRead(switchNumber, deviceNumber)){ // AAA 34 start
-				((*lastOn)[deviceNumber][switchNumber]) = false; // AAA 33, fail if only this commented
-			} /// AAA 34 end
+			else if ((*lastOn)[deviceNumber][switchNumber] == true && !switchRead(switchNumber, deviceNumber)){ // BBB 34 start
+				((*lastOn)[deviceNumber][switchNumber]) = false; // BBB 33, fail if only this commented
+			} /// BBB 34 end
 		}
 	}
 	return NULL;
@@ -189,13 +189,11 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 @return - true if canId for this class
 */
 bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8]) {
-	// return false; // AAA9 test ok
+	// return false; // BBB 9 test ok
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				//return true; /// AAA 18 double blink
-				//return false; /// AAA 20 double blink
-				switch (data[0]) { // AAA 11 start, test OK
+				switch (data[0]) { // BBB 11 start, test OK
 				case COMMAND_8X8_SWITCH_ON:
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
 					uint8_t switchNumber = data[1] >> 1;
@@ -295,17 +293,25 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_8x8a::started(uint8_t deviceNumber) {
+	// return false; // BBB 41, works if uncommented
+	// return true; // BBB 46, works if uncommented
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_8X8A_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+		//return false; // BBB 42, works if uncommented
 		//print("Start mrm-8x8a%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0);
+			//continue;// BBB 43
+			// return false; // BBB 48, problem after
+			start(deviceNumber, 0, 0, true);// AAA 54, 0 and true parameters added
+			//continue; // AAA 47, problem before, 2x
 			// Wait for 1. message.
 			uint32_t startMs = millis();
+			// return false; // AAA 49, fails if activated
 			while (millis() - startMs < 50) {
 				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
 					//print("8x8 confirmed\n\r"); 
 					return true;
 				}
+				// return false; // BBB 50, fails if activated
 				robotContainer->delayMs(1);
 			}
 		}
@@ -322,16 +328,16 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 @return - true if pressed, false otherwise
 */
 bool Mrm_8x8a::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
-	// return false; // AAA 37 works if uncommented
+	// return false; // BBB 37 works if uncommented
 	alive(deviceNumber, true);
-	// return false; // AAA 38, works if uncommented
+	// return false; // BBB 38, works if uncommented
 	if (deviceNumber >= nextFree || switchNumber >= MRM_8x8A_SWITCHES_COUNT) {
 		strcpy(errorMessage, "Switch doesn't exist");
 		return false;
 	}
-	// return false; // AAA 39, works if uncommented
+	// return false; // BBB 39, works if uncommented
 	if (started(deviceNumber)){
-		// return false;// AAA 40
+		// return false;// BBB 40, fail if uncommented
 		return (*on)[deviceNumber][switchNumber];
 	}
 	else

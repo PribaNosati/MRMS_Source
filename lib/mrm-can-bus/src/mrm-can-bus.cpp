@@ -159,8 +159,11 @@ void Mrm_can_bus::messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]) {
 
 	// Do not allow bus congestion, limit to 1250 messages per second. After 70 min. micros() resets, therefore the second term in the logical expression below
 #define MIN_MICROS_BETWEEN_CAN_BUS_MESSAGES 900 //900
-	while (micros() <= lastSentMicros + MIN_MICROS_BETWEEN_CAN_BUS_MESSAGES || micros() < MIN_MICROS_BETWEEN_CAN_BUS_MESSAGES)
-		;
+	while (micros() <= lastSentMicros + MIN_MICROS_BETWEEN_CAN_BUS_MESSAGES){
+		 if (micros() < lastSentMicros){ // micros() resetted
+			lastSentMicros = 0; // reset this variable, too
+		 }
+	}
 	lastSentMicros = micros();
 
 	//Queue message for transmission

@@ -360,10 +360,10 @@ void Robot::actionSet() {
 	const uint16_t TIMEOUT_MS = 2000;
 
 	// If a button pressed, first execute its action
-	// return; // AAA 25 - if commented
+	// return; // BBB 25 - if commented
 	ActionBase* action8x8 = NULL;
-	if (mrm_8x8a->alive()) /// AAA 26 start, 
-		action8x8 = mrm_8x8a->actionCheck(); /// AAA 26 end
+	if (mrm_8x8a->alive()) /// BBB 26 start, 
+		action8x8 = mrm_8x8a->actionCheck(); /// BBB 26 end
 	ActionBase* actionSw = mrm_switch->actionCheck(); 
 	if (action8x8 != NULL)
 		actionSet(action8x8);
@@ -657,7 +657,9 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 	uint32_t startMicros = micros();
 	do {
 		noLoopWithoutThis();
-	} while (micros() - startMicros < pauseMicros);
+		if (startMicros > micros()) // micros() will overflow after 72 min!
+			startMicros = 0; // In that case, reset the start time
+	} while (micros() < startMicros + pauseMicros);
 }
 
 /** Contacts all the CAN Bus devices and checks which one is alive.
@@ -740,7 +742,7 @@ void Robot::fpsPause() {
 */
 void Robot::fpsPrint() {
 	print("CAN peaks: %i received/s, %i sent/s\n\r", mrm_can_bus->messagesPeakReceived(), mrm_can_bus->messagesPeakSent());
-	print("Arduino: %i FPS, low peak: %i FPS\n\r", (int)fpsGet(), fpsTopGap == 1000000 ? 0 : (int)(1000000 / (float)fpsTopGap));
+	print("Arduino: %i FPS, low peak: %i FPS\n\r", (int)fpsGet(), fpsTopGap == 1000 ? 0 : (int)(1000 / (float)fpsTopGap));
 	for (uint8_t i = 0; i < _boardNextFree; i++) {
 		board[i]->fpsRequest();
 		uint32_t startMs = millis();
@@ -764,7 +766,7 @@ void Robot::fpsReset() {
 /** Updates data for FPS calculation
 */
 void Robot::fpsUpdate() {
-	fpsMs[fpsNextIndex] = micros();
+	fpsMs[fpsNextIndex] = millis(); // millis() will overflow after some time! Not taken into account here.
 	fpsNextIndex = (fpsNextIndex == 0 ? 1 : 0);
 	if (fpsMs[0] != 0 && fpsMs[1] != 0) {
 		uint32_t gap = (fpsNextIndex == 0 ? fpsMs[1] - fpsMs[0] : fpsMs[0] - fpsMs[1]);
@@ -1013,8 +1015,8 @@ void Robot::messagesReceive() {
 		bool any = false;
 		#endif
 		for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
-			// if (boardId >= 1) ///AAA 9
-			//	break; // AAA 9
+			// if (boardId >= 1) ///BBB 9
+			//	break; // BBB 9
  			if (board[boardId]->messageDecode(id, _msg->data)) {
 				#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 				any = true;
@@ -1088,7 +1090,7 @@ void Robot::reflectanceArrayCalibrationPrint() {
 */
 void Robot::run() {
 	while (true) {
-		actionSet(); // Check if a key pressed and update current command buffer. AAA 23 - if command commented, test ok
+		actionSet(); // Check if a key pressed and update current command buffer. BBB 23 - if command commented, test ok
 		if (_actionCurrent == NULL) // If last command finished, display menu.
 			menu();
 		else 

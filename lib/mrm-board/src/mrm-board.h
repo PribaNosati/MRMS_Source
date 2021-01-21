@@ -271,7 +271,7 @@ public:
 	@param measuringModeNow - Measuring mode id. Default 0.
 	@param refreshMs - gap between 2 CAN Bus messages to refresh local Arduino copy of device's data. 0 - device's default.
 	*/
-	void start(uint8_t deviceNumber = 0xFF, uint8_t measuringModeNow = 0, uint16_t refreshMs = 0);
+	void start(uint8_t deviceNumber = 0xFF, uint8_t measuringModeNow = 0, uint16_t refreshMs = 0, bool disabled = false); // AAA 53
 
 	/** add() assigns device numbers one after another. swap() changes the sequence later. Therefore, add(); add(); will assign number 0 to a device with the smallest CAN Bus id and 1 to the one with the next smallest. 
 	If we want to change the order so that now the device 1 is the one with the smalles CAN Bus id, we will call swap(0, 1); after the the add() commands.
