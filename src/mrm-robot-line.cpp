@@ -602,7 +602,7 @@ void RobotLine::curve() {
 	if (!lineAny(2, 5)) {
 		// Rotate
 		stop();
-		print("CURVE\n\r"); // AAA
+		print("CURVE\n\r"); 
 		delayMs(2000);
 		go(left ? -TOP_SPEED : TOP_SPEED, left ? TOP_SPEED : -TOP_SPEED); // Start rotating.
 		startMs = millis();
@@ -617,7 +617,7 @@ void RobotLine::curve() {
 	// T-crossing approached by side, go ahead.
 	else {
 		stop();
-		print("HALF CROSSING\n\r"); //AAA
+		print("HALF CROSSING\n\r");
 		delayMs(2000);
 	}
 }

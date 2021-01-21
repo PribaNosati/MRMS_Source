@@ -117,6 +117,7 @@ void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 		strcpy(errorMessage, "Device number too big.");
 		return;
 	}
+	// return; /// AAA 24 - if uncommented, test ok
 	_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
 }
 
@@ -256,7 +257,7 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @return - command found
 */
 bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceNumber) {
-	// return true; //AAA 10
+	// return true; //AAA 10 test ok
 	(*lastMessageReceivedMs)[deviceNumber] = millis();
 	bool found = true;
 	uint8_t command = data[0];
@@ -266,7 +267,7 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		// return true; /// AAA 14
+		// return true; /// AAA 14 not needed
 		errorCode = data[1];
 		errorInDeviceNumber = deviceNumber;
 		print("Error %i in %s.\n\r", errorCode, (*_name)[deviceNumber]);
@@ -280,22 +281,22 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 		(*fpsLast)[deviceNumber] = (data[2] << 8) | data[1];
 		break;
 	case COMMAND_MESSAGE_SENDING_1:
-		return true; /// AAA 15
+		// return true; /// AAA 15 test ok not needed
 		for (uint8_t i = 0; i < 7; i++) 
 			_message[i] = data[i + 1];
 		break;
 	case COMMAND_MESSAGE_SENDING_2:
-		return true; /// AAA 15
+		// return true; /// AAA 15
 		for (uint8_t i = 0; i < 7; i++)
 			_message[7 + i] = data[i + 1];
 		break;
 	case COMMAND_MESSAGE_SENDING_3:
-		return true; /// AAA 15
+		// return true; /// AAA 15
 		for (uint8_t i = 0; i < 7; i++)
 			_message[14 + i] = data[i + 1];
 		break;
 	case COMMAND_MESSAGE_SENDING_4:
-		return true; /// AAA 15
+		// return true; /// AAA 15
 		for (uint8_t i = 0; i < 7; i++)
 			_message[21 + i] = data[i + 1];
 		print("Message from %s: %s\n\r", (*_name)[deviceNumber], _message);
@@ -303,10 +304,12 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_NOTIFICATION:
 		break;
 	case COMMAND_REPORT_ALIVE:
-		// return true; /// AAA 13
+		// return true; /// AAA 13 not needed
 		if (_aliveReport)
 			print("%s alive.\n\r", name(deviceNumber));
-		aliveSet(true, deviceNumber);
+		// return true; /// AAA 16 till  not needed
+		aliveSet(true, deviceNumber); // AAA 22 - works if only this commeented
+		//return true; /// AAA 17 - fail if uncommented
 		break;
 	default:
 		found = false;

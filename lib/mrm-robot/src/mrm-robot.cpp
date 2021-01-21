@@ -360,10 +360,11 @@ void Robot::actionSet() {
 	const uint16_t TIMEOUT_MS = 2000;
 
 	// If a button pressed, first execute its action
+	// return; // AAA 25 - if commented
 	ActionBase* action8x8 = NULL;
-	if (mrm_8x8a->alive())
-		action8x8 = mrm_8x8a->actionCheck();
-	ActionBase* actionSw = mrm_switch->actionCheck();
+	if (mrm_8x8a->alive()) /// AAA 26 start, 
+		action8x8 = mrm_8x8a->actionCheck(); /// AAA 26 end
+	ActionBase* actionSw = mrm_switch->actionCheck(); 
 	if (action8x8 != NULL)
 		actionSet(action8x8);
 	else if (actionSw != NULL)
@@ -1012,8 +1013,8 @@ void Robot::messagesReceive() {
 		bool any = false;
 		#endif
 		for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
-			if (boardId >= 1) ///AAA9
-				break;
+			// if (boardId >= 1) ///AAA 9
+			//	break; // AAA 9
  			if (board[boardId]->messageDecode(id, _msg->data)) {
 				#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 				any = true;
@@ -1087,7 +1088,7 @@ void Robot::reflectanceArrayCalibrationPrint() {
 */
 void Robot::run() {
 	while (true) {
-		actionSet(); // Check if a key pressed and update current command buffer.
+		actionSet(); // Check if a key pressed and update current command buffer. AAA 23 - if command commented, test ok
 		if (_actionCurrent == NULL) // If last command finished, display menu.
 			menu();
 		else 
