@@ -1,9 +1,10 @@
 #pragma once
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
+#include <mrm-col-b.h>
 
 #define ACTIONS_LIMIT 80 // Increase if more actions are needed.
-#define BOARDS_LIMIT 16 // Maximum number of different board types.
+#define BOARDS_LIMIT 25 // Maximum number of different board types.
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
 #define LED_OK 2 // mrm-esp32's pin number, hardware defined.
 
@@ -57,6 +58,7 @@ protected:
 	Board* board[BOARDS_LIMIT]; // Collection of all the robot's boards
 	uint8_t _boardNextFree = 0;
 
+	uint8_t _devicesAtStartup = 0;
 	bool _devicesScanBeforeMenu = true;
 
 	// FPS - frames per second calculation
@@ -138,6 +140,7 @@ public:
 	Mrm_8x8a* mrm_8x8a;
 	Mrm_bldc2x50* mrm_bldc2x50;
 	Mrm_bldc4x2_5* mrm_bldc4x2_5;
+	Mrm_col_b* mrm_col_b;
 	Mrm_col_can* mrm_col_can;
 	Mrm_fet_can* mrm_fet_can;
 	Mrm_imu* mrm_imu;

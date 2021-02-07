@@ -48,18 +48,20 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu-command.
 */
 void RobotMin::loop() {
-	#define OUTPUT 0
+	#define OUTPUT_MOTORS 0
 	// if (setup()) { // This part will execute only in the first run.
 	// 	pinMode(27, OUTPUT);
 	// 	pinMode(26, INPUT);
 	// 	delay(500);
 	// }
+	static bool ok = true;
+	if (setup())
+		ok = true;
 
 	// mrm-mot4x3.6_can
-	if (false){
 	static int16_t speed = 0;
 	static bool up = true;
-	#if OUTPUT
+	#if OUTPUT_MOTORS
 	motorGroup->go(speed, speed);
 	#endif
 	if (up)
@@ -89,12 +91,12 @@ void RobotMin::loop() {
 	if (millis() - lastLidarMs > 150)
 		lastLidarMs = millis();
 		for (uint8_t i = 0; i < 3; i++){
-			if (mrm_lid_can_b->reading(i) == lidarLast[i]){
+			if (mrm_lid_can_b->reading(i) == lidarLast[i] && mrm_lid_can_b->reading(i) != 2000){
 				lidarCount[i]++;
 				if (lidarCount[i] > 300){
 					print("Lidar stopped.");
-					mrm_8x8a->text((char*)"L");
-					end();
+					mrm_8x8a->bitmapDisplay('L');
+					ok = false;
 				}
 			}
 			else
@@ -113,8 +115,8 @@ void RobotMin::loop() {
 				refCount[i]++;
 				if (refCount[i] > 300){
 					print("Ref stopped.");
-					mrm_8x8a->text((char*)"R");
-					end();
+					mrm_8x8a->bitmapDisplay('R');
+					ok = false;
 				}
 			}
 			else
@@ -122,26 +124,26 @@ void RobotMin::loop() {
 			refLast[i] = mrm_ref_can->reading(i);
 		}
 	}
-	}
 
 	// Display
 	static uint8_t timeCnt = 0;
 	static uint32_t lastDisplayMs = 0;
 	if (millis() - lastDisplayMs > 500){
-		// print("Lid:");
-		// for (uint8_t i = 0; i < 3; i++)
-		// 	print("%i ", mrm_lid_can_b->reading(i));
-		// print(", ref:");
-		// for (uint8_t i = 0; i < 9; i++)
-		// 	print("%i ", mrm_ref_can->reading(i));
-		// print("\n\r");
+		print("Lid:");
+		for (uint8_t i = 0; i < 3; i++)
+			print("%i ", mrm_lid_can_b->reading(i));
+		print(", ref:");
+		for (uint8_t i = 0; i < 9; i++)
+			print("%i ", mrm_ref_can->reading(i));
+		print("\n\r");
 
-		// // mrm-led8x8
-		// static uint8_t currentChar = 33;
-		// mrm_8x8a->bitmapDisplay(currentChar);
-		// if (++currentChar > 90)
-		// 	currentChar = 33;
-		print("%i ms\n\r", millis());
+		// mrm-led8x8
+		static uint8_t currentChar = 33;
+		if (ok){
+			mrm_8x8a->bitmapDisplay(currentChar);
+			if (++currentChar > 90)
+				currentChar = 33;
+		}
 
 		lastDisplayMs = millis();
 

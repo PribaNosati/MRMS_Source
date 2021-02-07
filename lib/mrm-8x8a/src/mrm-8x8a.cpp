@@ -23,19 +23,13 @@ Mrm_8x8a::~Mrm_8x8a()
 
 
 ActionBase* Mrm_8x8a::actionCheck() {
-	//return NULL;// BBB 28, if uncommented, works
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) { 
-		//  continue; // BBB 30
 		for (uint8_t switchNumber = 0; switchNumber < MRM_8x8A_SWITCHES_COUNT; switchNumber++){
-			// continue; // BBB 31, works if uncommented
-			if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL){
-			// if ((*lastOn)[deviceNumber][switchNumber] == false){ // BBB 35 - this works } && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL){
-			//if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber)){// BBB 36 } && (*offOnAction)[deviceNumber][switchNumber] != NULL){
-				return (*offOnAction)[deviceNumber][switchNumber]; // BBB 32, fail if only this commented
-			}
-			else if ((*lastOn)[deviceNumber][switchNumber] == true && !switchRead(switchNumber, deviceNumber)){ // BBB 34 start
-				((*lastOn)[deviceNumber][switchNumber]) = false; // BBB 33, fail if only this commented
-			} /// BBB 34 end
+			if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL)
+				return (*offOnAction)[deviceNumber][switchNumber]; 
+			else if ((*lastOn)[deviceNumber][switchNumber] == true && !switchRead(switchNumber, deviceNumber)){
+				((*lastOn)[deviceNumber][switchNumber]) = false; 
+			} 
 		}
 	}
 	return NULL;
@@ -189,11 +183,10 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 @return - true if canId for this class
 */
 bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8]) {
-	// return false; // BBB 9 test ok
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) { // BBB 11 start, test OK
+				switch (data[0]) { 
 				case COMMAND_8X8_SWITCH_ON:
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
 					uint8_t switchNumber = data[1] >> 1;
@@ -219,7 +212,7 @@ bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8]) {
 					print("\n\r");
 					errorCode = 203;
 					errorInDeviceNumber = deviceNumber;
-				} // AA 11 end
+				} 
 			}
 			return true;
 		}
@@ -293,25 +286,16 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_8x8a::started(uint8_t deviceNumber) {
-	// return false; // BBB 41, works if uncommented
-	// return true; // BBB 46, works if uncommented
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_8X8A_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//return false; // BBB 42, works if uncommented
-		//print("Start mrm-8x8a%i \n\r", deviceNumber); 
+	if (_activeCheckIfStarted && (millis() - (*_lastReadingMs)[deviceNumber] > MRM_8X8A_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0)) {
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			//continue;// BBB 43
-			// return false; // BBB 48, problem after
-			start(deviceNumber, 0, 0, true);// AAA 54, 0 and true parameters added
-			//continue; // AAA 47, problem before, 2x
+			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
-			// return false; // AAA 49, fails if activated
 			while (millis() - startMs < 50) {
 				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
 					//print("8x8 confirmed\n\r"); 
 					return true;
 				}
-				// return false; // BBB 50, fails if activated
 				robotContainer->delayMs(1);
 			}
 		}
@@ -328,16 +312,12 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 @return - true if pressed, false otherwise
 */
 bool Mrm_8x8a::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
-	// return false; // BBB 37 works if uncommented
 	alive(deviceNumber, true);
-	// return false; // BBB 38, works if uncommented
 	if (deviceNumber >= nextFree || switchNumber >= MRM_8x8A_SWITCHES_COUNT) {
 		strcpy(errorMessage, "Switch doesn't exist");
 		return false;
 	}
-	// return false; // BBB 39, works if uncommented
 	if (started(deviceNumber)){
-		// return false;// BBB 40, fail if uncommented
 		return (*on)[deviceNumber][switchNumber];
 	}
 	else
@@ -409,7 +389,6 @@ void Mrm_8x8a::text(char content[], uint8_t deviceNumber) {
 		if (i % 7 == 0 && i != 0) {
 			canData[0] = COMMAND_8X8_TEXT_1 + message;
 			messageSend(canData, 8, deviceNumber);
-			// robotContainer->delayMs(1);
 			message++;
 			unsent = false;
 		}

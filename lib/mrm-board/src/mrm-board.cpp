@@ -117,7 +117,6 @@ void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 		strcpy(errorMessage, "Device number too big.");
 		return;
 	}
-	// return; /// BBB 24 - if uncommented, test ok
 	_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
 }
 
@@ -257,17 +256,14 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @return - command found
 */
 bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceNumber) {
-	// return true; //BBB 10 test ok
 	(*lastMessageReceivedMs)[deviceNumber] = millis();
 	bool found = true;
 	uint8_t command = data[0];
-	//return true; /// BBB 12
 	switch (command) {
 	case COMMAND_DUPLICATE_ID_ECHO:
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		// return true; /// BBB 14 not needed
 		errorCode = data[1];
 		errorInDeviceNumber = deviceNumber;
 		print("Error %i in %s.\n\r", errorCode, (*_name)[deviceNumber]);
@@ -281,7 +277,6 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 		(*fpsLast)[deviceNumber] = (data[2] << 8) | data[1];
 		break;
 	case COMMAND_MESSAGE_SENDING_1:
-		// return true; /// BBB 15 test ok not needed
 		for (uint8_t i = 0; i < 7; i++) 
 			_message[i] = data[i + 1];
 		break;
@@ -301,12 +296,9 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_NOTIFICATION:
 		break;
 	case COMMAND_REPORT_ALIVE:
-		// return true; /// BBB 13 not needed
 		if (_aliveReport)
 			print("%s alive.\n\r", name(deviceNumber));
-		// return true; /// BBB 16 till  not needed
-		aliveSet(true, deviceNumber); // BBB 22 - works if only this commeented
-		//return true; /// BBB 17 - fail if uncommented
+		aliveSet(true, deviceNumber); 
 		break;
 	default:
 		found = false;
@@ -446,17 +438,12 @@ void Board::reset(uint8_t deviceNumber) {
 @param measuringModeNow - Measuring mode id. Default 0.
 @param refreshMs - gap between 2 CAN Bus messages to refresh local Arduino copy of device's data. 0 - device's default.
 */
-void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refreshMs, bool disabled) { // AAA 53
-	// if (disabled) // AAA 44 start
-	// 	return; //AAA 44 end
+void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refreshMs) { 
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			start(i, measuringModeNow, refreshMs);
 	else {
-		// if (disabled) // AAA 51 start
-		// 	return; // AAA 51 end
 		if (alive(deviceNumber)) {
-			// return; // AAA 52
 			//print("Alive, start reading: %s, mode: %i\n\r", _boardsName, measuringModeNow);
 #if REQUEST_NOTIFICATION
 			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);
@@ -472,9 +459,7 @@ void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refre
 				canData[1] = refreshMs & 0xFF;
 				canData[2] = (refreshMs >> 8) & 0xFF;
 			}
-			//return; // AAA 45 fail if uncommented
 			messageSend(canData, refreshMs == 0 ? 1 : 3, deviceNumber);
-			//robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], refreshMs == 0 ? 1 : 3, canData);
 #endif
 		}
 	}

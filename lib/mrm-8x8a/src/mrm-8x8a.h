@@ -58,6 +58,7 @@ enum LED8x8Type{LED_8X8_CUSTOM, LED_8X8_STORED, LED_8X8_STORED_CUSTOM };
 
 class Mrm_8x8a : public SensorBoard
 {
+	bool _activeCheckIfStarted = true;
 	std::vector<uint8_t>* displayedLast;
 	std::vector<uint8_t>* displayedTypeLast;
 	std::vector<bool[MRM_8x8A_SWITCHES_COUNT]>* lastOn;
@@ -80,6 +81,10 @@ public:
 	Mrm_8x8a(Robot* robot = NULL, uint8_t maxDevices = 1);
 
 	~Mrm_8x8a();
+
+	/** Contacting mrm_8x8a periodically to check. Normally true:
+	 */
+	void activeCheckIfStartedSet(bool value){_activeCheckIfStarted = value;}
 
 	ActionBase* actionCheck();
 
