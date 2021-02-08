@@ -73,13 +73,13 @@ public:
 class ActionColorBTest6Colors : public ActionBase {
 	void perform();
 public:
-	ActionColorBTest6Colors(Robot* robot) : ActionBase(robot, "6co", "Test 6 colors", 4, ID_MRM_COL_B) {}
+	ActionColorBTest6Colors(Robot* robot) : ActionBase(robot, "10c", "Test 10 colors", 4, ID_MRM_COL_B) {}
 };
 
 class ActionColorBTestHSV : public ActionBase {
 	void perform();
 public:
-	ActionColorBTestHSV(Robot* robot) : ActionBase(robot, "hsv", "Test HSV", 4, ID_MRM_COL_CAN) {}
+	ActionColorBTestHSV(Robot* robot) : ActionBase(robot, "hsv", "Test HSV", 4, ID_MRM_COL_B) {}
 };
 
 class ActionColorIlluminationOff : public ActionBase {

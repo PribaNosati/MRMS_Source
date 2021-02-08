@@ -100,17 +100,6 @@ uint16_t Mrm_col_b::colorBlueVioletish(uint8_t deviceNumber){
 		return 0;
 }
 
-/** Clear
-@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-@return - color intensity
-*/
-uint16_t  Mrm_col_b::colorClear(uint8_t deviceNumber){
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][9];
-	else
-		return 0;
-}
-
 /** Green
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
@@ -188,6 +177,17 @@ bool Mrm_col_b::colorsStarted(uint8_t deviceNumber) {
 uint16_t Mrm_col_b::colorViolet(uint8_t deviceNumber) {
 	if (colorsStarted(deviceNumber))
 		return(*readings)[deviceNumber][0];
+	else
+		return 0;
+}
+
+/** White
+@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@return - color intensity
+*/
+uint16_t  Mrm_col_b::colorWhite(uint8_t deviceNumber){
+	if (colorsStarted(deviceNumber))
+		return(*readings)[deviceNumber][9];
 	else
 		return 0;
 }
@@ -312,23 +312,30 @@ bool Mrm_col_b::messageDecode(uint32_t canId, uint8_t data[8]) {
 					break;
 				case MRM_COL_B_SENDING_COLORS_1_TO_3:
 					(*readings)[deviceNumber][0] = (data[1] << 8) | data[2]; // violet
+					// print("Data1: %i %i %i\n\r",(int)data[0], (int)data[1], (int)data[2]);
 					(*readings)[deviceNumber][1] = (data[3] << 8) | data[4]; // blue violetish
 					(*readings)[deviceNumber][2] = (data[5] << 8) | data[6]; // blue
+					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_4_TO_6:
 					(*readings)[deviceNumber][3] = (data[1] << 8) | data[2]; // blue greenish
+					// print("Data2: %i %i %i\n\r", (int)data[0], (int)data[1], (int)data[2]);
 					(*readings)[deviceNumber][4] = (data[3] << 8) | data[4]; // green
 					(*readings)[deviceNumber][5] = (data[5] << 8) | data[6]; // yellow
+					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_7_TO_9:
+					// print("Data3: %i %i %i\n\r", (int)data[0], (int)data[1], (int)data[2]);
 					(*readings)[deviceNumber][6] = (data[1] << 8) | data[2]; // orange
 					(*readings)[deviceNumber][7] = (data[3] << 8) | data[4]; // red
 					(*readings)[deviceNumber][8] = (data[5] << 8) | data[6]; // near IR
 					(*_patternByHSV)[deviceNumber] = data[7] & 0xF; // pattern
 					(*_patternBy8Colors)[deviceNumber] = data[7] >> 4;
+					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_10_TO_11:
 					(*readings)[deviceNumber][9] = (data[1] << 8) | data[2]; // clear
+					// print("Data4: %i %i %i %i\n\r", (int)data[0], (int)data[1], (int)data[2], (int)(*readings)[deviceNumber][9]);
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case MRM_COL_B_SENDING_HSV:
@@ -520,8 +527,9 @@ void Mrm_col_b::test(bool hsvSelect)
 				if (hsvSelect)
 					print("HSV:%3i/%3i/%3i HSV/col:%i/%i", hue(deviceNumber), saturation(deviceNumber), value(deviceNumber), patternRecognizedByHSV(deviceNumber), patternRecognizedBy8Colors(deviceNumber));
 				else
-					print("Bl:%3i Gr:%3i Or:%3i Re:%3i Vi:%3i Ye:%3i", colorBlue(deviceNumber), colorGreen(deviceNumber), colorOrange(deviceNumber), colorRed(deviceNumber),
-						colorViolet(deviceNumber), colorYellow(deviceNumber));
+					print("Vi:%3i B1:%3i B2:%3i B3:%3i Gr:%3i Ye:%3i Or:%3i Re:%3i IR:%3i Wh:%3i", colorViolet(deviceNumber), colorBlueVioletish(deviceNumber), colorBlue(deviceNumber), 
+						colorBlueGeenish(deviceNumber),	colorGreen(deviceNumber), colorYellow(deviceNumber), colorOrange(deviceNumber), colorRed(deviceNumber), colorNearIR(deviceNumber), 
+						colorWhite(deviceNumber));
 			}
 		}
 		lastMs = millis();

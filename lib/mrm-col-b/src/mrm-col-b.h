@@ -3,7 +3,7 @@
 #include <mrm-board.h>
 
 /**
-Purpose: mrm-us interface to CANBus.
+Purpose: mrm-col-b interface to CANBus.
 @author MRMS team
 @version 0.0 2021-02-07
 Licence: You can use this code any way you like.
@@ -48,7 +48,7 @@ Licence: You can use this code any way you like.
 
 class Mrm_col_b : public SensorBoard
 {
-	std::vector<bool>* _hsv;
+	std::vector<bool>* _hsv; // If not - 10 colors
 	std::vector<uint8_t>* _hue;
 	std::vector<uint8_t>* _patternBy8Colors;
 	std::vector<uint8_t>* _patternByHSV;
@@ -102,19 +102,13 @@ public:
 	*/
 	uint16_t colorBlueVioletish(uint8_t deviceNumber);
 
-	/** Clear
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - color intensity
-	*/
-	uint16_t colorClear(uint8_t deviceNumber);
-
 	/** Green
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 
 	@return - color intensity
 	*/
 	uint16_t colorGreen(uint8_t deviceNumber);
 
-		/** Near IR
+	/** Near IR
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
@@ -138,6 +132,12 @@ public:
 	*/
 	uint16_t colorViolet(uint8_t deviceNumber);
 
+	/** White
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorWhite(uint8_t deviceNumber);
+	
 	/** Yellow
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 
 	@return - color intensity
