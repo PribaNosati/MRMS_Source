@@ -137,7 +137,7 @@ public:
 	@return - color intensity
 	*/
 	uint16_t colorWhite(uint8_t deviceNumber);
-	
+
 	/** Yellow
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 
 	@return - color intensity
@@ -175,9 +175,10 @@ public:
 
 	/** Set integration time
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
-	@param value - integration time will be value x 2.8 ms but double that in case of mode 2 (usual). value is between 0 and 255. value 18 is approx 10 FPS
+	@param time - sets the ATIME parameter for integration time from 0 to 255, integration time = (ATIME + 1) * (ASTEP + 1) * 2.78µS.
+	@param step - sets STEP.
 	*/
-	void integrationTime(uint8_t deviceNumber = 0, uint8_t value = 18);
+	void integrationTime(uint8_t deviceNumber, uint8_t time, uint16_t step);
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id

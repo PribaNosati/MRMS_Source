@@ -812,7 +812,7 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-
+	go(50, 50);
 }
 
 

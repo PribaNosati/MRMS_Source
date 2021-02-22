@@ -21,10 +21,10 @@
 #include <mrm-pid.h>
 #include <mrm-ref-can.h>
 #include <mrm-robot.h>
-#include <mrm-robot-line.h>
-#include <mrm-robot-maze.h>
-#include <mrm-robot-min.h>
-#include <mrm-robot-soccer.h>
+#include "mrm-robot-line.h"
+#include "mrm-robot-maze.h"
+#include "mrm-robot-min.h"
+#include "mrm-robot-soccer.h"
 #include <mrm-servo.h>
 #include <mrm-switch.h>
 #include <mrm-therm-b-can.h>
@@ -35,7 +35,7 @@
 Robot *robot;
 
 void setup() {
-	robot = new RobotMin((char*)"My robot"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
+	robot = new RobotLine((char*)"My robot"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
 	robot->run();
 }
 

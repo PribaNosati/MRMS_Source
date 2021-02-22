@@ -284,16 +284,19 @@ void Mrm_col_b::illumination(uint8_t deviceNumber, uint8_t current) {
 
 /** Set integration time
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
-@param value - integration time will be value x 2.8 ms but double that in case of mode 2 (usual). value is between 0 and 255. value 18 is approx 10 FPS
+@param time - sets the ATIME parameter for integration time from 0 to 255, integration time = (ATIME + 1) * (ASTEP + 1) * 2.78µS.
+@param step - sets STEP.
 */
-void Mrm_col_b::integrationTime(uint8_t deviceNumber, uint8_t value) {
+void Mrm_col_b::integrationTime(uint8_t deviceNumber, uint8_t time, uint16_t step) {
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
-			integrationTime(i, value);
+			integrationTime(i, time, step);
 	else {
 		canData[0] = MRM_COL_B_INTEGRATION_TIME;
-		canData[1] = value;
-		messageSend(canData, 2, deviceNumber);
+		canData[1] = time;
+		canData[2] = step >> 8;
+		canData[3] = step & 0xFF;
+		messageSend(canData, 4, deviceNumber);
 	}
 }
 
@@ -334,7 +337,7 @@ bool Mrm_col_b::messageDecode(uint32_t canId, uint8_t data[8]) {
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_10_TO_11:
-					(*readings)[deviceNumber][9] = (data[1] << 8) | data[2]; // clear
+					(*readings)[deviceNumber][9] = (data[1] << 8) | data[2]; // clear (white)
 					// print("Data4: %i %i %i %i\n\r", (int)data[0], (int)data[1], (int)data[2], (int)(*readings)[deviceNumber][9]);
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
@@ -511,12 +514,14 @@ void Mrm_col_b::switchTo8Colors(uint8_t deviceNumber) {
 
 
 /**Test
-@param breakWhen - A function returning bool, without arguments. If it returns true, the test() will be interrupted.
 @param hsv - if not, then 10 colors
 */
 void Mrm_col_b::test(bool hsvSelect)
 {
 	static uint32_t lastMs = 0;
+	if (millis() - lastMs > 5000){
+		illumination(0, 16);
+	}
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
