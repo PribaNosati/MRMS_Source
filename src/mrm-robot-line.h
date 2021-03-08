@@ -171,6 +171,11 @@ public:
 	*/
 	void evacuationZone();
 
+	/** Front sensor distance.
+	@return - in mm
+	*/
+	uint16_t front();
+
 	/** Front side - left sensor distance.
 	@return - in mm
 	*/

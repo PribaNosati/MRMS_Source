@@ -666,6 +666,13 @@ void RobotLine::evacuationZone() {
 	}
 }
 
+/** Front sensor distance.
+@return - in mm
+*/
+uint16_t RobotLine::front() {
+	return frontLeft(); // Correct all sensors so that they return the same value for the same physical distance.
+}
+
 /** Front side - left sensor distance.
 @return - in mm
 */
@@ -812,7 +819,10 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	go(50, 50);
+	if (fabs(heading() - 180) < 5)
+		stop();
+	else
+		go(50, -50);
 }
 
 
