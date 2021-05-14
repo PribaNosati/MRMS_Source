@@ -83,10 +83,14 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
 
 	// Digital switches connected to ESP32 pins
-	// pinMode(34, INPUT_PULLDOWN);
-	// pinMode(35, INPUT_PULLDOWN);
-	pinMode(36, INPUT_PULLDOWN);
-	// pinMode(39, INPUT_PULLDOWN);
+	// pinMode(25, INPUT_PULLDOWN);
+	// pinMode(26, INPUT_PULLDOWN);
+	pinMode(27, INPUT_PULLDOWN);
+	// pinMode(32, INPUT_PULLDOWN);
+	// pinMode(33, INPUT_PULLDOWN);
+
+	// If uncommented, robot will immediately after power-on start executing loop()
+	//actionSet(_actionLoop);
 }
 
 /** Arm will go to ball-catch position.
@@ -609,6 +613,14 @@ void RobotLine::display(ledSign image) {
 	mrm_8x8a->bitmapCustomStoredDisplay(image);
 }
 
+/** Display 8x8 text
+@image - image's number
+*/
+void RobotLine::display(char* text) {
+	mrm_8x8a->text(text);
+}
+
+
 /** Enter evacuation-zone algorithm
 */
 void RobotLine::evacuationZone() {
@@ -809,12 +821,10 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	if (digitalRead(36))
-		print("Da\n\r");
-	else
-		print("Ne\n\r");
+	if (setup())
+		illumination(1, 0);
+	print("%i\n\r", green(0));
 }
-
 
 /** Generic actions, use them as templates
 */

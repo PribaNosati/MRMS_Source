@@ -5,24 +5,16 @@
 // Change these values to get optimal robot's behaviour.
 
 // CATCH_SERVO drives jaws that catch ball.
-#define CATCH_SERVO_CLOSE 260 // Closed position, ball caught.
-#define CATCH_SERVO_OPEN_FULL 50 // Open position, ready to catch a ball.
-#define CATCH_SERVO_OPEN_MIN 150 // Open just to drop the ball
+#define CATCH_SERVO_L_CATCH 30
+#define CATCH_SERVO_L_CLOSE 0 // Closed position, ball caught.
+#define CATCH_SERVO_L_OPEN 90 // Open position, ready to catch a ball.
+#define CATCH_SERVO_R_CATCH 60
+#define CATCH_SERVO_R_CLOSE 90 // Closed position, ball caught.
+#define CATCH_SERVO_R_OPEN 0 // Open position, ready to catch a ball.
 
-// LIFT_SERVO lifts catch servo and the rest of mechanism.
-#define LIFT_SERVO_BACK 70 // Top (idle) position.
-#define LIFT_SERVO_DOWN 150 // Lowest position, catching a ball.
-#define LIFT_SERVO_PUT_BACK 50
-#define LIFT_SERVO_PUT_FRONT 80 // Middle position, for caught ball dropping.
-#define LIFT_SERVO_UP 10 // Top (idle) position.
-
-// ROTATE_SERVO rotates gripper
-#define ROTATE_SERVO_DOWN 300
-#define ROTATE_SERVO_LEFT 90
-#define ROTATE_SERVO_RIGHT 125
-
-// BLOCK_SERVO blocks balls
-#define BLOCK_SERVO_BOTH 150
+// LIFT_SERVO lifts catch the mechanism.
+#define LIFT_SERVO_DOWN 80 // Lowest position, catching a ball.
+#define LIFT_SERVO_UP 120 // Top (idle) position.
 
 #define LIDAR_COUNT 6 // 3 or 6, depending on model. If only 3 lidars built in, 6-mode cannot be used.
 
@@ -62,7 +54,7 @@ class RobotLine : public Robot {
 	uint16_t BIGGEST_GAP_IN_LINE_MS = 2500;
 	// Changing this parameter will cause major behaviour change. Limit value: 127.
 	const uint8_t TOP_SPEED = 90; // 7.4 V 80	11.1 V 60
-	const uint16_t AHEAD_IN_CROSSING = 200; // 7.4V : 300
+	const uint16_t AHEAD_IN_CROSSING = 210; // 7.4V : 300
 	const uint8_t LAST_TRANSISTOR = 7; // mrm-ref-can: 8, mrm-ref-can8: 7
 
 	// Actions' declarations
@@ -104,33 +96,15 @@ public:
 	*/
 	void armCatchReady();
 
-	/** Arm will go to idle (top) position.
-	*/
-	void armIdle();
-
-	/** Arm will put the ball left
-	*/
-	void armLeftPut();
-
-	/** Arm will go to top left position
-	*/
-	void armLeftReady();
+	void armClose();
 
 	/** Arm will drop the ball.
 	*/
-	void armPut();
+	void armDrop();
 
 	/** Arm will lift the caught ball in the position where will be ready to drop it.
 	*/
-	void armPutReady();
-
-	/** Arm will put the ball right
-	*/
-	void armRightPut();
-
-	/** Arm will go to top right position
-	*/
-	void armRightReady();
+	void armUp();
 
 	/** Barrier interrupted?
 	* return interrupted or not
@@ -140,6 +114,12 @@ public:
 	/** Stores bitmaps in mrm-led8x8a.
 	*/
 	void bitmapsSet();
+
+	/** Color sensor's blue
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - intensity of blue
+	 */
+	uint16_t blue(uint8_t deviceNumber = 0){return mrm_col_can->colorGreen(deviceNumber);}
 
 	/** Line sensor - brightness of the surface
 	@param transistorNumber - starts from 0 and end value depends on sensor. Usually 7 (for mrm-ref-can8) or 8 (for mrm-ref-can9).
@@ -166,6 +146,11 @@ public:
 	@image - image's number
 	*/
 	void display(ledSign image);
+
+	/** Display 8x8 text
+	@image - image's number
+	*/
+	void display(char* text);
 
 	/** Enter evacuation-zone algorithm.
 	*/
@@ -242,6 +227,12 @@ public:
 	*/
 	void goAhead();
 
+	/** Color sensor's green
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - intensity of green
+	 */
+	uint16_t green(uint8_t deviceNumber = 0){return mrm_col_can->colorGreen(deviceNumber);}
+
 	/**Compass
 	@return - North is 0�, clockwise are positive angles, values 0 - 360.
 	*/
@@ -257,7 +248,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
 	@param current - 0 - 3
 	*/
-	void illumination(uint8_t current, uint8_t deviceNumber);
+	void illumination(uint8_t current, uint8_t deviceNumber = 0);
 
 	/** Follow a RCJ line.
 	*/
@@ -276,16 +267,18 @@ public:
 	*/
 	void obstacleAvoid();
 
-	/** Test for Mecanum wheels.
-	*/
-	void omniWheelsTest();
+	/** Color sensor's orange
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - intensity of orange
+	 */
+	uint16_t orange(uint8_t deviceNumber = 0){return mrm_col_can->colorOrange(deviceNumber);}
 
 	/** Choose a pattern closest to the current 6 colors
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param includeValue - if true, HSV compared. If not, HS.
 	@raturn - patternNumber
 	*/
-	uint8_t patternColors(uint8_t deviceNumber);
+	uint8_t patternColors(uint8_t deviceNumber = 0);
 
 	/**Pitch
 	@return - Pitch in degrees. Inclination forwards or backwards. Leveled robot shows 0�.
@@ -295,6 +288,12 @@ public:
 	/** Starts the RCJ Line run after this action selected.
 	*/
 	void rcjLine();
+
+	/** Color sensor's red
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - intensity of red
+	 */
+	uint16_t red(uint8_t deviceNumber = 0){return mrm_col_can->colorRed(deviceNumber);}
 
 	/** Right side - rear sensor distance.
 	@return - in mm
@@ -349,6 +348,12 @@ public:
 	*/
 	uint8_t value(uint8_t deviceNumber);
 
+	/** Color sensor's violet
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - intensity of violet
+	 */
+	uint16_t violet(uint8_t deviceNumber = 0){return mrm_col_can->colorViolet(deviceNumber);}
+
 	/** Follows a wall.
 	*/
 	void wallFollow();
@@ -362,6 +367,12 @@ public:
 	@return - true if wall
 	*/
 	bool wallRight();
+
+	/** Color sensor's yellow
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - intensity of yellow
+	 */
+	uint16_t yellow(uint8_t deviceNumber = 0){return mrm_col_can->colorYellow(deviceNumber);}
 };
 
 /** Actions serve a few purposes.

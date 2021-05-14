@@ -408,7 +408,7 @@ private:
 	*/
 	int16_t checkBounds(int16_t speed);
 
-public: 
+public:
 	/** Constructor
 	@param motorBoardForLeft1 - Controller for one of the left wheels
 	@param motorNumberForLeft1 - Controller's output number
@@ -456,7 +456,7 @@ public:
 	@param speedLimit - Speed limit, 0 to 127. For example, 80 will limit all the speeds to 80/127%. 0 will turn the motors off.
 	*/
 	void go(float speed, float angleDegrees = 0, float rotation = 0, uint8_t speedLimit = 127);
-	
+
 	/** Moves the robot in order to elinimate errors (for x and y directions).
 	@param errorX - X axis error.
 	@param errorY - Y axis error.

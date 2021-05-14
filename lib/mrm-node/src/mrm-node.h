@@ -43,7 +43,7 @@ class Mrm_node : public SensorBoard
 	std::vector<uint16_t[MRM_NODE_ANALOG_COUNT]>* readings; // Analog readings of all sensors
 	std::vector<bool[MRM_NODE_SWITCHES_COUNT]>* switches;
 	std::vector<uint16_t[MRM_NODE_SERVO_COUNT]>* servoDegrees;// = { 0xFFFF, 0xFFFF, 0xFFFF };
-	
+
 public:
 
 	/** Constructor

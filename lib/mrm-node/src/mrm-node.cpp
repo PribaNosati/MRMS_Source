@@ -75,7 +75,7 @@ void Mrm_node::add(char * deviceName)
 */
 bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8]) {
 
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
+	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
 				bool any = false;
