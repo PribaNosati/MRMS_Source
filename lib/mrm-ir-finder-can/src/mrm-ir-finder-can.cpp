@@ -91,7 +91,7 @@ bool Mrm_ir_finder_can::messageDecode(uint32_t canId, uint8_t data[8]) {
 					distance = data[3] << 8 | data[4];
 					break;
 				default:
-					print("Unknown command. ");
+					robotContainer->print("Unknown command. ");
 					messagePrint(canId, 8, data, false);
 					errorCode = 201;
 					errorInDeviceNumber = deviceNumber;
@@ -122,11 +122,11 @@ uint16_t Mrm_ir_finder_can::reading(uint8_t receiverNumberInSensor, uint8_t devi
 /** Print all readings in a line
 */
 void Mrm_ir_finder_can::readingsPrint() {
-	print("IRBall:");
+	robotContainer->print("IRBall:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (alive(deviceNumber)) {
 			for (uint8_t irNo = 0; irNo < MRM_IR_FINDER_CAN_SENSOR_COUNT; irNo++)
-				print(" %3i", (*readings)[deviceNumber][irNo]);
+				robotContainer->print(" %3i", (*readings)[deviceNumber][irNo]);
 		}
 }
 
@@ -141,14 +141,14 @@ void Mrm_ir_finder_can::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					print("| ");
+					robotContainer->print("| ");
 				for (uint8_t i = 0; i < MRM_IR_FINDER_CAN_SENSOR_COUNT; i++)
-					print("%i ", (*readings)[deviceNumber][i]);
+					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }
 
@@ -161,11 +161,11 @@ void Mrm_ir_finder_can::testCalculated()
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) 
-				print("%i deg., dist: %i\n\r", angle, distance);
+				robotContainer->print("%i deg., dist: %i\n\r", angle, distance);
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }
 

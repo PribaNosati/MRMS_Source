@@ -30,6 +30,38 @@
 extern BluetoothSerial* serialBT;
 #endif
 
+//AAA begin
+/** Print to all serial ports
+@param fmt - C format string: 
+	%c - character,
+	%i - integer,
+	%s - string.
+@param ... - variable arguments
+*/
+void Robot::print(const char* fmt, ...) {
+	va_list argp;
+	va_start(argp, fmt);
+	vprint(fmt, argp);
+	va_end(argp);
+}
+
+
+/** Print to all serial ports, pointer to list
+*/
+void Robot::vprint(const char* fmt, va_list argp) {
+	if (strlen(fmt) >= 100)
+		return;
+	static char buffer[100];
+	vsprintf(buffer, fmt, argp);
+
+	Serial.print(buffer);
+#if RADIO == 1
+	if (serialBT != NULL)
+		serialBT->print(buffer);
+#endif
+}
+// AAA end
+
 /**
 */
 Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {

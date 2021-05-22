@@ -79,7 +79,7 @@ bool Mrm_us_b::messageDecode(uint32_t canId, uint8_t data[8]) {
 					break;
 				// }
 				default:
-					print("Unknown command. ");
+					robotContainer->print("Unknown command. ");
 					messagePrint(canId, 8, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
@@ -109,9 +109,9 @@ uint16_t Mrm_us_b::reading(uint8_t deviceNumber) {
 /** Print all readings in a line
 */
 void Mrm_us_b::readingsPrint() {
-	print("US:");
+	robotContainer->print("US:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
-			print(" %3i", (*readings)[deviceNumber]);
+			robotContainer->print(" %3i", (*readings)[deviceNumber]);
 }
 
 /** If sensor not started, start it and wait for 1. message
@@ -120,14 +120,14 @@ void Mrm_us_b::readingsPrint() {
 */
 bool Mrm_us_b::started(uint8_t deviceNumber) {
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_US_B_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//print("Start mrm-us-b%i \n\r", deviceNumber); 
+		//robotContainer->print("Start mrm-us-b%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
 				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
-					//print("US confirmed\n\r");
+					//robotContainer->print("US confirmed\n\r");
 					return true;
 				}
 				robotContainer->delayMs(1);
@@ -151,12 +151,12 @@ void Mrm_us_b::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					print("| ");
-				print("%i ", reading(deviceNumber));
+					robotContainer->print("| ");
+				robotContainer->print("%i ", reading(deviceNumber));
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }

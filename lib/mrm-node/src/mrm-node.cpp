@@ -92,6 +92,7 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8]) {
 				case COMMAND_NODE_SENDING_SENSORS_7_TO_9:
 					startIndex = 6;
 					any = true;
+					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case COMMAND_NODE_SWITCH_ON: {
 					uint8_t switchNumber = data[1] >> 1;
@@ -100,10 +101,11 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8]) {
 						return false;
 					}
 					(*switches)[deviceNumber][switchNumber] = data[1] & 1;
+					(*_lastReadingMs)[deviceNumber] = millis();
 				}
 										   break;
 				default:
-					print("Unknown command. ");
+					robotContainer->print("Unknown command. ");
 					messagePrint(canId, 8, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
@@ -128,16 +130,20 @@ uint16_t Mrm_node::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber)
 		strcpy(errorMessage, "mrm-node doesn't exist");
 		return 0;
 	}
-	return (*readings)[deviceNumber][receiverNumberInSensor];
+	if (started(deviceNumber))
+		return (*readings)[deviceNumber][receiverNumberInSensor];
+	else
+		return 0;
+	// return (*readings)[deviceNumber][receiverNumberInSensor];
 }
 
 /** Print all readings in a line
 */
 void Mrm_node::readingsPrint() {
-	print("Ref. array:");
+	robotContainer->print("Ref. array:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		for (uint8_t irNo = 0; irNo < MRM_NODE_ANALOG_COUNT; irNo++)
-			print(" %3i", (*readings)[deviceNumber][irNo]);
+			robotContainer->print(" %3i", (*readings)[deviceNumber][irNo]);
 	}
 }
 
@@ -154,7 +160,7 @@ void Mrm_node::servoTest() {
 						servoWrite(servoNumber, deg, deviceNumber);
 				}
 			}
-			print("%i deg.\n\r", deg);
+			robotContainer->print("%i deg.\n\r", deg);
 			robotContainer->delayMs(100);
 		}
 		lastMs = millis();
@@ -182,6 +188,32 @@ void Mrm_node::servoWrite(uint8_t servoNumber, uint16_t degrees, uint8_t deviceN
 	}
 }
 
+/** If sensor not started, start it and wait for 1. message
+@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@return - started or not
+*/
+bool Mrm_node::started(uint8_t deviceNumber) {
+	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_NODE_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+		//robotContainer->print("Start mrm-node%i \n\r", deviceNumber);
+		for (uint8_t i = 0; i < 8; i++) { // 8 tries
+			start(deviceNumber, 0);
+			// Wait for 1. message.
+			uint32_t startMs = millis();
+			while (millis() - startMs < 50) {
+				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+					//robotContainer->print("Lidar confirmed\n\r"); 
+					return true;
+				}
+				robotContainer->delayMs(1);
+			}
+		}
+		strcpy(errorMessage, "mrm-node dead.\n\r");
+		return false;
+	}
+	else
+		return true;
+}
+
 /** Read digital
 @param switchNumber
 @deviceNumber - mrm-node id
@@ -207,17 +239,17 @@ void Mrm_node::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					print("| ");
-				print("An:");
+					robotContainer->print("| ");
+				robotContainer->print("An:");
 				for (uint8_t i = 0; i < MRM_NODE_ANALOG_COUNT; i++)
-					print("%i ", (*readings)[deviceNumber][i]);
-				print("Di:");
+					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
+				robotContainer->print("Di:");
 				for (uint8_t i = 0; i < MRM_NODE_SWITCHES_COUNT; i++)
-					print("%i ", (*switches)[deviceNumber][i]);
+					robotContainer->print("%i ", (*switches)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }

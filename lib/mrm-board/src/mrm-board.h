@@ -38,6 +38,9 @@
 #define COMMAND_ERROR 0xEE
 #define COMMAND_REPORT_ALIVE 0xFF
 
+
+#define MRM_MOTORS_INACTIVITY_ALLOWED_MS 10000
+
 #define MAX_MOTORS_IN_GROUP 4
 
 #ifndef toRad
@@ -299,6 +302,12 @@ protected:
 	std::vector<uint32_t>* encoderCount; // Encoder count
 	std::vector<bool>* reversed; // Change rotation
 	std::vector<int8_t>* lastSpeed;
+
+	/** If sensor not started, start it and wait for 1. message
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - started or not
+	*/
+	bool started(uint8_t deviceNumber);
 public:
 
 	/**

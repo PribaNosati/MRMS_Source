@@ -123,7 +123,7 @@ bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8]){
 				}
 				break;
 				default:
-					print("Unknown command. ");
+					robotContainer->print("Unknown command. ");
 					messagePrint(canId, 8, data, false);
 					errorCode = 206;
 					errorInDeviceNumber = deviceNumber;
@@ -169,10 +169,10 @@ uint16_t Mrm_lid_can_b::reading(uint8_t deviceNumber){
 /** Print all readings in a line
 */
 void Mrm_lid_can_b::readingsPrint() {
-	print("Lid2m:");
+	robotContainer->print("Lid2m:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (alive(deviceNumber))
-			print(" %4i", reading(deviceNumber));
+			robotContainer->print(" %4i", reading(deviceNumber));
 }
 
 /** If sensor not started, start it and wait for 1. message
@@ -181,7 +181,7 @@ void Mrm_lid_can_b::readingsPrint() {
 */
 bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
+		//robotContainer->print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
@@ -215,12 +215,12 @@ void Mrm_lid_can_b::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 		for (uint8_t i = 0; i < nextFree; i++) {
 			if (alive(i) && (deviceNumber == 0xFF || i == deviceNumber)) {
 				if (pass++)
-					print(" ");
-				print("%4i ", reading(i));
+					robotContainer->print(" ");
+				robotContainer->print("%4i ", reading(i));
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }

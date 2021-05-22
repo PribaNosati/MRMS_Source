@@ -120,7 +120,7 @@ uint16_t Mrm_col_can::colorRed(uint8_t deviceNumber) {
 */
 bool Mrm_col_can::colorsStarted(uint8_t deviceNumber) {
 	if ((*_hsv)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]); 
+		//robotContainer->print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			switchTo6Colors(deviceNumber);
 			// Wait for 1. message.
@@ -187,7 +187,7 @@ void Mrm_col_can::gain(uint8_t deviceNumber, uint8_t gainValue) {
 */
 bool Mrm_col_can::hsvStarted(uint8_t deviceNumber) {
 	if (!(*_hsv)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//print("Switch to HSV.\n\r"); 
+		//robotContainer->print("Switch to HSV.\n\r"); 
 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			switchToHSV(deviceNumber);
@@ -261,7 +261,7 @@ bool Mrm_col_can::messageDecode(uint32_t canId, uint8_t data[8]) {
 				// uint8_t startIndex = 0;
 				switch (data[0]) {
 				case CAN_COL_PATTERN_SENDING:
-					print("Sensor %i, pattern %i: %i/%i/%i (H/S/V)\n\r", deviceNumber, data[1], data[2], data[3], data[4]);
+					robotContainer->print("Sensor %i, pattern %i: %i/%i/%i (H/S/V)\n\r", deviceNumber, data[1], data[2], data[3], data[4]);
 					break;
 				case COMMAND_SENSORS_MEASURE_SENDING:
 					// startIndex = 0;
@@ -281,7 +281,7 @@ bool Mrm_col_can::messageDecode(uint32_t canId, uint8_t data[8]) {
 					(*_patternBy6Colors)[deviceNumber] = data[7] >> 4;
 					// any = true;
 					(*_lastReadingMs)[deviceNumber] = millis();
-					//print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]); 
+					//robotContainer->print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]); 
 					break;
 				case CAN_COL_SENDING_HSV:
 					(*_hue)[deviceNumber] = (data[1] << 8) | data[2];
@@ -291,10 +291,10 @@ bool Mrm_col_can::messageDecode(uint32_t canId, uint8_t data[8]) {
 					(*_patternBy6Colors)[deviceNumber] = data[7] >> 4;
 					(*_patternRecognizedAtMs)[deviceNumber] = millis();
 					(*_lastReadingMs)[deviceNumber] = millis();
-					//print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]); 
+					//robotContainer->print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]); 
 					break;
 				default:
-					print("Unknown command. ");
+					robotContainer->print("Unknown command. ");
 					messagePrint(canId, 8, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
@@ -371,21 +371,21 @@ void Mrm_col_can::patternRecord(uint8_t patternNumber, uint8_t deviceNumber) {
 void Mrm_col_can::patternsRecord() {
 	// Select device
 	uint8_t sensorsAlive = count();
-	print("Enter sensor id [0..%i]: ", sensorsAlive - 1);
+	robotContainer->print("Enter sensor id [0..%i]: ", sensorsAlive - 1);
 	uint16_t deviceNumber = robotContainer->serialReadNumber(8000, 500, nextFree - 1 <= 9, sensorsAlive - 1);
 	if (deviceNumber == 0xFFFF) {
-		print("Exit\n\r");
+		robotContainer->print("Exit\n\r");
 		return;
 	}
-	print("%i\n\r", deviceNumber);
+	robotContainer->print("%i\n\r", deviceNumber);
 	// Select pattern
-	print("Enter pattern id [0..%i]: ", MRM_COL_CAN_PATTERN_COUNT - 1);
+	robotContainer->print("Enter pattern id [0..%i]: ", MRM_COL_CAN_PATTERN_COUNT - 1);
 	uint16_t patternNumber = robotContainer->serialReadNumber(8000, 500, MRM_COL_CAN_PATTERN_COUNT - 1 <= 9, MRM_COL_CAN_PATTERN_COUNT - 1);
 	if (patternNumber == 0xFFFF) {
-		print("Exit\n\r");
+		robotContainer->print("Exit\n\r");
 		return;
 	}
-	print("%i\n\r", patternNumber);
+	robotContainer->print("%i\n\r", patternNumber);
 	patternRecord(patternNumber, deviceNumber);
 }
 
@@ -405,10 +405,10 @@ uint16_t Mrm_col_can::reading(uint8_t colorId, uint8_t deviceNumber) {
 /** Print all readings in a line
 */
 void Mrm_col_can::readingsPrint() {
-	print("Colors:");
+	robotContainer->print("Colors:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		for (uint8_t colorId = 0; colorId < MRM_COL_CAN_COLORS; colorId++)
-			print(" %3i", (*readings)[deviceNumber][colorId]);
+			robotContainer->print(" %3i", (*readings)[deviceNumber][colorId]);
 	}
 }
 
@@ -468,17 +468,17 @@ void Mrm_col_can::test(bool hsvSelect)
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					print(" | ");
+					robotContainer->print(" | ");
 				if (hsvSelect)
-					print("HSV:%3i/%3i/%3i HSV/col:%i/%i", hue(deviceNumber), saturation(deviceNumber), value(deviceNumber), patternRecognizedByHSV(deviceNumber), patternRecognizedBy6Colors(deviceNumber));
+					robotContainer->print("HSV:%3i/%3i/%3i HSV/col:%i/%i", hue(deviceNumber), saturation(deviceNumber), value(deviceNumber), patternRecognizedByHSV(deviceNumber), patternRecognizedBy6Colors(deviceNumber));
 				else
-					print("Bl:%3i Gr:%3i Or:%3i Re:%3i Vi:%3i Ye:%3i", colorBlue(deviceNumber), colorGreen(deviceNumber), colorOrange(deviceNumber), colorRed(deviceNumber),
+					robotContainer->print("Bl:%3i Gr:%3i Or:%3i Re:%3i Vi:%3i Ye:%3i", colorBlue(deviceNumber), colorGreen(deviceNumber), colorOrange(deviceNumber), colorRed(deviceNumber),
 						colorViolet(deviceNumber), colorYellow(deviceNumber));
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }
 

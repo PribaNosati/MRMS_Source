@@ -42,7 +42,7 @@ class Mrm_us1;
 class Robot {
 
 protected:
-
+BluetoothSerial *serialBT = NULL; //AAA
 	ActionBase* _action[ACTIONS_LIMIT]; // Collection of all the robot's actions
 	uint8_t _actionNextFree = 0;
 
@@ -131,11 +131,10 @@ protected:
 	*/
 	void verbosePrint();
 
-	/** Print to all serial ports, pointer to list
-	*/
-	void vprint(const char* fmt, va_list argp);
-
-public:
+public: 
+//AAA
+void print(const char* fmt, ...) ;
+void vprint(const char* fmt, va_list argp) ;
 
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;

@@ -80,7 +80,7 @@ bool Mrm_us::messageDecode(uint32_t canId, uint8_t data[8]) {
 					// any = true;
 					break;
 				default:
-					print("Unknown command. ");
+					robotContainer->print("Unknown command. ");
 					messagePrint(canId, 8, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
@@ -107,10 +107,10 @@ uint16_t Mrm_us::reading(uint8_t echoNumber, uint8_t deviceNumber) {
 /** Print all readings in a line
 */
 void Mrm_us::readingsPrint() {
-	print("US:");
+	robotContainer->print("US:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		for (uint8_t echoNumber = 0; echoNumber < MRM_US_ECHOES_COUNT; echoNumber++)
-			print(" %3i", (*readings)[deviceNumber][echoNumber]);
+			robotContainer->print(" %3i", (*readings)[deviceNumber][echoNumber]);
 	}
 }
 
@@ -126,14 +126,14 @@ void Mrm_us::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					print("| ");
-				print("Echo:");
+					robotContainer->print("| ");
+				robotContainer->print("Echo:");
 				for (uint8_t i = 0; i < MRM_US_ECHOES_COUNT; i++)
-					print("%i ", (*readings)[deviceNumber][i]);
+					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }

@@ -60,21 +60,21 @@ void Mrm_ir_finder2::test(bool updateByTimerInterrupts) {
 
 	if (millis() - lastMs > 300) {
 		if (nextFree == 0) {
-			print("No mrm-ir-finder2\n\r");
+			robotContainer->print("No mrm-ir-finder2\n\r");
 			lastMs = 0xFFFFFFFF;
 		}
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (pass++)
-				print(" ");
+				robotContainer->print(" ");
 			IRSource source = irSource(deviceNumber);
 			char buffer[] = "No source detected.                                                      ";
 			if (anyIRSource())
 				sprintf(buffer, "Angle: %4iº, distance: %4i (an: %i/%i).", source.angle, source.distance, analogRead(anglePins[deviceNumber]), analogRead(distancePins[deviceNumber]));
-			print(buffer);
+			robotContainer->print(buffer);
 		}
 		lastMs = millis();
 		if (pass)
-			print("\n\r");
+			robotContainer->print("\n\r");
 	}
 }
