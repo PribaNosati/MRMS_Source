@@ -109,7 +109,6 @@ public:
 	bool messageDecode(uint32_t canId, uint8_t data[8]);
 
 	/** Analog readings
-	@param receiverNumberInSensor - single IR transistor in mrm-ref-can
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - analog value
 	*/

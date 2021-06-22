@@ -30,7 +30,6 @@
 extern BluetoothSerial* serialBT;
 #endif
 
-//AAA begin
 /** Print to all serial ports
 @param fmt - C format string: 
 	%c - character,
@@ -60,7 +59,6 @@ void Robot::vprint(const char* fmt, va_list argp) {
 		serialBT->print(buffer);
 #endif
 }
-// AAA end
 
 /**
 */
@@ -81,6 +79,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	if (strlen(wiFiPassword) > 15)
 		strcpy(errorMessage, "WiFi pwd. overflow");
 	strcpy(_wiFiPassword, wiFiPassword);
+	boardInfo = new BoardInfo();
 
 #if RADIO == 1
 	if (serialBT == NULL) {
@@ -718,16 +717,48 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 	} while (micros() < startMicros + pauseMicros);
 }
 
-/** Contacts all the CAN Bus devices and checks which one is alive.
-@verbose - if true, print.
+/** Lists all the alive (responded to last ping) CAN Bus devices.
+@boardType - sensor, motor, or all boards
 @return count
 */
-uint8_t Robot::devicesScan(bool verbose) {
+void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, BoardType boardType){
+	uint8_t count = 0;
+	for (uint8_t i = 0; i < _boardNextFree; i++){
+		if (boardType == ANY_BOARD || board[i]->boardType() == boardType){
+			for (uint8_t deviceNumber = 0; deviceNumber < board[i]->count(); deviceNumber++){
+				if (board[i]->alive(deviceNumber)){
+					if (count == deviceGlobalOrdinalNumber)
+					{
+						strcpy(deviceInfo->name, board[i]->name(deviceNumber));
+						deviceInfo->board = board[i];
+						deviceInfo->deviceNumber = deviceNumber;
+						if (boardType == SENSOR_BOARD)
+							deviceInfo->readingsCount = ((SensorBoard*)(board[i]))->readingsCount();
+						return;
+					}
+					else
+						count++;
+				}
+			}
+		}
+	}
+	strcpy(deviceInfo->name, "");
+	deviceInfo->readingsCount = 0;
+}
+
+/** Contacts all the CAN Bus devices and checks which one is alive.
+@verbose - if true, print.
+@boardType - sensor, motor, or all boards
+@return count
+*/
+uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 	devicesStop();
 	uint8_t count = 0;
 	delayMs(50); // Read all the messages sent after stop.
-	for (uint8_t i = 0; i < _boardNextFree; i++)
-		count += board[i]->devicesScan(verbose);
+	for (uint8_t i = 0; i < _boardNextFree; i++){
+		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+			count += board[i]->devicesScan(verbose);
+	}
 	if (verbose)
 		print("%i devices.\n\r", count);
 	end();
@@ -863,22 +894,6 @@ void Robot::info() {
 		delay(1);
 	}
 	end();
-}
-
-/** Tests mrm-ir-finder3, raw data.
-*/
-void Robot::irFinder3Test() {
-	if (setup())
-		mrm_ir_finder3->start();
-	mrm_ir_finder3->test();
-}
-
-/** Tests mrm-ir-finder3, calculated data.
-*/
-void Robot::irFinder3TestCalculated() {
-	if (setup())
-		mrm_ir_finder3->continuousReadingCalculatedDataStart();
-	mrm_ir_finder3->testCalculated();
 }
 
 /** Tests mrm-lid-can-b
@@ -1153,17 +1168,22 @@ void Robot::reflectanceArrayCalibrationPrint() {
 	end();
 }
 
-/** Starts robot's program
+/** One pass of robot's program
 */
-void Robot::run() {
-	while (true) {
+void Robot::refresh(){
 		actionSet(); // Check if a key pressed and update current command buffer.
 		if (_actionCurrent == NULL) // If last command finished, display menu.
 			menu();
 		else 
 			actionProcess(); // Process current command. The command will be executed while currentCommand is not NULL. Here state maching processing occurs, too.
 		noLoopWithoutThis(); // Receive all CAN Bus messages. This call should be included in any loop, like here.
-	}
+}
+
+/** Starts robot's program
+*/
+void Robot::run() {
+	while (true) 
+		refresh();
 }
 
 /** Reads serial ASCII input and converts it into an integer

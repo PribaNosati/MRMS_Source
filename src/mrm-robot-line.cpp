@@ -27,6 +27,7 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	actionRCJLine = new ActionRCJLine(this);
 	actionWallFollow = new ActionWallFollow(this);
 	actionStop = new ActionStop(this);
+	actionMotorShortTest = new ActionMotorShortTest(this);
 
 	// Generic actions
 	actionLoopMenu = new ActionLoopMenu(this);
@@ -49,6 +50,7 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	actionAdd(actionObstacleAvoid);
 	actionAdd(actionRCJLine);
 	actionAdd(actionWallFollow);
+	actionAdd(actionMotorShortTest);
 
 	// Generic actions
 	actionAdd(actionLoopMenu);
@@ -537,6 +539,25 @@ void RobotLine::bitmapsSet() {
 	mrm_8x8a->bitmapCustomStore(red, green, LED_WALL_R);
 
 	// Define Your bitmaps here.
+		// Example
+	green[0] = 0b00000001;
+	green[1] = 0b00000011;
+	green[2] = 0b00000111;
+	green[3] = 0b00001111;
+	green[4] = 0b00011111;
+	green[5] = 0b00111111;
+	green[6] = 0b01111111;
+	green[7] = 0b11111111;
+
+	red[0] = 0b11111111;
+	red[1] = 0b01111111;
+	red[2] = 0b00111111;
+	red[3] = 0b00011111;
+	red[4] = 0b00001111;
+	red[5] = 0b00000111;
+	red[6] = 0b00000011;
+	red[7] = 0b00000001;
+	mrm_8x8a->bitmapCustomStore(red, green, LED_CUSTOM);
 
 }
 
@@ -609,7 +630,7 @@ bool RobotLine::dark() {
 /** Display 8x8 image
 @image - image's number
 */
-void RobotLine::display(ledSign image) {
+void RobotLine::display(uint8_t image) {
 	mrm_8x8a->bitmapCustomStoredDisplay(image);
 }
 
@@ -821,9 +842,22 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	if (setup())
-		illumination(1, 0);
-	print("%i\n\r", green(0));
+	uint8_t cnt = 0;
+	uint8_t i = 0;
+	do{
+		deviceInfo(i, boardInfo, SENSOR_BOARD);
+		if (strcmp(boardInfo->name, "") != 0){
+			print("Sensor: %s, readings: %i \n\r", boardInfo->name, boardInfo->readingsCount);
+			cnt = boardInfo->readingsCount;
+			for (uint8_t j = 0; j < cnt; j++){
+				//print("%i \n\r", ((SensorBoard *)boardInfo->board);
+			}
+		}
+		else
+			cnt = 0;
+		i++;
+	}while(cnt != 0);
+	end();
 }
 
 /** Generic actions, use them as templates
@@ -913,6 +947,16 @@ bool RobotLine::markers() {
 		surfacePrint(true, 3000);
 	}
 	return found;
+}
+
+
+/** Test motors
+ */
+void RobotLine::motorShortTest(){
+	go(60, 60);
+	delayMs(2000);
+	go(-60, -60);
+	delayMs(2000);
 }
 
 /** Avoid an obstacle on line.
@@ -1050,7 +1094,7 @@ uint8_t RobotLine::saturation(uint8_t deviceNumber) {
 }
 
 /** Move servo
-@param degrees - Servo's target angle, 0 - 180�, or 0 - 360�, depending on model, counting clockwise
+@param degrees - Servo's target angle, 0 - 180°, or 0 - 360°, depending on model, counting clockwise
 @param servoNumber - Servo's ordinal number. Each call of function add() assigns a increasing number to the servo, starting with 0.
 */
 void RobotLine::servo(uint16_t degrees, uint8_t servoNumber){
@@ -1069,6 +1113,16 @@ void RobotLine::sign(uint8_t number) {
 void RobotLine::stop() {
 	motorGroup->stop();
 }
+
+/** Store 8x8 image to 8x8 LED's internal memory
+@red - red pixels
+@green - green pixels
+@image - image's number
+*/
+void RobotLine::store(uint8_t red[], uint8_t green[], uint8_t image) {
+	mrm_8x8a->bitmapCustomStore(red, green, image);
+}
+
 
 /** Prints line and color sensors. Used for debugging.
 @param newLine - new line
