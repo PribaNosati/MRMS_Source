@@ -137,6 +137,13 @@ public:
 	*/
 	bool progressBar(uint32_t period, uint32_t current, bool reset = false);
 
+	/** All readings
+	@param subsensorNumberInSensor - like a single IR transistor in mrm-ref-can
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - analog value
+	*/
+	uint16_t reading(uint8_t subsensorNumberInSensor, uint8_t deviceNumber = 0){ return switchRead(subsensorNumberInSensor, deviceNumber);}
+
 	/** Set rotation from now on
 	@param rotation - 0, 90, or 270 degrees counterclockwise
 	@param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

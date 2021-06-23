@@ -5,7 +5,8 @@
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_col_can::Mrm_col_can(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "Color", maxNumberOfBoards, ID_MRM_COL_CAN) {
+Mrm_col_can::Mrm_col_can(Robot* robot, uint8_t maxNumberOfBoards) : 
+	SensorBoard(robot, 1, "Color", maxNumberOfBoards, ID_MRM_COL_CAN, MRM_COL_CAN_COLORS) {
 	readings = new std::vector<uint16_t[MRM_COL_CAN_COLORS]>(maxNumberOfBoards);
 	_hsv = new std::vector<bool>(maxNumberOfBoards);
 	_hue = new std::vector<uint8_t>(maxNumberOfBoards);
@@ -399,7 +400,10 @@ uint16_t Mrm_col_can::reading(uint8_t colorId, uint8_t deviceNumber) {
 		strcpy(errorMessage, "mrm-col-can doesn't exist");
 		return 0;
 	}
-	return (*readings)[deviceNumber][colorId];
+	if (colorsStarted(deviceNumber))
+		return (*readings)[deviceNumber][colorId];
+	else
+		return 0;
 }
 
 /** Print all readings in a line

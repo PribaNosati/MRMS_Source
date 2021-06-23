@@ -7,7 +7,8 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_node::Mrm_node(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "Node", maxNumberOfBoards, ID_MRM_NODE) {
+Mrm_node::Mrm_node(Robot* robot, uint8_t maxNumberOfBoards) : 
+	SensorBoard(robot, 1, "Node", maxNumberOfBoards, ID_MRM_NODE, 1) {
 	readings = new std::vector<uint16_t[MRM_NODE_ANALOG_COUNT]>(maxNumberOfBoards);
 	switches = new std::vector<bool[MRM_NODE_SWITCHES_COUNT]>(maxNumberOfBoards);
 	servoDegrees = new std::vector<uint16_t[MRM_NODE_SERVO_COUNT]>(maxNumberOfBoards);

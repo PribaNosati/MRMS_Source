@@ -82,6 +82,12 @@ public:
 	*/
 	void calibration(uint8_t deviceNumber = 0);
 
+		/** Distance in mm
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - distance in mm
+	*/
+	uint16_t distance(uint8_t deviceNumber = 0);
+
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
@@ -94,11 +100,12 @@ public:
 	*/
 	void rangingType(uint8_t deviceNumber, uint8_t value = 0);
 
-	/** Distance in mm
+	/** Analog readings
+	@param receiverNumberInSensor - always 0
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - distance in mm
+	@return - analog value
 	*/
-	uint16_t reading(uint8_t deviceNumber = 0);
+	uint16_t reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber = 0);
 
 	/** Print all readings in a line
 	*/

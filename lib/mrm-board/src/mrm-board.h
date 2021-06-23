@@ -58,6 +58,7 @@ enum BoardType{ANY_BOARD, MOTOR_BOARD, SENSOR_BOARD};
 
 class Robot;
 
+class Board;
 struct BoardInfo{
 	public:
 	Board * board;
@@ -368,8 +369,6 @@ public:
 };
 
 
-
-
 class SensorBoard : public Board {
 private:
 	uint8_t _readingsCount; // Number of measurements, like 9 in a reflectance sensors with 9 transistors
@@ -396,6 +395,13 @@ public:
 	@return - true if canId for this class
 	*/
 	virtual bool messageDecode(uint32_t canId, uint8_t data[8]){return false;}
+
+	/** All readings
+	@param subsensorNumberInSensor - like a single IR transistor in mrm-ref-can
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - analog value
+	*/
+	virtual uint16_t reading(uint8_t subsensorNumberInSensor, uint8_t deviceNumber = 0){ return 0;}
 
 	uint8_t readingsCount(){return _readingsCount;}
 };

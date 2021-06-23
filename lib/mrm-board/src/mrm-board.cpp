@@ -737,8 +737,10 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 @param maxNumberOfBoards - maximum number of boards
 @param id - unique id
 */
-SensorBoard::SensorBoard(Robot* robot, uint8_t devicesOnABoard, const char boardName[], uint8_t maxNumberOfBoards, BoardId id) :
+SensorBoard::SensorBoard(Robot* robot, uint8_t devicesOnABoard, const char boardName[], uint8_t maxNumberOfBoards, 
+	BoardId id, uint8_t readingsCount) :
 	Board(robot, maxNumberOfBoards, devicesOnABoard, boardName, SENSOR_BOARD, id) {
+		_readingsCount = readingsCount;
 }
 
 /** Starts periodical CANBus messages that will be refreshing values that mirror sensor's calculated values

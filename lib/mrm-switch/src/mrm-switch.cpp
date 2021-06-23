@@ -6,7 +6,8 @@
 @param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 */
-Mrm_switch::Mrm_switch(Robot* robot, uint8_t maxDevices) : SensorBoard(robot, 1, "Switch", maxDevices, ID_MRM_SWITCH) {
+Mrm_switch::Mrm_switch(Robot* robot, uint8_t maxDevices) : 
+	SensorBoard(robot, 1, "Switch", maxDevices, ID_MRM_SWITCH, MRM_SWITCHES_COUNT) {
 	lastOn = new std::vector<bool[MRM_SWITCHES_COUNT]>(maxDevices);
 	offOnAction = new std::vector<ActionBase* [MRM_SWITCHES_COUNT]>(maxDevices);
 	pin = new std::vector<uint8_t[MRM_SWITCHES_COUNT]>(maxDevices);

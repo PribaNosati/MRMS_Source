@@ -2,6 +2,9 @@
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
+#if RADIO == 1
+#include <BluetoothSerial.h>
+#endif
 
 #define ACTIONS_LIMIT 80 // Increase if more actions are needed.
 #define BOARDS_LIMIT 25 // Maximum number of different board types.
@@ -42,7 +45,6 @@ class Mrm_us1;
 class Robot {
 
 protected:
-BluetoothSerial *serialBT = NULL; //AAA
 	ActionBase* _action[ACTIONS_LIMIT]; // Collection of all the robot's actions
 	uint8_t _actionNextFree = 0;
 
@@ -56,6 +58,7 @@ BluetoothSerial *serialBT = NULL; //AAA
 	ActionBase* _actionStop;
 
 	Board* board[BOARDS_LIMIT]; // Collection of all the robot's boards
+	BoardInfo * boardInfo;
 	uint8_t _boardNextFree = 0;
 
 	uint8_t _devicesAtStartup = 0;
@@ -71,6 +74,9 @@ BluetoothSerial *serialBT = NULL; //AAA
 	char _name[16];
 	int16_t pitch;
 	int16_t roll;
+	#if RADIO == 1
+	BluetoothSerial *serialBT = NULL;
+	#endif
 	bool _sniff = false;
 	char _ssid[16];
 	bool verbose = false; // Verbose output
@@ -132,9 +138,6 @@ BluetoothSerial *serialBT = NULL; //AAA
 	void verbosePrint();
 
 public: 
-//AAA
-void print(const char* fmt, ...) ;
-void vprint(const char* fmt, va_list argp) ;
 
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;
@@ -243,11 +246,18 @@ void vprint(const char* fmt, va_list argp) ;
 	*/
 	void delayMicros(uint16_t pauseMicros);
 
-	/** Contacts all the CAN Bus devices and checks which one is alive.
-	@verbose - if true, print.
+	/** Lists all the alive (responded to last ping) CAN Bus devices.
+	@boardType - sensor, motor, or all boards
 	@return count
 	*/
-	uint8_t devicesScan(bool verbose);
+	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, BoardType boardType = ANY_BOARD);
+
+	/** Contacts all the CAN Bus devices and checks which one is alive.
+	@verbose - if true, print.
+	@boardType - sensor, motor, or all boards
+	@return count
+	*/
+	uint8_t devicesScan(bool verbose, BoardType boardType = ANY_BOARD);
 
 	/** Starts devices' CAN Bus messages broadcasting.
 	*/
@@ -289,14 +299,6 @@ void vprint(const char* fmt, va_list argp) ;
 	/** Request information
 	*/
 	void info();
-
-	/** Tests mrm-ir-finder3, raw data.
-	*/
-	void irFinder3Test();
-
-	/** Tests mrm-ir-finder3, calculated data.
-	*/
-	void irFinder3TestCalculated();
 
 	/** Tests mrm-lid-can-b
 	*/
@@ -360,9 +362,22 @@ void vprint(const char* fmt, va_list argp) ;
 	*/
 	void oscillatorTest();
 
+	/** Print to all serial ports
+	@param fmt - C format string: 
+		%c - character,
+		%i - integer,
+		%s - string.
+	@param ... - variable arguments
+	*/
+	void print(const char* fmt, ...);
+
 	/** Prints mrm-ref-can* calibration data
 	*/
 	void reflectanceArrayCalibrationPrint();
+
+	/** One pass of robot's program
+	*/
+	void refresh();
 
 	/** Starts robot's program
 	*/
@@ -415,6 +430,11 @@ void vprint(const char* fmt, va_list argp) ;
 	/** Verbose output toggle
 	*/
 	void verboseToggle();
+	
+	/** Print to all serial ports, pointer to list
+	*/
+	void vprint(const char* fmt, va_list argp);
+
 #if RADIO == 2
 	/** Web server
 	*/

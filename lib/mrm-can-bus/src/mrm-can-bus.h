@@ -1,20 +1,28 @@
 #pragma once
 #include <Arduino.h>
 
+class Robot;
+
 struct CANBusMessage {
 	uint32_t messageId;
 	uint8_t dlc;
 	uint8_t data[8];
+	Robot * robotContainer;
 
 	void print();
+
+	CANBusMessage(Robot* robot);
 };
 
 class Mrm_can_bus {
 private:
 	uint32_t lastSentMicros = 0;
+	Robot* robotContainer = NULL;
 public:
-
-	Mrm_can_bus();
+	/*
+	@param robot - robot containing this board
+	*/
+	Mrm_can_bus(Robot* robot = NULL);
 
 	/**Receive a CANBus message
 	@return true - a message received, false - none

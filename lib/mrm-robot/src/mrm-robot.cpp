@@ -723,17 +723,18 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 */
 void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, BoardType boardType){
 	uint8_t count = 0;
-	for (uint8_t i = 0; i < _boardNextFree; i++){
-		if (boardType == ANY_BOARD || board[i]->boardType() == boardType){
-			for (uint8_t deviceNumber = 0; deviceNumber < board[i]->count(); deviceNumber++){
-				if (board[i]->alive(deviceNumber)){
+	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
+		if (boardType == ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
+			for (uint8_t deviceNumber = 0; deviceNumber < board[boardKind]->count(); deviceNumber++){// Devices for the current board type
+				if (board[boardKind]->alive(deviceNumber)){
 					if (count == deviceGlobalOrdinalNumber)
 					{
-						strcpy(deviceInfo->name, board[i]->name(deviceNumber));
-						deviceInfo->board = board[i];
+						strcpy(deviceInfo->name, board[boardKind]->name(deviceNumber));
+						deviceInfo->board = board[boardKind];
 						deviceInfo->deviceNumber = deviceNumber;
+						//print("In func: %s %i", deviceInfo->name, deviceNumber);
 						if (boardType == SENSOR_BOARD)
-							deviceInfo->readingsCount = ((SensorBoard*)(board[i]))->readingsCount();
+							deviceInfo->readingsCount = ((SensorBoard*)(board[boardKind]))->readingsCount();
 						return;
 					}
 					else

@@ -1,5 +1,6 @@
 #include "mrm-can-bus.h"
 #include <mrm-common.h>
+#include <mrm-robot.h>
 
 #include <driver/can.h>
 #include <driver/gpio.h>
@@ -29,14 +30,24 @@ uint16_t _peakSend = 0;
 
 CANBusMessage* receivedMessage = NULL;
 
-void CANBusMessage::print() {
-	::print("Id: 0x%04X, data:", messageId);
-	for (uint8_t i = 0; i < dlc; i++)
-		::print(" %02X", data[i]);
-	::print("\n\r");
+CANBusMessage::CANBusMessage(Robot* robot){
+	robotContainer = robot;
 }
 
-Mrm_can_bus::Mrm_can_bus() {
+void CANBusMessage::print() {
+	if (robotContainer != NULL){
+		robotContainer->print("Id: 0x%04X, data:", messageId);
+		for (uint8_t i = 0; i < dlc; i++)
+			robotContainer->print(" %02X", data[i]);
+		robotContainer->print("\n\r");
+	}
+}
+
+/** Constructor
+@param robot - robot containing this board
+*/
+Mrm_can_bus::Mrm_can_bus(Robot* robot) {
+	robotContainer = robot;
 	can_general_config_t general_config = {
 	   .mode = CAN_MODE_NORMAL,
 	   .tx_io = (gpio_num_t)GPIO_NUM_5,
@@ -56,7 +67,7 @@ Mrm_can_bus::Mrm_can_bus() {
 	if (can_start() != ESP_OK)
 		strcpy(errorMessage, "Error start CAN");
 
-	receivedMessage = new CANBusMessage();
+	receivedMessage = new CANBusMessage(robotContainer);
 }
 
 /**Receive a CANBus message

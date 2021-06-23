@@ -5,7 +5,8 @@
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_col_b::Mrm_col_b(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "Color", maxNumberOfBoards, ID_MRM_COL_B) {
+Mrm_col_b::Mrm_col_b(Robot* robot, uint8_t maxNumberOfBoards) : 
+	SensorBoard(robot, 1, "Color", maxNumberOfBoards, ID_MRM_COL_B, MRM_COL_B_COLORS) {
 	readings = new std::vector<uint16_t[MRM_COL_B_COLORS]>(maxNumberOfBoards);
 	_hsv = new std::vector<bool>(maxNumberOfBoards);
 	_hue = new std::vector<uint8_t>(maxNumberOfBoards);

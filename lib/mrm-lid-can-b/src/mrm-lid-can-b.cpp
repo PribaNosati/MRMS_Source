@@ -7,7 +7,8 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_lid_can_b::Mrm_lid_can_b(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "Lid2m", maxNumberOfBoards, ID_MRM_LID_CAN_B) {
+Mrm_lid_can_b::Mrm_lid_can_b(Robot* robot, uint8_t maxNumberOfBoards) : 
+	SensorBoard(robot, 1, "Lid2m", maxNumberOfBoards, ID_MRM_LID_CAN_B, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
 }
 
@@ -106,6 +107,22 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 	}
 }
 
+/** Distance in mm
+@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@return - distance in mm
+*/
+uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber){
+	if (deviceNumber > nextFree) {
+		strcpy(errorMessage, "mrm-lid-can-b doesn't exist");
+		return 0;
+	}
+	alive(deviceNumber, true);
+	if (started(deviceNumber))
+		return (*readings)[deviceNumber];
+	else
+		return 0;
+}
+
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
 @param data - 8 bytes from CAN Bus message.
@@ -150,20 +167,13 @@ void Mrm_lid_can_b::rangingType(uint8_t deviceNumber, uint8_t value) {
 	}
 }
 
-/** Distance in mm
+/** Analog readings
+@param receiverNumberInSensor - always 0
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-@return - distance in mm
+@return - analog value
 */
-uint16_t Mrm_lid_can_b::reading(uint8_t deviceNumber){
-	if (deviceNumber > nextFree) {
-		strcpy(errorMessage, "mrm-lid-can-b doesn't exist");
-		return 0;
-	}
-	alive(deviceNumber, true);
-	if (started(deviceNumber))
-		return (*readings)[deviceNumber];
-	else
-		return 0;
+uint16_t Mrm_lid_can_b::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber){
+	return distance(deviceNumber);
 }
 
 /** Print all readings in a line

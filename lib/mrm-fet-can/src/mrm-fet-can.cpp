@@ -7,7 +7,8 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
+Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : 
+	MotorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
 }
 
 Mrm_fet_can::~Mrm_fet_can()
@@ -57,7 +58,7 @@ void Mrm_fet_can::add(char * deviceName)
 		strcpy(errorMessage, "Too many mrm-fet-can\n\r");
 		return;
 	}
-	SensorBoard::add(deviceName, canIn, canOut);
+	MotorBoard::add(deviceName, canIn, canOut);
 }
 
 /** Turn output on

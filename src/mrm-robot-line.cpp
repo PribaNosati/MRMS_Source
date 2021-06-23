@@ -676,21 +676,21 @@ void RobotLine::evacuationZone() {
 @return - in mm
 */
 uint16_t RobotLine::front() {
-	return mrm_lid_can_b->reading(1); // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(1); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Front side - left sensor distance.
 @return - in mm
 */
 uint16_t RobotLine::frontLeft() {
-	return mrm_lid_can_b->reading(0); // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(0); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Front side - right sensor distance.
 @return - in mm
 */
 uint16_t RobotLine::frontRight() {
-	return mrm_lid_can_b->reading(2); // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(2); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Start motors
@@ -737,14 +737,14 @@ void RobotLine::illumination(uint8_t current, uint8_t deviceNumber) {
 @return - in mm
 */
 uint16_t RobotLine::leftBack() {
-	return mrm_lid_can_b->reading(4); // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(4); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Left side - front sensor distance.
 @return - in mm
 */
 uint16_t RobotLine::leftFront() {
-	return mrm_lid_can_b->reading(0) + -30; // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(0) + -30; // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Line found?
@@ -847,11 +847,11 @@ void RobotLine::loop() {
 	do{
 		deviceInfo(i, boardInfo, SENSOR_BOARD);
 		if (strcmp(boardInfo->name, "") != 0){
-			print("Sensor: %s, readings: %i \n\r", boardInfo->name, boardInfo->readingsCount);
+			print("Sensor: %s, device nr: %i readings: %i \n\r", boardInfo->name, boardInfo->deviceNumber, boardInfo->readingsCount);
 			cnt = boardInfo->readingsCount;
-			for (uint8_t j = 0; j < cnt; j++){
-				//print("%i \n\r", ((SensorBoard *)boardInfo->board);
-			}
+			for (uint8_t j = 0; j < cnt; j++)
+				print("%i ", (((SensorBoard *)boardInfo->board)->reading(j, boardInfo->deviceNumber)));
+			print("\n\r");
 		}
 		else
 			cnt = 0;
@@ -1068,14 +1068,14 @@ void RobotLine::rcjLine() {
 @return - in mm
 */
 uint16_t RobotLine::rightBack() {
-	return mrm_lid_can_b->reading(3); // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(3); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Right side - front sensor distance.
 @return - in mm
 */
 uint16_t RobotLine::rightFront() {
-	return mrm_lid_can_b->reading(2) + 10; // Correct all sensors so that they return the same value for the same physical distance.
+	return mrm_lid_can_b->distance(2) + 10; // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Roll
