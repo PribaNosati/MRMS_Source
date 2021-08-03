@@ -182,7 +182,7 @@ void Mrm_lid_can_b::readingsPrint() {
 	robotContainer->print("Lid2m:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (alive(deviceNumber))
-			robotContainer->print(" %4i", reading(deviceNumber));
+			robotContainer->print(" %4i", distance(deviceNumber));
 }
 
 /** If sensor not started, start it and wait for 1. message
@@ -226,7 +226,7 @@ void Mrm_lid_can_b::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 			if (alive(i) && (deviceNumber == 0xFF || i == deviceNumber)) {
 				if (pass++)
 					robotContainer->print(" ");
-				robotContainer->print("%4i ", reading(i));
+				robotContainer->print("%4i ", distance(i));
 			}
 		}
 		lastMs = millis();

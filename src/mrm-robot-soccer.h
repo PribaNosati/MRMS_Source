@@ -8,8 +8,12 @@
 class RobotSoccer : public Robot {
 
 	// Actions' declarations
+	ActionBase* actionBounce;
+	ActionBase* actionCalibrate;
 	ActionBase* actionCatch;
 	ActionBase* actionIdle;
+	ActionBase* actionLineAvoid;
+	ActionBase* actionPlay;
 
 	float headingToMaintain; // Heading towards opponent's goal.
 	MotorGroupStar* motorGroup;  // Class that conveys commands to motors.
@@ -40,6 +44,10 @@ public:
 	*/
 	void bitmapsSet();
 
+	/** Bouncing off the lines
+	*/
+	void bounce();
+
 	/** Line sensor - brightness of the surface
 	@param transistorNumber - starts from 0 and end value depends on sensor. Usually 7 (for mrm-ref-can8) or 8 (for mrm-ref-can9).
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -52,6 +60,10 @@ public:
 	@return - true if pressed
 	*/
 	bool button(uint8_t number);
+
+	/** Calibrate all line sensors
+	 */
+	void calibrate();
 
 	/** Go around the ball and approach it.
 	*/
@@ -70,7 +82,7 @@ public:
 	numbers because a value 100 turns on all the motors at maximal speed.
 	@param speedLimit - Speed limit, 0 to 127. For example, 80 will limit all the speeds to 80/127%. 0 will turn the motors off.
 	*/
-	void go(float speed, float angleDegrees, float rotation, uint8_t speedLimit);
+	void go(float speed, float angleDegrees, float rotation, uint8_t speedLimit = 127);
 
 	/** Test - go straight ahead.
 	*/
@@ -96,6 +108,10 @@ public:
 	@return - true if white line found
 	*/
 	bool line(uint8_t transistorNumber, uint8_t deviceNumber);
+
+	bool lineAny();
+
+	void lineAvoid();
 
 	/** Custom test
 	*/
@@ -150,6 +166,23 @@ The fourth pareameter is menu level. When omitted, the action will not be a part
 
 /** Go around the ball and approach it.
 */
+class ActionSoccerBounce : public ActionBase {
+	void perform() { ((RobotSoccer*)_robot)->bounce(); }
+public:
+	ActionSoccerBounce(RobotSoccer* robot) : ActionBase(robot, "bou", "Soccer bounce") {}
+};
+
+/** Calibrating all the line sensors
+*/
+class ActionSoccerCalibrate : public ActionBase {
+	void perform() { ((RobotSoccer*)_robot)->calibrate(); }
+public:
+	ActionSoccerCalibrate(RobotSoccer* robot) : ActionBase(robot, "clb", "Soccer calibrate") {}
+};
+
+
+/** Go around the ball and approach it.
+*/
 class ActionSoccerCatch : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->catchBall(); }
 public:
@@ -170,4 +203,10 @@ class ActionSoccerIdle : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->idle(); }
 public:
 	ActionSoccerIdle(RobotSoccer* robot) : ActionBase(robot, "idl", "Soccer idle", 0) {}
+};
+
+class ActionSoccerLineAvoid : public ActionBase {
+	void perform() { ((RobotSoccer*)_robot)->lineAvoid(); }
+public:
+	ActionSoccerLineAvoid(RobotSoccer* robot) : ActionBase(robot, "avo", "Soccer line avoid", 0) {}
 };

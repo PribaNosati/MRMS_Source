@@ -174,14 +174,11 @@ void Mrm_imu::test() {
 void Mrm_imu::testHelper() {
 	for (int i = 0; i < nextFree; i++)
 	{
-		Serial.print("Y:");
-		Serial.print((int)round(heading()));
-		Serial.print(" P:");
-		Serial.print((int)round(pitch()));
-		Serial.print(" R:");
-		Serial.print((int)round(roll()));
+		robotContainer->print("Y:%i", (int)round(heading()));
+		robotContainer->print(" P:%i", (int)round(pitch()));
+		robotContainer->print(" R:%i", (int)round(roll()));
 	}
-	Serial.println();
+	robotContainer->print("\n\r");
 }
 
 /*----------------------------------------------------------------------------*

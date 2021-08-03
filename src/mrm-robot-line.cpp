@@ -843,21 +843,21 @@ void RobotLine::lineFollow() {
 */
 void RobotLine::loop() {
 	uint8_t cnt = 0;
-	uint8_t i = 0;
-	do{
-		deviceInfo(i, boardInfo, SENSOR_BOARD);
-		if (strcmp(boardInfo->name, "") != 0){
-			print("Sensor: %s, device nr: %i readings: %i \n\r", boardInfo->name, boardInfo->deviceNumber, boardInfo->readingsCount);
-			cnt = boardInfo->readingsCount;
-			for (uint8_t j = 0; j < cnt; j++)
-				print("%i ", (((SensorBoard *)boardInfo->board)->reading(j, boardInfo->deviceNumber)));
-			print("\n\r");
-		}
-		else
-			cnt = 0;
-		i++;
-	}while(cnt != 0);
-	end();
+    uint8_t i = 0;
+    do{
+        deviceInfo(i, boardInfo, SENSOR_BOARD);
+        if (strcmp(boardInfo->name, "") != 0){
+            print("Sensor: %s, device nr: %i readings: %i \n\r", boardInfo->name, boardInfo->deviceNumber, boardInfo->readingsCount);
+            cnt = boardInfo->readingsCount;
+            for (uint8_t j = 0; j < cnt; j++)
+                print("%i ", (((SensorBoard *)boardInfo->board)->reading(j, boardInfo->deviceNumber)));
+            print("\n\r");
+        }
+        else
+            cnt = 0;
+        i++;
+    }while(cnt != 0);
+    end();
 }
 
 /** Generic actions, use them as templates

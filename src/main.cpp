@@ -35,7 +35,7 @@
 Robot *robot;
 
 void setup() {
-	robot = new RobotLine((char*)"Vesna"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
+	robot = new RobotSoccer((char*)"Donald"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
 	robot->print("Start.");
 }
 

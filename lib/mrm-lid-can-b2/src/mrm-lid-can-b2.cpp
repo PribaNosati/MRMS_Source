@@ -89,6 +89,20 @@ void Mrm_lid_can_b2::defaults(uint8_t deviceNumber) {
 	roi(deviceNumber);
 }
 
+/** Analog readings
+@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@return - analog value
+*/
+uint16_t Mrm_lid_can_b2::distance(uint8_t deviceNumber){
+	if (deviceNumber >= nextFree) {
+		strcpy(errorMessage, "mrm-lid-can-b2 doesn't exist");
+		return 0;
+	}
+	if (started(deviceNumber))
+		return (*readings)[deviceNumber] == 0 ? 2000 : (*readings)[deviceNumber];
+	else
+		return 0;
+}
 
 /** Distance mode. Short mode has better ambient light immunity but the maximum distance is limited to 1.3 m. Long distance ranges up to
 	4 m but is less performant under ambient light. Stored in sensors non-volatile memory. Allow 50 ms for flash to be written.
@@ -161,20 +175,13 @@ bool Mrm_lid_can_b2::messageDecode(uint32_t canId, uint8_t data[8]){
 	return false;
 }
 
-
 /** Analog readings
+@param receiverNumberInSensor - always 0
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - analog value
 */
-uint16_t Mrm_lid_can_b2::reading(uint8_t deviceNumber){
-	if (deviceNumber >= nextFree) {
-		strcpy(errorMessage, "mrm-lid-can-b2 doesn't exist");
-		return 0;
-	}
-	if (started(deviceNumber))
-		return (*readings)[deviceNumber] == 0 ? 2000 : (*readings)[deviceNumber];
-	else
-		return 0;
+uint16_t Mrm_lid_can_b2::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber){
+	return distance(deviceNumber);
 }
 
 /** Print all readings in a line
@@ -183,9 +190,8 @@ void Mrm_lid_can_b2::readingsPrint() {
 	robotContainer->print("Lid4m:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (alive(deviceNumber))
-			robotContainer->print(" %4i", reading(deviceNumber));
+			robotContainer->print(" %4i", distance(deviceNumber));
 }
-
 
 /** ROI, region of interest, a matrix from 4x4 up to 16x16 (x, y). Smaller x and y - smaller view angle. Stored in sensors non-volatile memory.
 Allow 50 ms for flash to be written.
@@ -246,7 +252,7 @@ void Mrm_lid_can_b2::test()
 			if (alive(deviceNumber)) {
 				if (pass++)
 					robotContainer->print(" ");
-				robotContainer->print("%i ", reading(deviceNumber));
+				robotContainer->print("%i ", distance(deviceNumber));
 			}
 		}
 		lastMs = millis();

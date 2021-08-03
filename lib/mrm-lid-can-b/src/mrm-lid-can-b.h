@@ -82,7 +82,7 @@ public:
 	*/
 	void calibration(uint8_t deviceNumber = 0);
 
-		/** Distance in mm
+	/** Distance in mm
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - distance in mm
 	*/
