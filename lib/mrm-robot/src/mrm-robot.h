@@ -2,12 +2,14 @@
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
+#include <Preferences.h>
 #if RADIO == 1
 #include <BluetoothSerial.h>
 #endif
 
 #define ACTIONS_LIMIT 80 // Increase if more actions are needed.
 #define BOARDS_LIMIT 25 // Maximum number of different board types.
+#define EEPROM_SIZE 12 // EEPROM size
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
 #define LED_OK 2 // mrm-esp32's pin number, hardware defined.
 
@@ -73,6 +75,7 @@ protected:
 	CANBusMessage* _msg;
 	char _name[16];
 	int16_t pitch;
+	Preferences* preferences; // EEPROM
 	int16_t roll;
 	#if RADIO == 1
 	BluetoothSerial *serialBT = NULL;
@@ -121,6 +124,10 @@ protected:
 	*/
 	bool boardSelect(uint8_t selectedNumber, uint8_t *selectedBoardIndex, uint8_t* selectedDeviceIndex, uint8_t* maxInput);
 
+	/** Display number of CAN Bus devices using 8x8 display
+	*/
+	void devicesLEDCount();
+
 	/** Avoids FPS measuring in the next 2 cycles.
 	*/
 	void fpsPause();
@@ -132,6 +139,11 @@ protected:
 	/** Resets FPS data
 	*/
 	void fpsReset();
+
+	/** Enable or disable plug and play for all the connected boards.
+	 @param enable - enable or disable
+	*/
+	void pnpSet(bool enable);
 
 	/** Prints additional data in every loop pass
 	*/
@@ -208,6 +220,11 @@ public:
 	*/
 	void canBusSniffToggle();
 
+	/** Detects if there is a gap in CAN Bus addresses' sequence of any device, like 0, 2, 3 (missing 1).
+	@return - is there a gap.
+	*/
+	bool canGap();
+
 	/** Change device's id
 	*/
 	void canIdChange();
@@ -254,7 +271,7 @@ public:
 
 	/** Contacts all the CAN Bus devices and checks which one is alive.
 	@verbose - if true, print.
-	@boardType - sensor, motor, or all boards
+	@boardType - sensor, motor, or all boards.
 	@return count
 	*/
 	uint8_t devicesScan(bool verbose, BoardType boardType = ANY_BOARD);
@@ -361,6 +378,14 @@ public:
 	/** Production test
 	*/
 	void oscillatorTest();
+
+	/** Enable plug and play for all the connected boards.
+	 */
+	void pnpOn();
+
+	/** Disable plug and play for all the connected boards.
+	 */
+	void pnpOff();
 
 	/** Print to all serial ports
 	@param fmt - C format string: 

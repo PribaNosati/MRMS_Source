@@ -3,14 +3,24 @@
 #include <mrm-pid.h>
 #include <mrm-robot.h>
 
+// Constants
+#define BARRIER_MID_VALUE 600 // 0 - 4095
+#define SOCCER_ANGULAR_SPEED_LIMIT 40 // 0 - 100
+#define SOCCER_BARRIER_PIN 35 // Not to be changed unless pin reassigned
+#define SOCCER_BACK_DISTANCE_WHEN_GOALIE 200 // Goalie's optimum distance when in front of won goal
+#define SOCCER_SIDE_DISTANCE_WHEN_CENTERED 700 // Distance left and right when in the centre of the field
+#define SOCCER_SPEED_LIMIT 60 // 0 - 127
+
 /** Robot for RCJ Soccer
 */
 class RobotSoccer : public Robot {
+	enum TriState{Yes, Opposite, Unknown};
 
 	// Actions' declarations
 	ActionBase* actionBounce;
 	ActionBase* actionCalibrate;
 	ActionBase* actionCatch;
+	ActionBase* actionGoalApproach;
 	ActionBase* actionIdle;
 	ActionBase* actionLineAvoid;
 	ActionBase* actionPlay;
@@ -26,9 +36,14 @@ public:
 	RobotSoccer(char name[] = (char*)"RCJ Soccer");
 
 	/** Rear distance to wall
+	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 	@return - in mm
 	*/
-	uint16_t back();
+	uint16_t back(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Ball's direction
 	@return - robot's front is 0�, positive angles clockwise, negative anti-clockwise. Back of the robot is 180�.
@@ -39,6 +54,10 @@ public:
 	@return - true if interrupted
 	*/
 	bool barrier();
+
+	/** Test barrier
+	*/
+	void barrierTest();
 
 	/** Store bitmaps in mrm-led8x8a.
 	*/
@@ -70,9 +89,14 @@ public:
 	void catchBall();
 
 	/** Front distance to wall
+	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 	@return - in mm
 	*/
-	uint16_t front();
+	uint16_t front(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Control of a robot with axles connected in a star formation, like in a RCJ soccer robot with omni wheels. Motor 0 is at 45 degrees, 1 at 135, 2 at -135, 3 at -45.
 	@param speed - 0 to 100.
@@ -88,10 +112,16 @@ public:
 	*/
 	void goAhead();
 
+	/** Approach oppoent's goal
+	*/
+	void goalApproach();
+
 	/**Compass
 	@return - North is 0�, clockwise are positive angles, values 0 - 360.
 	*/
 	float heading();
+
+	float headingRandom(int newHeading, int variation);
 
 	/** No ball detected - return to Your goal.
 	*/
@@ -99,8 +129,13 @@ public:
 
 	/** Front distance to wall
 	@return - in mm
+	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 	*/
-	uint16_t left();
+	uint16_t left(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Line sensor
 	@param transistorNumber - starts from 0 and end value depends on sensor. Usually 7 (for mrm-ref-can8) or 8 (for mrm-ref-can9).
@@ -127,9 +162,14 @@ public:
 	float pitch();
 
 	/** Right distance to wall
+	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 	@return - in mm
 	*/
-	uint16_t right();
+	uint16_t right(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Roll
 	@return - Roll in degrees. Inclination to the left or right. Values -90 - 90. Leveled robot shows 0�.
@@ -164,12 +204,20 @@ for no-menu actions.
 The fourth pareameter is menu level. When omitted, the action will not be a part of the menu. Use 1 otherwise. Higher level numbers will display the action in submenues, not used here.
 */
 
-/** Go around the ball and approach it.
+/** Bounce
 */
 class ActionSoccerBounce : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->bounce(); }
 public:
-	ActionSoccerBounce(RobotSoccer* robot) : ActionBase(robot, "bou", "Soccer bounce") {}
+	ActionSoccerBounce(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "bou", "Soccer bounce", 1, ID_ANY, ledSign) {}
+};
+
+/** Test barrier.
+*/
+class ActionSoccerBarrierTest : public ActionBase {
+	void perform() { ((RobotSoccer*)_robot)->barrierTest(); }
+public:
+	ActionSoccerBarrierTest(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "bar", "Soccer barr. test", 1, ID_ANY, ledSign) {}
 };
 
 /** Calibrating all the line sensors
@@ -177,7 +225,7 @@ public:
 class ActionSoccerCalibrate : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->calibrate(); }
 public:
-	ActionSoccerCalibrate(RobotSoccer* robot) : ActionBase(robot, "clb", "Soccer calibrate") {}
+	ActionSoccerCalibrate(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "clb", "Soccer calibrate", 1, ID_ANY, ledSign) {}
 };
 
 
@@ -186,7 +234,15 @@ public:
 class ActionSoccerCatch : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->catchBall(); }
 public:
-	ActionSoccerCatch(RobotSoccer* robot) : ActionBase(robot, "cat", "Soccer catch", 0) {}
+	ActionSoccerCatch(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "cat", "Soccer catch", 0, ID_ANY, ledSign) {}
+};
+
+/** Go to goal
+*/
+class ActionSoccerGoalApproach : public ActionBase {
+	void perform() { ((RobotSoccer*)_robot)->goalApproach(); }
+public:
+	ActionSoccerGoalApproach(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "apr", "Soccer approach", 0, ID_ANY, ledSign) {}
 };
 
 /** Starts robot.
@@ -194,7 +250,7 @@ public:
 class ActionSoccerPlay : public ActionBase {
 	void perform(){ ((RobotSoccer*)_robot)->play(); }
 public:
-	ActionSoccerPlay(RobotSoccer* robot) : ActionBase(robot, "soc", "Soccer play") {}
+	ActionSoccerPlay(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "soc", "Soccer play") {}
 };
 
 /** Idle position, before own goal.
@@ -202,11 +258,11 @@ public:
 class ActionSoccerIdle : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->idle(); }
 public:
-	ActionSoccerIdle(RobotSoccer* robot) : ActionBase(robot, "idl", "Soccer idle", 0) {}
+	ActionSoccerIdle(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "idl", "Soccer idle", 0, ID_ANY, ledSign) {}
 };
 
 class ActionSoccerLineAvoid : public ActionBase {
 	void perform() { ((RobotSoccer*)_robot)->lineAvoid(); }
 public:
-	ActionSoccerLineAvoid(RobotSoccer* robot) : ActionBase(robot, "avo", "Soccer line avoid", 0) {}
+	ActionSoccerLineAvoid(RobotSoccer* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "avo", "Soccer line avoid", 0, ID_ANY, ledSign) {}
 };

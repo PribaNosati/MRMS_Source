@@ -19,8 +19,10 @@
 @param menuLevel - all the actions with the same menuLevel are displayed. Permitted values are: 0 (in no menu), 1, 2, 4, 8, 16, 32, 64, and 128. 
 	A menu-action changes menuLevel to its own, forcing all the actions with this menuLevel to be displayed. "|" lists action in many menus, for example 1 | 8 | 16.
 @param boardId - menu only for a specific board
+@param ledSign8x8 - the LED sign that will be displayed when action set to this one
 */
-ActionBase::ActionBase(Robot* robot, const char shortcut[4], const char text[20], uint8_t menuLevel, BoardId boardsId) {
+ActionBase::ActionBase(Robot* robot, const char shortcut[4], const char text[20], uint8_t menuLevel, BoardId boardsId,
+	LEDSign* ledSign8x8) {
 	_robot = robot;
 	if (shortcut != 0)
 		strcpy(_shortcut, shortcut);
@@ -28,6 +30,7 @@ ActionBase::ActionBase(Robot* robot, const char shortcut[4], const char text[20]
 		strcpy(_text, text);
 	_menuLevel = menuLevel;
 	_boardsId = boardsId;
+	ledSign = ledSign8x8;
 }
 
 void Action8x8Test::perform() { _robot->mrm_8x8a->test(); }
@@ -67,7 +70,8 @@ void ActionMenuSystem::perform() { _robot->menuSystem(); }
 void ActionMotorTest::perform() { _robot->motorTest(); }
 void ActionNodeTest::perform() { _robot->nodeTest(); }
 void ActionNodeServoTest::perform() { _robot->mrm_node->servoTest();}
-//void ActionOscillatorTest::perform() { _robot->oscillatorTest(); }
+void ActionPnPOff::perform() { _robot->pnpOff();}
+void ActionPnPOn::perform() { _robot->pnpOn();}
 void ActionReflectanceArrayAnalogTest::perform() { _robot->mrm_ref_can->test(true); }
 void ActionReflectanceArrayDigitalTest::perform() { _robot->mrm_ref_can->test(false); }
 void ActionReflectanceArrayCalibrate::perform() { _robot->mrm_ref_can->calibrate(); }

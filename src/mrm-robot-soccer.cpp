@@ -15,14 +15,72 @@
 RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	motorGroup = new MotorGroupStar(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
 
-	pidXY = new Mrm_pid(10.0, 100, 0); // PID controller, regulates motors' speeds for linear motion in the x-y plane
-	pidRotation = new Mrm_pid(10.0, 100, 0); // PID controller, regulates rotation around z axis
+	// LED signs to be assigned to different actions follow. It is easier to follow action flow by checking the display.
+
+	// LED Calibrate
+	LEDSignText* signCalibrate = new LEDSignText(); // Here, a text will be displayed instead of a 8x8 bitmap.
+	strcpy(signCalibrate->text, "Calibr.");
+
+	// LED approach opponent's goal
+	LEDSignBitmap* signGoalApproach = new LEDSignBitmap();
+	// Each "1" will turn on a single LED.
+	signGoalApproach->green[0] = 0b01111110;
+	signGoalApproach->green[1] = 0b01000010;
+	signGoalApproach->green[2] = 0b00000000;
+	signGoalApproach->green[3] = 0b00000000;
+	signGoalApproach->green[4] = 0b00000000;
+	signGoalApproach->green[5] = 0b00000000;
+	signGoalApproach->green[6] = 0b00000000;
+	signGoalApproach->green[7] = 0b00000000;
+
+	// LED 8x8 idle
+	LEDSignBitmap* signIdle = new LEDSignBitmap();
+	// Each "1" will turn on a single LED.
+	signIdle->green[0] = 0b00000000;
+	signIdle->green[1] = 0b00000000;
+	signIdle->green[2] = 0b00000000;
+	signIdle->green[3] = 0b00000000;
+	signIdle->green[4] = 0b00000000;
+	signIdle->green[5] = 0b00000000;
+	signIdle->green[6] = 0b01000010;
+	signIdle->green[7] = 0b01111110;
+
+	// LED 8x8 line avoid
+	LEDSignBitmap* signLineAvoid = new LEDSignBitmap();
+	signLineAvoid->green[0] = 0b11111111;
+	signLineAvoid->green[1] = 0b10000001;
+	signLineAvoid->green[2] = 0b10000001;
+	signLineAvoid->green[3] = 0b10000001;
+	signLineAvoid->green[4] = 0b10000001;
+	signLineAvoid->green[5] = 0b10000001;
+	signLineAvoid->green[6] = 0b10000001;
+	signLineAvoid->green[7] = 0b11111111;
+
+	// LED 8x8 catch
+	LEDSignBitmap* signCatch = new LEDSignBitmap();
+	signCatch->green[0] = 0b00011000;
+	signCatch->green[1] = 0b00011000;
+	signCatch->green[2] = 0b00000000;
+	signCatch->green[3] = 0b00100100;
+	signCatch->green[4] = 0b01011010;
+	signCatch->green[5] = 0b01000010;
+	signCatch->green[6] = 0b00100100;
+	signCatch->green[7] = 0b00011000;
+
+	// LED Bounce
+	LEDSignText* signBounce = new LEDSignText(); // Here, a text will be displayed instead of a 8x8 bitmap.
+	strcpy(signBounce->text, "Bounce");
+
+	// Actions
+	pidXY = new Mrm_pid(0.5, 100, 0); // PID controller, regulates motors' speeds for linear motion in the x-y plane: 4, 100, 0 - ok.
+	pidRotation = new Mrm_pid(2.0, 100, 0); // PID controller, regulates rotation around z axis
 	actionPlay = new ActionSoccerPlay(this);
-	actionBounce = new ActionSoccerBounce(this);
-	actionCalibrate = new ActionSoccerCalibrate(this);
-	actionCatch = new ActionSoccerCatch(this);
-	actionIdle = new ActionSoccerIdle(this);
-	actionLineAvoid = new ActionSoccerLineAvoid(this);
+	actionBounce = new ActionSoccerBounce(this, signBounce);
+	actionCalibrate = new ActionSoccerCalibrate(this, signCalibrate);
+	actionCatch = new ActionSoccerCatch(this, signCatch);
+	actionGoalApproach = new ActionSoccerGoalApproach(this, signGoalApproach);
+	actionIdle = new ActionSoccerIdle(this, signIdle);
+	actionLineAvoid = new ActionSoccerLineAvoid(this, signLineAvoid);
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
@@ -31,23 +89,36 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	actionAdd(actionBounce);
 	actionAdd(actionCalibrate);
 	actionAdd(actionPlay);
+	actionAdd(new ActionSoccerBarrierTest(this));
 
 	// mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
 	// mrm_mot4x3_6can->directionChange(1); // Uncomment to change 2nd wheel's rotation direction
 	// mrm_mot4x3_6can->directionChange(2); // Uncomment to change 3rd wheel's rotation direction
 	// mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
 
-	mrm_8x8a->actionSet(_actionMenuMain, 0); // Button 0 stops the robot and prints main manu
-	mrm_8x8a->actionSet(actionPlay, 1); // Button 1 starts the play
-	mrm_8x8a->actionSet(_actionLoop, 2); // Button 2 starts user defined loop() function
-	mrm_8x8a->actionSet(actionBounce, 3); // Button 3 starts user defined bounce() function
+	// Buttons
+	mrm_8x8a->actionSet(actionPlay, 0); // Button 1 starts the play
+	mrm_8x8a->actionSet(actionBounce, 1); // Button 2 starts user defined bounce() function
+	mrm_8x8a->actionSet(_actionLoop, 2); // Button 3 starts user defined loop() function
+	mrm_8x8a->actionSet(_actionMenuMain, 3); // Button 4 stops the robot and prints main manu
+
+	// Set number of phototransistors in each line sensor.
+	mrm_ref_can->transistorCountSet(5, 0); // 5 instead of 6 since IR ball interferes with 6th transistor.
+	mrm_ref_can->transistorCountSet(8, 1);
+	mrm_ref_can->transistorCountSet(8, 2);
+	mrm_ref_can->transistorCountSet(8, 3);
 }
 
 /** Rear distance to wall
+@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 @return - in mm
 */
-uint16_t RobotSoccer::back() {
-	return mrm_lid_can_b2->reading(0, 2); // Correct all sensors so that they return the same value for the same physical distance.
+uint16_t RobotSoccer::back(uint8_t sampleCount, uint8_t sigmaCount) {
+	return mrm_lid_can_b2->distance(2, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Ball's direction
@@ -61,49 +132,77 @@ int16_t RobotSoccer::ballAngle() {
 @return - true if interrupted
 */
 bool RobotSoccer::barrier() {
-	return analogRead(35) < 300; // Adjust this value
+	return analogRead(SOCCER_BARRIER_PIN) < BARRIER_MID_VALUE; // Adjust this value
+}
+
+/** Test barrier
+*/
+void RobotSoccer::barrierTest(){
+	print("%i - %s ball\n\r", analogRead(SOCCER_BARRIER_PIN), barrier() ? "" : "no");
 }
 
 /** Store bitmaps in mrm-led8x8a.
 */
 void RobotSoccer::bitmapsSet() {
-	uint8_t red[8] = { 0b00000000, 0b01100110, 0b11111111, 0b11111111, 0b11111111, 0b01111110, 0b00111100, 0b00011000 };
-	uint8_t green[8] = { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000 };
-	mrm_8x8a->bitmapCustomStore(red, green, 7);
+	// uint8_t red[8] = { 0b00000000, 0b01100110, 0b11111111, 0b11111111, 0b11111111, 0b01111110, 0b00111100, 0b00011000 };
+	// uint8_t green[8] = { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000 };
+	// mrm_8x8a->bitmapCustomStore(red, green, 7);
 }
 
 /** Bouncing off the lines
 */
 void RobotSoccer::bounce(){
 	static int directionCurrent = 45;
-	const int VARIATION = 40;
-	const int SPEED = 60;
+	const int VARIATION = 45;
+	const int SPEED = 127;
+	const bool AVOID_LINE = false;
 	if (setup()){
 		headingToMaintain = heading();
 	}
-	go(SPEED, directionCurrent, pidRotation->calculate(heading() - headingToMaintain));
-	if (left() < 200){
-		directionCurrent = 90 + (2 * (rand() % VARIATION) - VARIATION);
-		// print("Left %i\n\r", directionCurrent);
-	}
-	if (right() < 200){
-		directionCurrent = -90 + (2 * (rand() % VARIATION) - VARIATION);
-		// print("Right %i\n\r", directionCurrent);
-	}
-	if (front() < 200){
-		directionCurrent = 180 + (2 * (rand() % VARIATION) - VARIATION);
-		// print("Front %i\n\r", directionCurrent);
-	}
-	if (back() < 200){
-		directionCurrent = 0 + (2 * (rand() % VARIATION) - VARIATION);
-		// print("Back %i\n\r", directionCurrent);
-	}
-	// for (uint8_t i = 0; i < 4; i++)
 
-	static uint32_t ms = 0;
-	if (millis() - ms > 1000){
-		print("Target: %i, current: %i\n\r", (int)headingToMaintain, (int)heading());
-		ms = millis();
+	if (AVOID_LINE && lineAny()){
+		actionSet(actionLineAvoid);
+		if (mrm_ref_can->any(false, 0)) // Front
+			directionCurrent = headingRandom(-180, VARIATION);
+		if (mrm_ref_can->any(false, 1)) // Right
+			directionCurrent = headingRandom(-90, VARIATION);
+		if (mrm_ref_can->any(false, 2)) // Back
+			directionCurrent = headingRandom(0, VARIATION);
+		if (mrm_ref_can->any(false, 3)) // Left
+			directionCurrent = headingRandom(90, VARIATION);
+	}
+	else{
+		uint16_t minDistance = left();
+		if (right() < minDistance) 
+			minDistance = right();
+		if (front() < minDistance) 
+			minDistance = front();
+		if (back() < minDistance) 
+			minDistance = back();
+		go(map(minDistance, 0, 700, 40, SPEED), directionCurrent, pidRotation->calculate(heading() - headingToMaintain));
+		if (left() < 200){
+			directionCurrent = headingRandom(90, VARIATION);
+			// print("Left %i\n\r", directionCurrent);
+		}
+		if (right() < 200){
+			directionCurrent = headingRandom(-90, VARIATION);
+			// print("Right %i\n\r", directionCurrent);
+		}
+		if (front() < 200){
+			directionCurrent = headingRandom(180, VARIATION);
+			// print("Front %i\n\r", directionCurrent);
+		}
+		if (back() < 200){
+			directionCurrent = headingRandom(0, VARIATION);
+			// print("Back %i\n\r", directionCurrent);
+		}
+		// for (uint8_t i = 0; i < 4; i++)
+
+		static uint32_t ms = 0;
+		if (millis() - ms > 1000){
+			print("Target: %i, current: %i\n\r", (int)headingToMaintain, (int)heading());
+			ms = millis();
+		}
 	}
 }
 
@@ -141,18 +240,29 @@ void RobotSoccer::calibrate(){
 void RobotSoccer::catchBall() {
 	if (lineAny())
 		actionSet(actionLineAvoid);
+	else if (barrier())
+		actionSet(actionGoalApproach);
 	else if (mrm_ir_finder3->distance() > 100) {
-		go(30, mrm_ir_finder3->angle(), pidRotation->calculate(headingToMaintain - heading()), 100);
+		float direction = -mrm_ir_finder3->angle() - 10;
+		if (fabsf(direction) > 7)
+			direction += (direction > 0 ? 60 : -60);
+		go(40, direction, pidRotation->calculate(heading() - headingToMaintain), 100);
+		print("Catch ball, angle: %i\n\r", (int)mrm_ir_finder3->angle());
 	}
 	else
 		actionSet(actionIdle);
 }
 
 /** Front distance to wall
+@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 @return - in mm
 */
-uint16_t RobotSoccer::front() {
-	return mrm_lid_can_b2->reading(0); // Correct all sensors so that they return the same value for the same physical distance.
+uint16_t RobotSoccer::front(uint8_t sampleCount, uint8_t sigmaCount) {
+	return mrm_lid_can_b2->distance(0, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Control of a robot with axles connected in a star formation, like in a RCJ soccer robot with omni wheels. Motor 0 is at 45 degrees, 1 at 135, 2 at -135, 3 at -45.
@@ -175,6 +285,25 @@ void RobotSoccer::goAhead() {
 	end();
 }
 
+/** Approach oppoent's goal
+*/
+void RobotSoccer::goalApproach(){
+	if (lineAny())
+		actionSet(actionLineAvoid);
+	else if (!barrier())
+		actionSet(actionIdle);
+	else{
+		float errorL = SOCCER_SIDE_DISTANCE_WHEN_CENTERED - left();
+		float errorR = right() - SOCCER_SIDE_DISTANCE_WHEN_CENTERED;
+		float errorX = fabsf(errorL) > fabsf(errorR) ? errorL : errorR;
+		float errorY = front();
+
+		float direction = atan2(errorX, errorY) / PI * 180;
+		go(60, direction, pidRotation->calculate(heading() - headingToMaintain));
+		print("Goal approach\n\r");
+	}
+}
+
 /**Compass
 @return - North is 0�, clockwise are positive angles, values 0 - 360.
 */
@@ -182,29 +311,51 @@ float RobotSoccer::heading() {
 	return mrm_imu->heading();
 }
 
+float RobotSoccer::headingRandom(int heading, int variation){
+	float newHeading = heading + (2 * (rand() % variation) - variation);
+	if (newHeading > 180)
+		newHeading -= 360;
+	else if (newHeading < -180)
+		newHeading += 360;
+	return newHeading;
+}
+
 /** No ball detected - return to Your goal.
 */
 void RobotSoccer::idle() {
 	// if (setup())
 	// 	headingToMaintain = mrm_imu->heading();
-	if (false && lineAny())
+	if (lineAny())
 		actionSet(actionLineAvoid);
-	else if (mrm_ir_finder3->distance() > 100)
+	else if (mrm_ir_finder3->distance() > 50)
 		actionSet(actionCatch);
 	else {
-		//print("\n\rError: %i = %i - 300\n\r", (int)(300 - robot->mrm_lid_can_b2->reading(3)), robot->mrm_lid_can_b2->reading(3));
-		float errorL = 900 - left();
-		float errorR = right() - 900;
-		motorGroup->goToEliminateErrors(errorL > errorR ? errorL : errorR, 0/*200 - back()*/, heading() - headingToMaintain, pidXY, pidRotation, true);
-		//delay(500);
+		float errorL = SOCCER_SIDE_DISTANCE_WHEN_CENTERED - left();
+		float errorR = right() - SOCCER_SIDE_DISTANCE_WHEN_CENTERED;
+		float errorX = left() > right() ? errorL : errorR;
+		float errorY = SOCCER_BACK_DISTANCE_WHEN_GOALIE - back();
+		float speed = 0; // Defalt: if no room, stay put
+		if (left() > 600 || right() > 600 || back() > 500)
+			speed = pidXY->calculate(fabsf(errorX) + fabsf(errorY), false, SOCCER_SPEED_LIMIT);
+		float angularSpeed = pidRotation->calculate(heading() - headingToMaintain, false, SOCCER_ANGULAR_SPEED_LIMIT);
+
+		float direction = atan2(errorX, errorY) / PI * 180;
+		go(speed, direction, angularSpeed);
+		print("Idle: L:%i/%i R:%i/%i Hea:%i\n\r", left(), (int)errorL, right(), (int)errorR, (int)direction);
+		//motorGroup->goToEliminateErrors(errorL > errorR ? errorL : errorR, 200 - back(), heading() - headingToMaintain, pidXY, pidRotation, true);
 	}
 }
 
 /** Left distance to wall
+@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 @return - in mm
 */
-uint16_t RobotSoccer::left() {
-	return mrm_lid_can_b2->reading(0, 3); // Correct all sensors so that they return the same value for the same physical distance.
+uint16_t RobotSoccer::left(uint8_t sampleCount, uint8_t sigmaCount) {
+	return mrm_lid_can_b2->distance(3, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Line sensor
@@ -224,56 +375,83 @@ bool RobotSoccer::lineAny(){
 }
 
 void RobotSoccer::lineAvoid(){
-	static uint8_t inboundDirection[4];
-	static int8_t lastInbound = -1;
-	static int8_t escapeDirection;
-	if (setup()){
-		for (uint8_t i = 0; i < 4; i++)
-			if (mrm_ref_can->any(false, i))
-				inboundDirection[++lastInbound] = i;
+	static TriState lineLeft;
+	static TriState lineFront;
+	static float escapeDirection;
+	const uint16_t WALL_DISTANCE = 550;
 
+	if (setup()){
+		print("Line avoid enter\n\r");
+		lineLeft = TriState::Unknown;
+		lineFront = TriState::Unknown;
+	}
+
+	// Line front?
+	if (mrm_ref_can->any(false, 0) && lineFront == TriState::Unknown && front() < WALL_DISTANCE)
+			lineFront = TriState::Yes, print("Front");
+
+	// Line right?
+	if (mrm_ref_can->any(false, 1) && lineLeft == TriState::Unknown && right() < WALL_DISTANCE)
+			lineLeft = TriState::Opposite, print("Right");
+
+	// Line back?
+	if (mrm_ref_can->any(false, 2) && lineFront == TriState::Unknown && back() < WALL_DISTANCE)
+			lineFront = TriState::Opposite, print("Back");
+
+	// Line left?
+	if (mrm_ref_can->any(false, 3) && lineLeft == TriState::Unknown && left() < WALL_DISTANCE)
+			lineLeft = TriState::Yes, print("Left");
+
+	if (lineLeft != TriState::Unknown || lineFront != TriState::Unknown){ // A line, not a false alarm
 		int8_t x = 0;
 		int8_t y = 0;
-		for (uint8_t i = 0; i < lastInbound; i++)
-			switch(inboundDirection[i]){
-				case 0:
-					y++;
-					break;
-				case 1:
-					x++;
-					break;
-				case 2:
-					y--;
-					break;
-				case 3:
-					x--;
-					break;
-			}
+		if (lineFront == TriState::Yes)
+			y--;
+		else if (lineFront == TriState::Opposite)
+			y++;
+		if (lineLeft == TriState::Yes)
+			x++;
+		else if (lineLeft == TriState::Opposite)
+			x--;
 		escapeDirection = atan2(x, y) / PI * 180;
+		print("Line avoid, F:%i R:%i B:%i L:%i Esc dir: %i L:%i F:%i\n\r", mrm_ref_can->any(false, 0), mrm_ref_can->any(false, 1),
+			mrm_ref_can->any(false, 2), mrm_ref_can->any(false, 3), (int)escapeDirection, lineLeft, lineFront);
+
+		go(70, escapeDirection, pidRotation->calculate(heading() - headingToMaintain), 100);
+		if (!lineAny()){
+			print("Escaped\n\r");
+			lineLeft = TriState::Unknown;
+			lineFront = TriState::Unknown;
+			actionSet(actionIdle);
+			//actionSet(actionBounce);
+		}
 	}
-	go(30, escapeDirection, headingToMaintain - mrm_imu->heading(), 100);
-	if (!lineAny())
-		actionSet(actionIdle);
+	else
+		actionSet(actionIdle), print("False line");
+		//actionSet(actionBounce), print("False line");
 }
 
 /** Custom test.
 */
 void RobotSoccer::loop() {
-	motorGroup->go(100, 0);
-	//static int initialDirection;
-	//if (setup()) {
-	//	initialDirection = mrm_imu->heading();
-	//}
+	print("%i %i %i %i\n\r", front(10), right(10), back(10), left(10));
 
-	//int rotationalError = mrm_imu->heading() - initialDirection;
-
-	//int positionError = 0;
-	//if (mrm_lid_can_b2->reading(1) > 80)
-	//	positionError = 91 - mrm_lid_can_b2->reading(1);
-	//else if (mrm_lid_can_b2->reading(3) > 80)
-	//	positionError = mrm_lid_can_b2->reading(1) - 91;
-
-	//motorGroup->go(abs(positionError), positionError < 0 ? -90 : 90, rotationalError);
+//print("%i\n\r", front());	
+	/*static int direction;
+	static uint32_t lastChangeMs;
+	if (setup()){
+		print("Setup!");
+		headingToMaintain = heading();
+		direction = 0;
+		lastChangeMs = millis();
+	}
+	go(40, direction, pidRotation->calculate(heading() - headingToMaintain));
+	if (millis() - lastChangeMs > 5){
+		print("%i %i \n\r", direction, (int)headingToMaintain);
+		if (++direction > 180)
+			direction = -180;
+		lastChangeMs = millis();
+	}*/
 }
 
 /** Starts robot
@@ -284,7 +462,9 @@ void RobotSoccer::play() {
 		return;
 	}
 	headingToMaintain = mrm_imu->heading();
+	print("Yaw: %i\n\r", (int)headingToMaintain);
 	actionSet(actionIdle);
+	//actionSet(actionBounce);
 }
 
 /**Pitch
@@ -295,10 +475,15 @@ float RobotSoccer::pitch() {
 }
 
 /** Right distance to wall
+@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 @return - in mm
 */
-uint16_t RobotSoccer::right() {
-	return mrm_lid_can_b2->reading(0, 1); // Correct all sensors so that they return the same value for the same physical distance.
+uint16_t RobotSoccer::right(uint8_t sampleCount, uint8_t sigmaCount) {
+	return mrm_lid_can_b2->distance(1, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Roll

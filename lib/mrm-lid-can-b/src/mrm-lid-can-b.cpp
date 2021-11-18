@@ -107,18 +107,67 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 	}
 }
 
-/** Distance in mm
+/** Distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+				rest will be averaged. Keeps returning 0 till all the sample is read.
+				If sampleCount is 0, it will not wait but will just return the last value.
+@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
+				Therefore, lower sigma number will remove more errornous readings.
 @return - distance in mm
 */
-uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber){
+uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t sigmaCount){
+	const uint16_t TIMEOUT = 3000;
 	if (deviceNumber > nextFree) {
 		strcpy(errorMessage, "mrm-lid-can-b doesn't exist");
 		return 0;
 	}
 	alive(deviceNumber, true);
 	if (started(deviceNumber))
-		return (*readings)[deviceNumber];
+		if (sampleCount == 0)
+			return (*readings)[deviceNumber];
+		else{
+			uint16_t rds[sampleCount];
+			for (uint8_t i = 0; i < sampleCount; i++){
+				(*readings)[deviceNumber] = 0;
+				uint32_t ms = millis();
+				while ((*readings)[deviceNumber] == 0){
+					robotContainer->noLoopWithoutThis();
+					if (millis() - ms > TIMEOUT){
+						errorCode = 73;
+						break;
+					}
+				}
+				rds[i] = (*readings)[deviceNumber];
+				//robotContainer->print("Reading %i\n\r", (*readings)[deviceNumber]);
+			}
+
+			// Average and standard deviation
+			float sum = 0.0;
+			for(uint8_t i = 0; i < sampleCount; i++)
+				sum += rds[i];
+			//robotContainer->print("Sum %i\n\r", (int)sum);
+			float mean = sum / sampleCount;
+			//robotContainer->print("Mean %i\n\r", (int)mean);
+			float standardDeviation = 0.0;
+			for(int i = 0; i < sampleCount; i++) 
+				standardDeviation += pow(rds[i] - mean, 2);
+			standardDeviation = sqrt(standardDeviation / sampleCount);
+			//robotContainer->print("SD %i\n\r", (int)standardDeviation);
+
+			// Filter out all the values outside n-sigma boundaries and return average value of the rest
+			sum = 0;
+			uint8_t cnt = 0;
+			//robotContainer->print("Limits: %i %i (%i)\n\r", (int)(mean - sigmaCount * standardDeviation), (int)(mean + sigmaCount * standardDeviation), sigmaCount);
+			for (uint8_t i = 0; i < sampleCount; i++)
+				if (mean - sigmaCount * standardDeviation < rds[i] && rds[i] < mean + sigmaCount * standardDeviation){
+					sum += rds[i];
+					cnt++;
+				}
+
+			//robotContainer->print("Cnt %i\n\r", cnt);
+			return (uint16_t)(sum / cnt);
+		}
 	else
 		return 0;
 }
@@ -150,6 +199,22 @@ bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8]){
 		}
 	}
 	return false;
+}
+
+/** Enable plug and play
+@param enable - enable or disable
+@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+*/
+void Mrm_lid_can_b::pnpSet(bool enable, uint8_t deviceNumber){
+	if (deviceNumber == 0xFF)
+		for (uint8_t i = 0; i < nextFree; i++)
+			pnpSet(enable, i);
+	else if (alive(deviceNumber)) {
+		delay(1);
+		canData[0] = enable ? COMMAND_LID_CAN_B_PNP_ENABLE : COMMAND_LID_CAN_B_PNP_DISABLE;
+		canData[1] = enable;
+		messageSend(canData, 2, deviceNumber);
+	}
 }
 
 /** Ranging type

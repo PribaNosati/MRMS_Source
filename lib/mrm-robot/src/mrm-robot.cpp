@@ -81,6 +81,10 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	strcpy(_wiFiPassword, wiFiPassword);
 	boardInfo = new BoardInfo();
 
+	// EEPROM, data retained after system powered down
+	preferences = new Preferences();
+	preferences->begin("data", false);
+
 #if RADIO == 1
 	if (serialBT == NULL) {
 		serialBT = new BluetoothSerial(); // Additional serial port
@@ -123,42 +127,46 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 
 	mrm_can_bus = new Mrm_can_bus();
 
+	// LED Test
+	LEDSignText* signTest = new LEDSignText();
+	strcpy(signTest->text, "Test");
+
 	_actionCurrent = NULL;
 	_actionPrevious = _actionCurrent;
 
 	_actionCANBusStress = new ActionCANBusStress(this);
 	_actionDoNothing = new ActionDoNothing(this);
-	_actionLoop = new ActionLoop(this);
+	_actionLoop = new ActionLoop(this, signTest);
 	_actionMenuMain = new ActionMenuMain(this);
 	_actionStop = new ActionStop(this);
 
 	actionAdd(new Action8x8Test(this));
-	actionAdd(new ActionBluetoothTest(this));
+	actionAdd(new ActionBluetoothTest(this, signTest));
 	actionAdd(new ActionCANBusScan(this));
 	actionAdd(new ActionCANBusSniff(this));
 	actionAdd(new ActionCANBusStress(this));
-	actionAdd(new ActionColorBTest6Colors(this));
-	actionAdd(new ActionColorBTestHSV(this));
+	actionAdd(new ActionColorBTest6Colors(this, signTest));
+	actionAdd(new ActionColorBTestHSV(this, signTest));
 	actionAdd(new ActionColorIlluminationOff(this));
 	actionAdd(new ActionColorIlluminationOn(this));
 	actionAdd(new ActionColorPatternErase(this));
 	actionAdd(new ActionColorPatternPrint(this));
 	actionAdd(new ActionColorPatternRecognize(this));
 	actionAdd(new ActionColorPatternRecord(this));
-	actionAdd(new ActionColorTest6Colors(this));
-	actionAdd(new ActionColorTestHSV(this));
+	actionAdd(new ActionColorTest6Colors(this, signTest));
+	actionAdd(new ActionColorTestHSV(this, signTest));
 	actionAdd(new ActionDeviceIdChange(this));
 	actionAdd(new ActionFirmware(this));
 	actionAdd(new ActionFPS(this));
 	actionAdd(new ActionGoAhead(this));
-	actionAdd(new ActionI2CTest(this));
-	actionAdd(new ActionIMUTest(this));
+	actionAdd(new ActionI2CTest(this, signTest));
+	actionAdd(new ActionIMUTest(this, signTest));
 	actionAdd(new ActionInfo(this));
-	actionAdd(new ActionIRFinderTest(this));
-	actionAdd(new ActionIRFinderCanTest(this));
-	actionAdd(new ActionIRFinderCanTestCalculated(this));
-	actionAdd(new ActionLidar2mTest(this));
-	actionAdd(new ActionLidar4mTest(this));
+	actionAdd(new ActionIRFinderTest(this, signTest));
+	actionAdd(new ActionIRFinderCanTest(this, signTest));
+	actionAdd(new ActionIRFinderCanTestCalculated(this, signTest));
+	actionAdd(new ActionLidar2mTest(this, signTest));
+	actionAdd(new ActionLidar4mTest(this, signTest));
 	actionAdd(new ActionLidarCalibrate(this));
 	actionAdd(_actionLoop);
 	actionAdd(new ActionMenuColor(this));
@@ -166,20 +174,22 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	actionAdd(new ActionMenuMain(this));
 	actionAdd(new ActionMenuReflectance(this));
 	actionAdd(new ActionMenuSystem(this));
-	actionAdd(new ActionMotorTest(this));
-	actionAdd(new ActionNodeTest(this));
-	actionAdd(new ActionNodeServoTest(this));
+	actionAdd(new ActionMotorTest(this, signTest));
+	actionAdd(new ActionNodeTest(this, signTest));
+	actionAdd(new ActionNodeServoTest(this, signTest));
 	//actionAdd(new ActionOscillatorTest(this));
+	actionAdd(new ActionPnPOff(this));
+	actionAdd(new ActionPnPOn(this));
 	actionAdd(new ActionReflectanceArrayCalibrate(this));
 	actionAdd(new ActionReflectanceArrayCalibrationPrint(this));
-	actionAdd(new ActionReflectanceArrayAnalogTest(this));
-	actionAdd(new ActionReflectanceArrayDigitalTest(this));
+	actionAdd(new ActionReflectanceArrayAnalogTest(this, signTest));
+	actionAdd(new ActionReflectanceArrayDigitalTest(this, signTest));
 	actionAdd(new ActionServoInteractive(this));
-	actionAdd(new ActionServoTest(this));
+	actionAdd(new ActionServoTest(this, signTest));
 	actionAdd(_actionStop);
-	actionAdd(new ActionThermoTest(this));
-	actionAdd(new ActionUS_BTest(this));
-	actionAdd(new ActionUS1Test(this));
+	actionAdd(new ActionThermoTest(this, signTest));
+	actionAdd(new ActionUS_BTest(this, signTest));
+	actionAdd(new ActionUS1Test(this, signTest));
 
 	mrm_8x8a = new Mrm_8x8a(this);
 	mrm_bldc2x50 = new Mrm_bldc2x50(this);
@@ -311,6 +321,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	mrm_ref_can->add((char*)"RefArr-1");
 	mrm_ref_can->add((char*)"RefArr-2");
 	mrm_ref_can->add((char*)"RefArr-3");
+	mrm_ref_can->add((char*)"RefArr-4");
 
 	// Switch
 	mrm_switch->add(18, 19, (char*)"Switch");
@@ -350,11 +361,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	add(mrm_us1);
 
 	_devicesAtStartup = devicesScan(true);
-	if (mrm_8x8a->alive()){
-		char buffer[7];
-		sprintf(buffer, "N:%i.", _devicesAtStartup);
-		mrm_8x8a->text(buffer);
-	}
+	devicesLEDCount();
 }
 
 /** Add a new action to the collection of robot's possible actions.
@@ -468,6 +475,18 @@ void Robot::actionSet(ActionBase* newAction) {
 	_actionPrevious = _actionCurrent;
 	_actionCurrent = newAction;
 	_actionCurrent->preprocessingStart();
+	// Display action on 8x8 LED
+	if (mrm_8x8a->alive()){
+		if (_actionCurrent->ledSign == NULL)
+			devicesLEDCount();
+		else if (_actionCurrent->ledSign->type == 1 && strcmp(((LEDSignText*)(_actionCurrent->ledSign))->text, "") != 0)
+			mrm_8x8a->text(((LEDSignText*)(_actionCurrent->ledSign))->text);
+		else if (_actionCurrent->ledSign->type == 0){
+			mrm_8x8a->bitmapCustomDisplay(
+				((LEDSignBitmap*)_actionCurrent->ledSign)->red, 
+				((LEDSignBitmap*)_actionCurrent->ledSign)->green);
+		}
+	}
 }
 
 /** Add a new board to the collection of possible boards for the robot
@@ -616,6 +635,16 @@ void Robot::canBusSniffToggle() {
 	end();
 }
 
+/** Detects if there is a gap in CAN Bus addresses' sequence of any device, like 0, 2, 3 (missing 1).
+@return - is there a gap.
+*/
+bool Robot::canGap() {
+	for (uint8_t i = 0; i < _boardNextFree; i++)
+		if (board[i]->canGap())
+			return true;
+	return false;
+}
+
 /** Change device's id
 */
 void Robot::canIdChange() {
@@ -747,6 +776,16 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo
 	deviceInfo->readingsCount = 0;
 }
 
+/** Display number of CAN Bus devices using 8x8 display
+*/
+void Robot::devicesLEDCount(){
+	if (mrm_8x8a->alive()){
+		char buffer[7];
+		sprintf(buffer, "N:%i.", _devicesAtStartup);
+		mrm_8x8a->text(buffer);
+	}
+}
+
 /** Contacts all the CAN Bus devices and checks which one is alive.
 @verbose - if true, print.
 @boardType - sensor, motor, or all boards
@@ -762,6 +801,8 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 	}
 	if (verbose)
 		print("%i devices.\n\r", count);
+	if (canGap())
+		strcpy(errorMessage, "CAN gap");
 	end();
 	return count;
 }
@@ -1159,6 +1200,37 @@ void Robot::oscillatorTest() {
 			board[selectedBoardIndex]->oscillatorTest(selectedDeviceIndex);
 		}
 	}
+}
+
+/** Enable plug and play for all the connected boards.
+ */
+void Robot::pnpOn(){
+	pnpSet(true);
+}
+
+/** Disable plug and play for all the connected boards.
+ */
+void Robot::pnpOff(){
+	pnpSet(false);
+}
+
+/** Enable or disable plug and play for all the connected boards.
+ @param enable - enable or disable
+ */
+void Robot::pnpSet(bool enable){
+	uint8_t count = mrm_lid_can_b2->deadOrAliveCount();
+	for (uint8_t i = 0; i < count; i++)
+		if (mrm_lid_can_b2->alive(i)){
+			mrm_lid_can_b2->pnpSet(enable, i);
+			print("%s PnP %s\n\r", mrm_lid_can_b2->name(i), enable ? "on" : "off");
+		}
+	count = mrm_lid_can_b->deadOrAliveCount();
+	for (uint8_t i = 0; i < count; i++)
+		if (mrm_lid_can_b->alive(i)){
+			mrm_lid_can_b->pnpSet(enable, i);
+			print("%s PnP %s\n\r", mrm_lid_can_b->name(i), enable ? "on" : "off");
+		}
+	end();
 }
 
 /** Prints mrm-ref-can* calibration data
