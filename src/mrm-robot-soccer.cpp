@@ -110,7 +110,7 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 }
 
 /** Rear distance to wall
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -254,7 +254,7 @@ void RobotSoccer::catchBall() {
 }
 
 /** Front distance to wall
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -347,7 +347,7 @@ void RobotSoccer::idle() {
 }
 
 /** Left distance to wall
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -475,7 +475,7 @@ float RobotSoccer::pitch() {
 }
 
 /** Right distance to wall
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.

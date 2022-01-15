@@ -14,7 +14,7 @@
 
 // LIFT_SERVO lifts catch the mechanism.
 #define LIFT_SERVO_DOWN 130 // Lowest position, catching a ball. Increase number to lift higher.
-#define LIFT_SERVO_IDLE 140 // Idle position, a little elevated. Increase number to lift higher.
+#define LIFT_SERVO_IDLE 135 // Idle position, a little elevated. Increase number to lift higher.
 #define LIFT_SERVO_UP 230 // Top (idle) position. Increase number to lift higher.
 
 #define GRIPPER_SWITCH 27 // Gripper's switch for ball detection
@@ -25,8 +25,9 @@
 #define MAXIMUM_WALL_MM 300 // If distance bigger than this value, do not follow wall.
 
 // mrm-8x8a display bitmaps.
-enum ledSign {LED_CUSTOM, LED_EVACUATION_ZONE, LED_FULL_CROSSING_BOTH_MARKS, LED_FULL_CROSSING_MARK_LEFT, LED_FULL_CROSSING_MARK_RIGHT, LED_FULL_CROSSING_NO_MARK,
-	LED_HALF_CROSSING_MARK_LEFT, LED_HALF_CROSSING_MARK_RIGHT, LED_HALF_CROSSING_LEFT_NO_MARK, LED_HALF_CROSSING_RIGHT_NO_MARK,
+enum ledSign {LED_CUSTOM, LED_EVACUATION_ZONE, LED_FULL_CROSSING_BOTH_MARKS, LED_FULL_CROSSING_MARK_LEFT, 
+	LED_FULL_CROSSING_MARK_RIGHT, LED_FULL_CROSSING_NO_MARK, LED_HALF_CROSSING_MARK_LEFT, 
+	LED_HALF_CROSSING_MARK_RIGHT, LED_HALF_CROSSING_LEFT_NO_MARK, LED_HALF_CROSSING_RIGHT_NO_MARK,
 	LED_LINE_FULL, LED_LINE_FULL_BOTH_MARKS, LED_LINE_FULL_MARK_LEFT, LED_LINE_FULL_MARK_RIGHT, LED_LINE_INTERRUPTED, LED_CURVE_LEFT, 
 	LED_CURVE_RIGHT, LED_OBSTACLE, LED_OBSTACLE_AROUND_LEFT, LED_OBSTACLE_AROUND_RIGHT, LED_PAUSE, LED_PLAY, LED_T_CROSSING_BY_L, 
 	LED_T_CROSSING_BY_R, LED_WALL_AHEAD, LED_WALL_L, LED_WALL_R};
@@ -165,7 +166,7 @@ public:
 	void evacuationZone();
 
 	/** Front distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -175,7 +176,7 @@ public:
 	uint16_t front(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Front side - left distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -184,8 +185,13 @@ public:
 	*/
 	uint16_t frontLeft(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
+	/** Front side - left distance in cm, using ultrasonic sensor.
+	@return - distance in cm
+	*/
+	uint16_t frontLeftUS();
+
 	/** Front side - right distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -202,7 +208,7 @@ public:
 	void go(int16_t leftSpeed, int16_t rightSpeed);
 
 	/** Left side - rear sensor distance.
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -212,7 +218,7 @@ public:
 	uint16_t leftBack(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Left side - front sensor distance.
-	 @param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	 @param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -333,7 +339,7 @@ public:
 	uint16_t red(uint8_t deviceNumber = 0){return mrm_col_can->colorRed(deviceNumber);}
 
 	/** Front side - right distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -343,7 +349,7 @@ public:
 	uint16_t rightBack(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
 	/** Front side - right distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.

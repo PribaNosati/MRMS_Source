@@ -92,7 +92,7 @@ public:
 
 	/** Distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+	@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 					rest will be averaged. Keeps returning 0 till all the sample is read.
 					If sampleCount is 0, it will not wait but will just return the last value.
 	@param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.

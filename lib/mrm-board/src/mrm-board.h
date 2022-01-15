@@ -128,6 +128,12 @@ public:
 	*/
 	bool alive(uint8_t deviceNumber = 0, bool checkAgainIfDead = false, bool errorIfNotAfterCheckingAgain = false);
 
+	/** Set aliveness
+	@param yesOrNo
+	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	*/
+	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0);
+
 	/** Detects if there is a gap in CAN Bus addresses' sequence, like 0, 2, 3 (missing 1).
 	@return - is there a gap.
 	*/
@@ -137,12 +143,6 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
 	uint8_t count();
-
-	/** Set aliveness
-	@param yesOrNo
-	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0);
 
 	BoardType boardType(){ return _boardType; }
 

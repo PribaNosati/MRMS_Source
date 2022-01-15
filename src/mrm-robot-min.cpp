@@ -38,9 +38,9 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 
 
 	// Set buttons' actions
-	mrm_8x8a->actionSet(_actionMenuMain, 0); // Stop and display menu
-	mrm_8x8a->actionSet(_actionLoop, 1); // Free-defined action.
-	//mrm_8x8a->actionSet(_actionCANBusStress, 2); // Starts stress test.
+	//mrm_8x8a->actionSet(_actionCANBusStress, 1); // Starts stress test.
+	mrm_8x8a->actionSet(_actionLoop, 2); // Free-defined action.
+	mrm_8x8a->actionSet(_actionMenuMain, 3); // Stop and display menu
 	// Put Your buttons' actions here.
 
 	// Upload custom bitmaps into mrm-8x8a.
@@ -131,8 +131,8 @@ void RobotMin::loop() {
 	// }
 
 	
-	#define MRM_LID_CAN_B 0
-	#define MRM_LID_COUNT 14
+	#define MRM_LID_CAN_B 1
+	#define MRM_LID_COUNT 3
 	#if MRM_LID_CAN_B
 	// mrm-lid-can-b
 	static uint32_t lastLidarMs = 0;
@@ -159,7 +159,7 @@ void RobotMin::loop() {
 	#endif
 
 
-	#define MRM_LID_CAN_B2 1
+	#define MRM_LID_CAN_B2 0
 	#if MRM_LID_CAN_B2
 	// mrm-lid-can-b2
 	static uint32_t lastLidar4Ms = 0;

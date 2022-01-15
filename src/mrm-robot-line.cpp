@@ -9,6 +9,7 @@
 #include "mrm-robot-line.h"
 #include <mrm-servo.h>
 #include <mrm-therm-b-can.h>
+#include <mrm-us-b.h>
 
 /** Constructor
 @param name - it is also used for Bluetooth so a Bluetooth client (like a phone) will list the device using this name.
@@ -679,7 +680,7 @@ void RobotLine::evacuationZone() {
 }
 
 /** Front distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -691,7 +692,7 @@ uint16_t RobotLine::front(uint8_t sampleCount, uint8_t sigmaCount) {
 }
 
 /** Front side - left distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -702,8 +703,15 @@ uint16_t RobotLine::frontLeft(uint8_t sampleCount, uint8_t sigmaCount) {
 	return mrm_lid_can_b->distance(0, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
+/** Front side - left distance in cm, using ultrasonic sensor.
+@return - distance in cm
+*/
+uint16_t RobotLine::frontLeftUS() {
+	return mrm_us_b->reading(0); // Correct all sensors so that they return the same value for the same physical distance.
+}
+
 /** Front side - right distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -755,7 +763,7 @@ void RobotLine::illumination(uint8_t current, uint8_t deviceNumber) {
 }
 
 /** Left side - rear sensor distance.
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -767,7 +775,7 @@ uint16_t RobotLine::leftBack(uint8_t sampleCount, uint8_t sigmaCount) {
 }
 
 /** Left side - front sensor distance.
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -895,26 +903,16 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	mrm_lid_can_b2->pnpSet(true);
-	end();
-	/*static bool linija;
+	static bool linija;
 	if (setup())
 		linija = true;
 
-	if ( frontLeft() < 200 and frontRight() < 200 and not lineAny()){
-		
-			linija = false;
-	}
-
 	if (linija){
-		if ((line(0) or line(8)) and pitch() < -10)
+		if (line(0) and line(8)){
 			go(70, 70);
-		else if (line(0) and line(8))
-			go(70, 70);
-		else if (line(8))
-			go(-90, 90);
-		else if (line(0))
-			go(90, -90);
+			delayMs(1000);
+			linija = false;
+		}
 		else if (line(1))
 			go(70, -20);
 		else if (line(2))
@@ -933,29 +931,13 @@ void RobotLine::loop() {
 			go(70, 70);
 	}
 	else{
-		print("Wall\n\r");
-		if (front() < 100){
-			go(-50, 50);
-			delayMs(300);
-		}
-		if (rightFront() > 100)
-			go(80, 20);
-		else
-			go(20, 80);
+		go(100, 100);
+		delayMs(1000);
+		go(-100, -100);
+		delayMs(1000);
+		go(-70, 70);
+		delayMs(200);
 	}
-
-	if (front() < 100){
-		stop();
-		if (front(10) < 90){
-			go(90, -90);
-			delayMs(500);
-			go(20, 90);
-			while(not lineAny())
-				noLoopWithoutThis();
-			go(90, -20);
-			delayMs(300);
-		}
-	}*/
 }
 
 /** Generic actions, use them as templates
@@ -1148,20 +1130,20 @@ float RobotLine::pitch() {
 /** Starts the RCJ Line run after this action selected.
 */
 void RobotLine::rcjLine() {
-	lineFollow();
+	//lineFollow();
 	if (false)
 		if (front() < 100)
 			obstacleAvoid();
-	// mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES); // Rotate the mrm-8x8a by 90� so that it can be read properly when standing behind the robot.
-	// bitmapsSet(); // Upload all the predefined bitmaps into the mrm-8x8a.
-	// display(LED_PLAY); // Show "play" sign.
-	// mrm_col_can->illumination(0xFF, 1); // Turn mrm-col-can's surface illumination on.
-	// armClose(); // Arm will go to its idle (up) position.
-	// actionSet(actionLineFollow); // The next action is line following.
+	mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES); // Rotate the mrm-8x8a by 90� so that it can be read properly when standing behind the robot.
+	bitmapsSet(); // Upload all the predefined bitmaps into the mrm-8x8a.
+	display(LED_PLAY); // Show "play" sign.
+	mrm_col_can->illumination(0xFF, 1); // Turn mrm-col-can's surface illumination on.
+	//armClose(); // Arm will go to its idle (up) position.
+	actionSet(actionLineFollow); // The next action is line following.
 }
 
 /** Front distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
@@ -1173,7 +1155,7 @@ uint16_t RobotLine::rightBack(uint8_t sampleCount, uint8_t sigmaCount) {
 }
 
 /** Front distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
-@param sampleCount - Number or readings. 40% of the raeadings, with extreme values, will be discarded and the
+@param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
 				If sampleCount is 0, it will not wait but will just return the last value.
 @param sigmaCount - Values outiside sigmaCount sigmas will be filtered out. 1 sigma will leave 68% of the values, 2 sigma 95%, 3 sigma 99.7%.
