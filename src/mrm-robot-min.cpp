@@ -51,6 +51,9 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 */
 void RobotMin::loop() {
 	#define LIST_ALL 0
+	#define TEST1 0
+	#define TEST2 1
+
 	#if LIST_ALL
 	uint8_t cnt = 0;
     uint8_t i = 0;
@@ -69,7 +72,6 @@ void RobotMin::loop() {
     }while(cnt != 0);
     end();
 	#endif
-	#define TEST1 0
 	#if TEST1
 	// if (setup()){
 	// 	mrm_bldc4x2_5->speedSet(0, 127);
@@ -92,7 +94,6 @@ void RobotMin::loop() {
 	// print("Enc:%i\n\r", mrm_bldc4x2_5->reading(0));
 	#endif
 
-	#define TEST2 1
 	#if TEST2
 	#define OUTPUT_MOTORS 1
 	#define TOP_SPEED_TEST 100 //30

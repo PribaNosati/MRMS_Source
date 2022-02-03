@@ -66,7 +66,7 @@ class RobotMaze : public Robot {
 	// Change these values to get optimal robot's behaviour.
 	const uint16_t IMU_FOLLOW_STRENGTH = 5; // A bigger value increases feedback.
 	const uint16_t MAZE_MAX_STEPS = 0xFFFF; // Can be used to stop the robot after a certain number of steps, for example for debugging purpose.
-	const uint16_t MOVE_AHEAD_TIMEOUT_MS = 1300; // If no encoders available, the robot will stop after this time elapses, when moving ahead over 1 tile.
+	const uint16_t MOVE_AHEAD_TIMEOUT_MS = 800; // If no encoders available, the robot will stop after this time elapses, when moving ahead over 1 tile.
 	const uint16_t NO_WALL_DISTANCE = 250; // In mm. When a sensor measures a value bigger than this one, it will declare there is no wall in front of it.
 	const uint8_t TOP_SPEED = 127; // Can be used to slow down the robot. Maximum value is 127. Enter 0 to test the robot without motors working.
 	const uint16_t WALL_FOLLOW_DISTANCE = 90; // Distance for wall following. Normally it should be (300 mm - 120 mm) / 2. 300 mm is tile's width and 120 mm is robot's width.
@@ -82,6 +82,7 @@ class RobotMaze : public Robot {
 	ActionMoveAhead* actionMoveAhead;
 	ActionMoveTurn* actionMoveTurn;
 	ActionRescueMaze* actionRescueMaze;
+	ActionStop* actionStop;
 	ActionWallsTest* actionWallsTest;
 
 	Direction directionCurrent; // Current robot's direction.
@@ -95,6 +96,8 @@ class RobotMaze : public Robot {
 	Tile* tileCurrent; // Current tile (robot's position).
 
 public:
+	bool testMode; // If true, robot will stop after each action, instead of continuing the next action. Normally false.
+
 	/** Constructor
 	@param name - it is also used for Bluetooth so a Bluetooth client (like a phone) will list the device using this name.
 	*/
@@ -119,7 +122,7 @@ public:
 		For example FL is first CCW and FR is not.
 	@return - distance in mm.
 	*/
-	uint16_t distance(Direction direction, bool firstCCW) {return mrm_lid_can_b->reading(2 * mToR(direction) + firstCCW); }
+	uint16_t distance(Direction direction, bool firstCCW) {return mrm_lid_can_b->reading(0, 2 * mToR(direction) + firstCCW); }
 
 	/** Displays direction in human-readable format. For debugging purposes.
 	@param - direction in maze's system.
@@ -154,9 +157,17 @@ public:
 	*/
 	void moveAhead();
 
+	/** Move 1 tile ahead.
+	 */
+	void moveAhead1TileTest();
+
 	/** Turns the robot till the target bearing achieved.
 	*/
 	void moveTurn();
+
+	/** Turning test.
+	 */
+	void moveTurnTest();
 
 	/* Direction from maze's perspective to robot's perspective. Robot's front is TOP, robot's back is DOWN.
 	@param directionAsSeenInMaze - direction from maze's prespective.
@@ -275,8 +286,15 @@ class ActionMove : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->move(); }
 public:
 	Direction direction; // Initial direction is stored to be recalled when using the action.
-	uint32_t startMs; // Time is stored, for example to be used to determine if the movement's timeout elapsed.
 	ActionMove(Robot* robot) : ActionBase(robot, "", "") {}
+};
+
+/** Test - move 1 tile ahead.
+*/
+class ActionMove1TileTest : public ActionBase {
+	void perform() { ((RobotMaze*)_robot)->moveAhead1TileTest();}
+public:
+	ActionMove1TileTest(Robot* robot) : ActionBase(robot, "1ti", "Go 1 tile", 1) {}
 };
 
 /** Go straight ahead.
@@ -297,6 +315,15 @@ public:
 	ActionMoveTurn(Robot* robot) : ActionMove(robot) {}
 };
 
+/** Turn.
+*/
+class ActionMoveTurnTest : public ActionBase {
+	void perform() { ((RobotMaze*)_robot)->moveTurnTest(); }
+public:
+	ActionMoveTurnTest(Robot* robot) : ActionBase(robot, "tte", "Turn test", 1) {}
+};
+
+
 /** Start RCJ Rescue Maze run.
 */
 class ActionRescueMaze : public ActionBase {
@@ -310,7 +337,7 @@ public:
 class ActionOmniWheelsTest : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->omniWheelsTest(); }
 public:
-	ActionOmniWheelsTest(Robot* robot) : ActionBase(robot, "omn", "Test omni wheels", 1) {}
+	ActionOmniWheelsTest(Robot* robot) : ActionBase(robot, "omn", "Test omni wh.", 1) {}
 };
 
 /** Test, checking and displaying all walls.

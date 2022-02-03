@@ -1046,7 +1046,7 @@ void Robot::menu() {
 					if (board[j]->alive(0xFF) && board[j]->id() == _action[i]->boardsId())
 						anyAlive = true;
 			if (anyAlive) {
-				print("%-3s - %-19s%s", _action[i]->_shortcut, _action[i]->_text, column == maxColumns ? "\n\r" : "");
+				print("%-3s - %-15s%s", _action[i]->_shortcut, _action[i]->_text, column == maxColumns ? "\n\r" : ""); // -19
 				delayMs(2);
 				any = true;
 				if (column++ == maxColumns)

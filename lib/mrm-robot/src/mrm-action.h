@@ -151,7 +151,7 @@ public:
 class ActionDeviceIdChange : public ActionBase {
 	void perform();
 public:
-	ActionDeviceIdChange(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "idc", "Device's id change", 1) {}
+	ActionDeviceIdChange(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "idc", "Id change", 1) {}
 };
 
 class ActionDoNothing : public ActionBase {
@@ -259,7 +259,7 @@ public:
 class ActionMenuReflectance : public ActionBase {
 	void perform();
 public:
-	ActionMenuReflectance(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ref", "Reflectance (menu)", 1, ID_MRM_REF_CAN) {}
+	ActionMenuReflectance(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ref", "Reflect. (menu)", 1, ID_MRM_REF_CAN) {}
 };
 
 class ActionMenuSystem : public ActionBase {

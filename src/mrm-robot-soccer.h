@@ -7,7 +7,7 @@
 #define BARRIER_MID_VALUE 600 // 0 - 4095
 #define SOCCER_ANGULAR_SPEED_LIMIT 40 // 0 - 100
 #define SOCCER_BARRIER_PIN 35 // Not to be changed unless pin reassigned
-#define SOCCER_BACK_DISTANCE_WHEN_GOALIE 200 // Goalie's optimum distance when in front of won goal
+#define SOCCER_BACK_DISTANCE_WHEN_GOALIE 300 // Goalie's optimum distance when in front of won goal
 #define SOCCER_SIDE_DISTANCE_WHEN_CENTERED 700 // Distance left and right when in the centre of the field
 #define SOCCER_SPEED_LIMIT 60 // 0 - 127
 

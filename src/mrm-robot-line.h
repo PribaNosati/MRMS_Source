@@ -157,7 +157,7 @@ public:
 	void display(uint8_t image);
 
 	/** Display 8x8 text
-	@image - image's number
+	@text - text
 	*/
 	void display(char* text);
 

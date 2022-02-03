@@ -16,9 +16,9 @@
 */
 RobotLine::RobotLine(char name[]) : Robot(name) {
 	// MotorGroup class drives the motors.
-	// 2nd, 4th, 6th, and 8th parameters are output connectors of the controller (0 - 3, meaning 1 - 4. connector). 2nd one must be connected to LB (Left-Back) motor,
-	// 4th to LF (Left-Front), 6th to RF (Right-Front), and 8th to RB (Right-Back). Therefore, You can connect motors freely, but have to
-	// adjust the parameters here. In this example output (connector) 3 is LB, etc.
+	// 2nd, 4th, 6th, and 8th parameters are output connectors of the controller (number 0 - 3, meaning 1. - 4. connector). 
+	// 2nd one must be connected to LB (Left-Back) motor, 4th to LF (Left-Front), 6th to RF (Right-Front), and 8th to RB (Right-Back). 
+	// Therefore, You can connect motors freely, but have to adjust the parameters here. In this example output (connector) 0 is LB, etc.
 	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 3);
 
 	// All the actions will be defined here; the objects will be created.
@@ -642,7 +642,7 @@ void RobotLine::display(uint8_t image) {
 }
 
 /** Display 8x8 text
-@image - image's number
+@text - text
 */
 void RobotLine::display(char* text) {
 	mrm_8x8a->text(text);
@@ -903,41 +903,67 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	static bool linija;
-	if (setup())
-		linija = true;
+	static bool lastLeft;
 
-	if (linija){
-		if (line(0) and line(8)){
-			go(70, 70);
-			delayMs(1000);
-			linija = false;
-		}
-		else if (line(1))
-			go(70, -20);
-		else if (line(2))
-			go(60, 10);
-		else if (line(3))
-			go(50, 20);
-		else if (line(5))
-			go(20, 50);
-		else if (line(6))
-			go(10, 60);
-		else if (line(7))
-			go(-20, 70);
-		else if (line(4))
-			go(70, 70);
-		else
-			go(70, 70);
+	if (setup()){
+		mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES);
+		bitmapsSet();	
 	}
-	else{
-		go(100, 100);
-		delayMs(1000);
-		go(-100, -100);
-		delayMs(1000);
-		go(-70, 70);
+
+	// Pillars left or right?
+	if (frontLeft() < 130 and not lastLeft){
+		stop();
+		if (frontLeft(5) < 130)
+			lastLeft = true;
+	}
+	if (frontRight() < 130 and lastLeft){
+		stop();
+		if (frontRight(5) < 130)
+			lastLeft = false;
+	}
+
+	// Indicate last pillar's position
+	if (lastLeft)
+		display(LED_CURVE_LEFT);
+	else
+		display(LED_CURVE_RIGHT);
+
+	// Crossing?
+	if (line(8) and line(0)){
+		display(LED_FULL_CROSSING_NO_MARK);
+		stop();
+		delayMs(3000);
+		go(90, 90);
 		delayMs(200);
+		if (lastLeft)
+			go(-90, 90);
+		else
+			go(90, -90);
+		delayMs(500);
 	}
+
+	// Follow line
+	if (line(8))
+		go(-70, 70);
+	else if (line(0))
+		go(70, -70);
+	else if (line(1))
+		go(70, -30);
+	else if (line(2))
+		go(60, 10);
+	else if (line(3))
+		go(60, 25);
+	else if (line(5))
+		go(25, 60);
+	else if (line(6))
+		go(10, 60);
+	else if (line(7))
+		go(-30, 70);
+	else if (line(4))
+		go(60, 60);
+	else
+		go(-70, -70);
+
 }
 
 /** Generic actions, use them as templates
