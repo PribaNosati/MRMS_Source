@@ -23,6 +23,7 @@
 #include <mrm-robot.h>
 #include "mrm-robot-line.h"
 #include "mrm-robot-maze.h"
+//#include "mrm-robot-maze-competition.h"
 #include "mrm-robot-min.h"
 #include "mrm-robot-soccer.h"
 #include <mrm-servo.h>
@@ -35,7 +36,7 @@
 Robot *robot;
 
 void setup() {
-	robot = new RobotMin((char*)"Frank"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
+	robot = new RobotMin((char*)"Pluto"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
 	robot->print("Start.\n\r");
 }
 

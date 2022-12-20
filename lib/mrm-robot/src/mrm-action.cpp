@@ -6,6 +6,7 @@
 #include <mrm-node.h>
 #include <mrm-ir-finder3.h>
 //#include <mrm-ir-finder-can.h>
+#include <mrm-lid-d.h>
 #include <mrm-ref-can.h>
 #include <mrm-servo.h>
 #include <mrm-robot.h>
@@ -61,7 +62,11 @@ void ActionInfo::perform() { _robot->info(); }
 void ActionLidarCalibrate::perform() { _robot->lidarCalibrate(); }
 void ActionLidar2mTest::perform() { _robot->lidar2mTest(); }
 void ActionLidar4mTest::perform() { _robot->lidar4mTest(); }
+void ActionLidar4mMultiTest::perform() { _robot->mrm_lid_d->test(); }
 void ActionLoop::perform() { _robot->loop(); }
+void ActionLoop0::perform() { _robot->loop0(); }
+void ActionLoop1::perform() { _robot->loop1(); }
+void ActionLoop2::perform() { _robot->loop2(); }
 void ActionMenuColor::perform() { _robot->menuColor(); }
 void ActionMenuColorB::perform() { _robot->menuColor(); }
 void ActionMenuMain::perform() { _robot->menuMainAndIdle(); }

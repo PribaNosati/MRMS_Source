@@ -33,11 +33,11 @@ void Mrm_us_b::add(char * deviceName)
 		break;
 	case 2:
 		canIn = CAN_ID_US_B2_IN;
-		canOut = CAN_ID_US_B3_OUT;
+		canOut = CAN_ID_US_B2_OUT;
 		break;
 	case 3:
 		canIn = CAN_ID_US_B3_IN;
-		canOut = CAN_ID_US_B4_OUT;
+		canOut = CAN_ID_US_B3_OUT;
 		break;
 	case 4:
 		canIn = CAN_ID_US_B4_IN;
@@ -65,9 +65,10 @@ void Mrm_us_b::add(char * deviceName)
 
 /** Read CAN Bus message into local variables
 @param data - 8 bytes from CAN Bus message.
+@param length - number of data bytes
 */
-bool Mrm_us_b::messageDecode(uint32_t canId, uint8_t data[8]) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
+bool Mrm_us_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
+	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
 				switch (data[0]) {
@@ -81,13 +82,14 @@ bool Mrm_us_b::messageDecode(uint32_t canId, uint8_t data[8]) {
 				// }
 				default:
 					robotContainer->print("Unknown command. ");
-					messagePrint(canId, 8, data, false);
+					messagePrint(canId, length, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
 				}
 			}
 			return true;
 		}
+	}
 	return false;
 }
 

@@ -81,6 +81,11 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	actionGoalApproach = new ActionSoccerGoalApproach(this, signGoalApproach);
 	actionIdle = new ActionSoccerIdle(this, signIdle);
 	actionLineAvoid = new ActionSoccerLineAvoid(this, signLineAvoid);
+	actionLoop0 = new ActionSoccerLoop0(this);
+	actionLoop1 = new ActionSoccerLoop1(this);
+	actionLoop2 = new ActionSoccerLoop2(this);
+	actionLoop3 = new ActionSoccerLoop3(this);
+	actionLoop4 = new ActionSoccerLoop4(this);
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
@@ -90,6 +95,10 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	actionAdd(actionCalibrate);
 	actionAdd(actionPlay);
 	actionAdd(new ActionSoccerBarrierTest(this));
+	actionAdd(actionLoop0);
+	actionAdd(actionLoop1);
+	actionAdd(actionLoop2);
+	actionAdd(actionLoop3);
 
 	// mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
 	// mrm_mot4x3_6can->directionChange(1); // Uncomment to change 2nd wheel's rotation direction
@@ -100,6 +109,7 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	mrm_8x8a->actionSet(actionPlay, 0); // Button 1 starts the play
 	mrm_8x8a->actionSet(actionBounce, 1); // Button 2 starts user defined bounce() function
 	mrm_8x8a->actionSet(_actionLoop, 2); // Button 3 starts user defined loop() function
+	// mrm_8x8a->actionSet(actionCalibrate, 2);
 	mrm_8x8a->actionSet(_actionMenuMain, 3); // Button 4 stops the robot and prints main manu
 
 	// Set number of phototransistors in each line sensor.
@@ -323,8 +333,6 @@ float RobotSoccer::headingRandom(int heading, int variation){
 /** No ball detected - return to Your goal.
 */
 void RobotSoccer::idle() {
-	// if (setup())
-	// 	headingToMaintain = mrm_imu->heading();
 	if (lineAny())
 		actionSet(actionLineAvoid);
 	else if (mrm_ir_finder3->distance() > 50)
@@ -334,7 +342,7 @@ void RobotSoccer::idle() {
 		float errorR = right() - SOCCER_SIDE_DISTANCE_WHEN_CENTERED;
 		float errorX = left() > right() ? errorL : errorR;
 		float errorY = SOCCER_BACK_DISTANCE_WHEN_GOALIE - back();
-		float speed = 0; // Defalt: if no room, stay put
+		float speed = 0; // Default: if no room, stay put
 		if (left() > 600 || right() > 600 || back() > 500)
 			speed = pidXY->calculate(fabsf(errorX) + fabsf(errorY), false, SOCCER_SPEED_LIMIT);
 		float angularSpeed = pidRotation->calculate(heading() - headingToMaintain, false, SOCCER_ANGULAR_SPEED_LIMIT);
@@ -368,9 +376,12 @@ bool RobotSoccer::line(uint8_t transistorNumber, uint8_t deviceNumber) {
 }
 
 bool RobotSoccer::lineAny(){
-	for (uint8_t i = 0; i < 4; i++)
-		if (mrm_ref_can->any(false, i))
-			return true;
+	const bool AVOID_LINE = false;
+	const bool ENABLE_FRONT_SENSOR = false;
+	if (AVOID_LINE)
+		for (uint8_t i = (ENABLE_FRONT_SENSOR ? 0 : 1); i < 4; i++)
+			if (mrm_ref_can->any(false))
+				return true;
 	return false;
 }
 
@@ -431,27 +442,43 @@ void RobotSoccer::lineAvoid(){
 		//actionSet(actionBounce), print("False line");
 }
 
+int8_t speedX;
+int8_t speedY;
+
 /** Custom test.
 */
 void RobotSoccer::loop() {
-	print("%i %i %i %i\n\r", front(10), right(10), back(10), left(10));
+	if (left() < right())
+		go(50, 0, 20);
+	else
+		go(50, 0, -20);
+}
 
-//print("%i\n\r", front());	
-	/*static int direction;
-	static uint32_t lastChangeMs;
-	if (setup()){
-		print("Setup!");
-		headingToMaintain = heading();
-		direction = 0;
-		lastChangeMs = millis();
-	}
-	go(40, direction, pidRotation->calculate(heading() - headingToMaintain));
-	if (millis() - lastChangeMs > 5){
-		print("%i %i \n\r", direction, (int)headingToMaintain);
-		if (++direction > 180)
-			direction = -180;
-		lastChangeMs = millis();
-	}*/
+/** Generic actions, use them as templates
+*/
+void RobotSoccer::loop0() { speedY += 5, actionSet(actionLoop4);} // Forward
+
+void RobotSoccer::loop1() { speedY -= 5, actionSet(actionLoop4);} // Backward
+
+void RobotSoccer::loop2() { speedX -= 5, actionSet(actionLoop4);} // Left
+
+void RobotSoccer::loop3() { speedX += 5, actionSet(actionLoop4);} // Right
+
+void RobotSoccer::loop4() {
+	const int MAX_SPEED = 30;
+	//Limit speed
+	if (speedX < -MAX_SPEED)
+		speedX = -MAX_SPEED;
+	if (speedX > MAX_SPEED)
+		speedX = MAX_SPEED;
+	if (speedY < -MAX_SPEED)
+		speedY = -MAX_SPEED;
+	if (speedY > MAX_SPEED)
+		speedY = MAX_SPEED;
+	float direction = atan2(speedX, speedY) / PI * 180; // Arcus tangens to get angle.
+	float speed = sqrt(speedX * speedX + speedY * speedY); // Variable speed.
+	// print("%i°, x: %i, y: %i, speed: %i\n\r", (int)direction, speedX, speedY, (int)speed);
+	go(speed, direction, pidRotation->calculate(heading() - headingToMaintain), 100);
 }
 
 /** Starts robot
@@ -467,13 +494,6 @@ void RobotSoccer::play() {
 	//actionSet(actionBounce);
 }
 
-/**Pitch
-@return - Pitch in degrees. Inclination forwards or backwards. Leveled robot shows 0�.
-*/
-float RobotSoccer::pitch() {
-	return mrm_imu->pitch();
-}
-
 /** Right distance to wall
 @param sampleCount - Number or readings. 40% of the readings, with extreme values, will be discarded and the
 				rest will be averaged. Keeps returning 0 till all the sample is read.
@@ -486,12 +506,6 @@ uint16_t RobotSoccer::right(uint8_t sampleCount, uint8_t sigmaCount) {
 	return mrm_lid_can_b2->distance(1, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
-/** Roll
-@return - Roll in degrees. Inclination to the left or right. Values -90 - 90. Leveled robot shows 0�.
-*/
-float RobotSoccer::roll() {
-	return mrm_imu->roll();
-}
 
 /** Display fixed sign stored in sensor
 @image - sign's number

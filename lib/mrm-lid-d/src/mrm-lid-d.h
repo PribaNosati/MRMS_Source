@@ -9,54 +9,52 @@ Purpose: mrm-lid-can-b2 interface to CANBus.
 Licence: You can use this code any way you like.
 */
 
-#define CAN_ID_LID_CAN_B2_0_IN 0x0150
-#define CAN_ID_LID_CAN_B2_0_OUT 0x0151
-#define CAN_ID_LID_CAN_B2_1_IN 0x0152
-#define CAN_ID_LID_CAN_B2_1_OUT 0x0153
-#define CAN_ID_LID_CAN_B2_2_IN 0x0154
-#define CAN_ID_LID_CAN_B2_2_OUT 0x0155
-#define CAN_ID_LID_CAN_B2_3_IN 0x0156
-#define CAN_ID_LID_CAN_B2_3_OUT 0x0157
-#define CAN_ID_LID_CAN_B2_4_IN 0x0158
-#define CAN_ID_LID_CAN_B2_4_OUT 0x0159
-#define CAN_ID_LID_CAN_B2_5_IN 0x015A
-#define CAN_ID_LID_CAN_B2_5_OUT 0x015B
-#define CAN_ID_LID_CAN_B2_6_IN 0x015C
-#define CAN_ID_LID_CAN_B2_6_OUT 0x015D
-#define CAN_ID_LID_CAN_B2_7_IN 0x015E
-#define CAN_ID_LID_CAN_B2_7_OUT 0x015F
+#define CAN_ID_LID_D_0_IN 0x0390
+#define CAN_ID_LID_D_0_OUT 0x0391
+#define CAN_ID_LID_D_1_IN 0x0392
+#define CAN_ID_LID_D_1_OUT 0x0393
+#define CAN_ID_LID_D_2_IN 0x0394
+#define CAN_ID_LID_D_2_OUT 0x0395
+#define CAN_ID_LID_D_3_IN 0x0396
+#define CAN_ID_LID_D_3_OUT 0x0397
+#define CAN_ID_LID_D_4_IN 0x0398
+#define CAN_ID_LID_D_4_OUT 0x0399
+#define CAN_ID_LID_D_5_IN 0x039A
+#define CAN_ID_LID_D_5_OUT 0x039B
+#define CAN_ID_LID_D_6_IN 0x039C
+#define CAN_ID_LID_D_6_OUT 0x039D
+#define CAN_ID_LID_D_7_IN 0x039E
+#define CAN_ID_LID_D_7_OUT 0x039F
 
-#define CAN_ID_LID_CAN_B2_8_IN 0x0270
-#define CAN_ID_LID_CAN_B2_8_OUT 0x0271
-#define CAN_ID_LID_CAN_B2_9_IN 0x0272
-#define CAN_ID_LID_CAN_B2_9_OUT 0x0273
-#define CAN_ID_LID_CAN_B2_10_IN 0x0274
-#define CAN_ID_LID_CAN_B2_10_OUT 0x0275
-#define CAN_ID_LID_CAN_B2_11_IN 0x0276
-#define CAN_ID_LID_CAN_B2_11_OUT 0x0277
-#define CAN_ID_LID_CAN_B2_12_IN 0x0278
-#define CAN_ID_LID_CAN_B2_12_OUT 0x0279
-#define CAN_ID_LID_CAN_B2_13_IN 0x027A
-#define CAN_ID_LID_CAN_B2_13_OUT 0x027B
-#define CAN_ID_LID_CAN_B2_14_IN 0x027C
-#define CAN_ID_LID_CAN_B2_14_OUT 0x027D
-#define CAN_ID_LID_CAN_B2_15_IN 0x027E
-#define CAN_ID_LID_CAN_B2_15_OUT 0x027F
+#define CAN_ID_LID_D_8_IN 0x0400
+#define CAN_ID_LID_D_8_OUT 0x0401
+#define CAN_ID_LID_D_9_IN 0x0402
+#define CAN_ID_LID_D_9_OUT 0x0403
+#define CAN_ID_LID_D_10_IN 0x0404
+#define CAN_ID_LID_D_10_OUT 0x0405
+#define CAN_ID_LID_D_11_IN 0x0406
+#define CAN_ID_LID_D_11_OUT 0x0407
+#define CAN_ID_LID_D_12_IN 0x0408
+#define CAN_ID_LID_D_12_OUT 0x0409
+#define CAN_ID_LID_D_13_IN 0x040A
+#define CAN_ID_LID_D_13_OUT 0x040B
+#define CAN_ID_LID_D_14_IN 0x040C
+#define CAN_ID_LID_D_14_OUT 0x040D
+#define CAN_ID_LID_D_15_IN 0x040E
+#define CAN_ID_LID_D_15_OUT 0x040F
 
 //CANBus commands
-#define COMMAND_LID_CAN_B2_CALIBRATE 0x05
-#define COMMAND_LID_CAN_B2_PNP_ENABLE 0x28
-#define COMMAND_LID_CAN_B2_PNP_DISABLE 0x29
-#define COMMAND_LID_CAN_B2_DISTANCE_MODE 0x50
-#define COMMAND_LID_CAN_B2_TIMING_BUDGET 0x51
-#define COMMAND_LID_CAN_B2_MEASUREMENT_TIME 0x52
-#define COMMAND_LID_CAN_B2_ROI 0x53
+#define COMMAND_LID_D_RESOLUTION 0x05
+#define COMMAND_LID_D_PNP_ENABLE 0x28
+#define COMMAND_LID_D_PNP_DISABLE 0x29
+#define COMMAND_LID_D_FREQUENCY 0x50
 
-#define MRM_LID_CAN_B2_INACTIVITY_ALLOWED_MS 10000
+#define MRM_LID_D_INACTIVITY_ALLOWED_MS 10000
 
-class Mrm_lid_can_b2 : public SensorBoard
+class Mrm_lid_d : public SensorBoard
 {
-	std::vector<uint16_t>* readings; // Analog readings of all sensors
+	std::vector<uint8_t>* _resolution;
+	std::vector<std::vector<uint16_t>>* readings; // Analog readings of all sensors
 
 	/** If sensor not started, start it and wait for 1. message
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -71,14 +69,15 @@ public:
 	@param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
 	@param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 	*/
-	Mrm_lid_can_b2(Robot* robot = NULL, uint8_t maxDevices = 12);
+	Mrm_lid_d(Robot* robot = NULL, uint8_t maxDevices = 8);
 
-	~Mrm_lid_can_b2();
+	~Mrm_lid_d();
 
-	/** Add a mrm-ref-can sensor
+	/** Add a mrm-lid-d sensor
 	@param deviceName - device's name
+	@param resolution - 16 or 64, number of measuring dots
 	*/
-	void add(char * deviceName = (char*)"");
+	void add(char * deviceName = (char*)"", uint8_t resolution = 16);
 	
 	/** Calibration, only once after production
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -101,26 +100,31 @@ public:
 	*/
 	uint16_t distance(uint8_t deviceNumber, uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
 
-	/** Distance mode. Short mode has better ambient light immunity but the maximum distance is limited to 1.3 m. Long distance ranges up to 
-		4 m but is less performant under ambient light. Stored in sensors non-volatile memory. Allow 50 ms for flash to be written.
+	/** Minimum distance in mm. 
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@param isShort - if not short, long.
+	@return - distance in mm
 	*/
-	void distanceMode(uint8_t deviceNumber, bool isShort = true);
+	uint16_t distanceShortest(uint8_t deviceNumber);
 
-	/** Measurement time (IMP) in ms. IMP must be >= TB. Probably the best value is IMP = TB. Stored in sensors non-volatile memory.
-	Allow 50 ms for flash to be written.
+	/** Dot distance
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@param ms - default 100.
+	@param x - x coordinate
+	@param y - y coordinate
+	@return - distance in mm
 	*/
-	void measurementTime(uint8_t deviceNumber, uint16_t ms = 100);
+	uint16_t dot(uint8_t deviceNumber, uint8_t x, uint8_t y);
+
+	/** Frequency.
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@param frequency - up to 60 for 4x4 and 15 for 8x8.
+	*/
+	void frequencySet(uint8_t deviceNumber, uint8_t frequency);
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
-	@param length - number of data bytes
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t length);
+	bool messageDecode(uint32_t canId, uint8_t data[8]);
 
 	/** Enable plug and play
 	@param enable - enable or disable
@@ -139,23 +143,14 @@ public:
 	*/
 	void readingsPrint();
 
-	/** ROI, region of interest, a matrix from 4x4 up to 16x16 (x, y). Smaller x and y - smaller view angle. Stored in sensors non-volatile memory.
-	Allow 50 ms for flash to be written.
+	/** Resolution, 4x4 or 8x8.
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@param x - default 16.
-	@param y - default 16.
+	@param resolution - 16 or 64. Default 16.
 	*/
-	void roi(uint8_t deviceNumber, uint8_t x = 16, uint8_t y = 16);
+	void resolutionSet(uint8_t deviceNumber, uint8_t resolution = 16);
 
 	/**Test
 	*/
 	void test();
-
-	/** Timing budget (TB) in ms. TB improves the measurement reliability but increases power consumption. Stored in sensors non-volatile memory.
-			Set before measurement time as measurement time checks this value and returns error if not appropriate. Allow 50 ms for flash to be written.
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@param ms - (TB) in ms possible values [20, 50, 100, 200, 500]. Default 100.
-	*/
-	void timingBudget(uint8_t deviceNumber, uint16_t ms = 100);
 };
 

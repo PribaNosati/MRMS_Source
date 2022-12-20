@@ -1,4 +1,4 @@
-﻿#include <mrm-8x8a.h>
+#include <mrm-8x8a.h>
 #include <mrm-bldc4x2.5.h>
 #include <mrm-col-can.h>
 #include <mrm-imu.h>
@@ -10,6 +10,7 @@
 #include "mrm-robot-min.h"
 #include <mrm-servo.h>
 #include <mrm-therm-b-can.h>
+#include <EEPROM.h>
 
 class ActionMotorShortTest;
 
@@ -36,15 +37,18 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// called in the code, but only through menus. For example, ActionWallsTest test is only manu-based, and it is all right.
 	// This test is not supposed to be called in code.
 
-
 	// Set buttons' actions
-	//mrm_8x8a->actionSet(_actionCANBusStress, 1); // Starts stress test.
+	mrm_8x8a->actionSet(_actionLoop0, 1); // Starts stress test.
 	mrm_8x8a->actionSet(_actionLoop, 2); // Free-defined action.
 	mrm_8x8a->actionSet(_actionMenuMain, 3); // Stop and display menu
 	// Put Your buttons' actions here.
 
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();
+
+	// _actionCurrent = _actionLoop0; // Comment the line if no default action
+	pinMode(26, OUTPUT);
+	digitalWrite(26, LOW);
 }
 
 /** Custom test. The function will be called many times during the test, till You issue "x" menu-command.
@@ -52,7 +56,10 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 void RobotMin::loop() {
 	#define LIST_ALL 0
 	#define TEST1 0
-	#define TEST2 1
+	#define TEST2 0
+	#define TEST3 0
+	#define TEST4 1
+	#define TEST5 0
 
 	#if LIST_ALL
 	uint8_t cnt = 0;
@@ -269,11 +276,97 @@ void RobotMin::loop() {
 	// actionSet(_actionLoop);
 	#endif
 
-	#define TEST3 0
 	#if TEST3
 	print("%i %i\n\r", mrm_therm_b_can->reading(0),  mrm_therm_b_can->reading(1));
 	if ( mrm_therm_b_can->reading(0) > 50 ||  mrm_therm_b_can->reading(1) > 50)
 		end();
 	delayMs(100);
 	#endif
+
+	#if TEST4
+		EEPROM.begin(12);
+		uint8_t address = 0;
+		EEPROM.write(address, 0xFF);
+		address++;
+		EEPROM.write(address, 17);
+		EEPROM.commit(); // Warning: only 100000 times writeable
+
+		uint8_t content = EEPROM.read(address);
+		print("Content: %i\n\r", (int)content);
+		if (content == 0xFF){
+			mrm_8x8a->text("Last failed");
+			print("Last failed");
+			EEPROM.begin(12);
+			EEPROM.write(0, 0);
+			EEPROM.commit(); // Warning: only 100000 times writeable
+			for(;;);
+		}
+		else
+			print("Nothing");
+		end();
+	#endif
+
+	#if TEST5
+		if (setup()){
+			print("Test master\n\r");
+			pinMode(16, OUTPUT);
+			pinMode(27, INPUT_PULLDOWN);
+		}
+		print("On\n\r");
+		digitalWrite(16, HIGH);
+		delayMs(50000);
+		if (digitalRead(27)){
+			mrm_8x8a->text((char*)"Break");
+			print("End.");
+			end();
+		}
+		else{
+			print("Off\n\r");
+			digitalWrite(16, LOW);
+			delayMs(3000);
+		}
+	#endif
+}
+
+#define EEPROM_SIZE 12
+#define DEVICE_COUNT 9
+void RobotMin::loop0(){
+	static uint32_t i = 0;
+	if (setup()){
+		print("Started - devices test.\n\r");
+		uint8_t address = 0;
+		uint8_t count;
+		if (EEPROM.read(address) == 0xFF){
+			mrm_8x8a->text("Last failed");
+			print("Last failed");
+			EEPROM.begin(EEPROM_SIZE);
+			EEPROM.write(0, 0);
+			EEPROM.commit(); // Warning: only 100000 times writeable
+			for(;;);
+		}
+	}
+	uint8_t count = devicesScan(true);
+	actionSet(_actionLoop0);
+	if (count == DEVICE_COUNT)
+		print("Pass %i OK\n\r", ++i);
+	else{
+		mrm_8x8a->text("STOP");
+		print("%i devices, stop\n\r");
+		digitalWrite(26, HIGH);
+		EEPROM.begin(EEPROM_SIZE);
+		uint8_t address = 0;
+		EEPROM.write(address, 0xFF);
+		address++;
+		EEPROM.write(address, count);
+		EEPROM.commit(); // Warning: only 100000 times writeable
+		for(;;);
+	}
+}
+
+void RobotMin::loop1(){
+
+}
+
+void RobotMin::loop2(){
+
 }

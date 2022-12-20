@@ -5,12 +5,12 @@
 // Change these values to get optimal robot's behaviour.
 
 // CATCH_SERVO L and R drive jaws that catch ball.
-#define CATCH_SERVO_L_CATCH 30 // Ball caught, left servo. Smaller number - more tightly closed.
-#define CATCH_SERVO_L_CLOSE 0 // Closed (idle) position, no ball, left servo. Smaller number - more tightly closed.
-#define CATCH_SERVO_L_OPEN 90 // Open position, ready to catch a ball, left servo.
-#define CATCH_SERVO_R_CATCH 70 // Ball caught, right servo. Bigger number - more tightly closed.
-#define CATCH_SERVO_R_CLOSE 90 // Closed (idle) position, no ball, right servo. Bigger number - more tightly closed.
-#define CATCH_SERVO_R_OPEN 0 // Open position, ready to catch a ball, right servo. Bigger number - more tightly closed.
+#define CATCH_SERVO_L_CATCH 60 // Ball caught, left servo. Smaller number - more tightly closed.
+#define CATCH_SERVO_L_CLOSE 90 // Closed (idle) position, no ball, left servo. Smaller number - more tightly closed.
+#define CATCH_SERVO_L_OPEN 0 // Open position, ready to catch a ball, left servo.
+#define CATCH_SERVO_R_CATCH 40 // Ball caught, right servo. Bigger number - more tightly closed.
+#define CATCH_SERVO_R_CLOSE 0 // Closed (idle) position, no ball, right servo. Bigger number - more tightly closed.
+#define CATCH_SERVO_R_OPEN 90 // Open position, ready to catch a ball, right servo. Bigger number - more tightly closed.
 
 // LIFT_SERVO lifts catch the mechanism.
 #define LIFT_SERVO_DOWN 130 // Lowest position, catching a ball. Increase number to lift higher.
@@ -247,9 +247,6 @@ public:
 
 	/** Generic actions, use them as templates
 	*/
-	void loop0();
-	void loop1();
-	void loop2();
 	void loop3();
 	void loop4();
 	void loop5();
@@ -272,11 +269,6 @@ public:
 	 */
 	uint16_t green(uint8_t deviceNumber = 0){return mrm_col_can->colorGreen(deviceNumber);}
 
-	/**Compass
-	@return - North is 0�, clockwise are positive angles, values 0 - 360.
-	*/
-	float heading();
-
 	/** Color sensor's hue
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - Hue
@@ -296,6 +288,10 @@ public:
 	/** Custom test
 	*/
 	void loop();
+
+	void loop0();
+	void loop1();
+	void loop2();
 
 	/** Check markers and turn if any found
 	@return - true if marker found, false otherwise
@@ -322,11 +318,6 @@ public:
 	@raturn - patternNumber
 	*/
 	uint8_t patternColors(uint8_t deviceNumber = 0);
-
-	/**Pitch
-	@return - Pitch in degrees. Inclination forwards or backwards. Leveled robot shows 0�.
-	*/
-	float pitch();
 
 	/** Starts the RCJ Line run after this action selected.
 	*/
@@ -357,11 +348,6 @@ public:
 	@return - distance in mm
 	*/
 	uint16_t rightFront(uint8_t sampleCount = 0, uint8_t sigmaCount = 1);
-
-	/** Roll
-	@return - Roll in degrees. Inclination to the left or right. Values -90 - 90. Leveled robot shows 0�.
-	*/
-	float roll();
 
 	/** Color sensor's saturation
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -502,24 +488,6 @@ public:
 
 
 // ****************** Generic actions
-
-class ActionLoop0 : public ActionBase {
-	void perform() { ((RobotLine*)_robot)->loop0(); }
-public:
-	ActionLoop0(RobotLine* robot) : ActionBase(robot, "lo0", "Loop 0", 8) {}
-};
-
-class ActionLoop1 : public ActionBase {
-	void perform() { ((RobotLine*)_robot)->loop1(); }
-public:
-	ActionLoop1(RobotLine* robot) : ActionBase(robot, "lo1", "Loop 1", 8) {}
-};
-
-class ActionLoop2 : public ActionBase {
-	void perform() { ((RobotLine*)_robot)->loop2(); }
-public:
-	ActionLoop2(RobotLine* robot) : ActionBase(robot, "lo2", "Loop 2", 8) {}
-};
 
 class ActionLoop3 : public ActionBase {
 	void perform() { ((RobotLine*)_robot)->loop3(); }

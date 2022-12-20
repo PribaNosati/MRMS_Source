@@ -97,7 +97,7 @@ public:
 class ActionColorBTestHSV : public ActionBase {
 	void perform();
 public:
-	ActionColorBTestHSV(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "hsv", "Test HSV", 4, ID_MRM_COL_B) {}
+	ActionColorBTestHSV(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "hs1", "Test HSV", 4, ID_MRM_COL_B) {}
 };
 
 class ActionColorIlluminationOff : public ActionBase {
@@ -226,6 +226,12 @@ public:
 	ActionLidar4mTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "li4", "Test li. 4m", 1, ID_MRM_LID_CAN_B2){}
 };
 
+class ActionLidar4mMultiTest : public ActionBase {
+	void perform();
+public:
+	ActionLidar4mMultiTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lim", "Test li. mul", 1, ID_MRM_LID_D){}
+};
+
 class ActionLidarCalibrate : public ActionBase {
 	void perform();
 public:
@@ -236,6 +242,24 @@ class ActionLoop : public ActionBase {
 	void perform();
 public:
 	ActionLoop(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "loo", "Loop test", 1, ID_ANY, ledSign) {}
+};
+
+class ActionLoop0 : public ActionBase {
+	void perform();
+public:
+	ActionLoop0(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo0", "Loop test 0", 1, ID_ANY, ledSign) {}
+};
+
+class ActionLoop1 : public ActionBase {
+	void perform();
+public:
+	ActionLoop1(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo1", "Loop test 1", 1, ID_ANY, ledSign) {}
+};
+
+class ActionLoop2 : public ActionBase {
+	void perform();
+public:
+	ActionLoop2(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo2", "Loop test 2", 1, ID_ANY, ledSign) {}
 };
 
 class ActionMenuColor : public ActionBase {

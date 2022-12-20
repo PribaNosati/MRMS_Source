@@ -123,13 +123,14 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 		return 0;
 	}
 	alive(deviceNumber, true); // This command doesn't make sense
-	if (started(deviceNumber))
+	if (started(deviceNumber)){
 		if (sampleCount == 0)
 			return (*readings)[deviceNumber];
 		else{
 			uint16_t rds[sampleCount];
 			for (uint8_t i = 0; i < sampleCount; i++){
-				(*readings)[deviceNumber] = 0;
+				if (i != 0) // For 2. reading, etc. - force new readout
+					(*readings)[deviceNumber] = 0;
 				uint32_t ms = millis();
 				while ((*readings)[deviceNumber] == 0){
 					robotContainer->noLoopWithoutThis();
@@ -168,6 +169,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 			//robotContainer->print("Cnt %i\n\r", cnt);
 			return (uint16_t)(sum / cnt);
 		}
+	}
 	else
 		return 0;
 }
@@ -175,9 +177,10 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
 @param data - 8 bytes from CAN Bus message.
+@param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8]){
+bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length){
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
@@ -190,7 +193,7 @@ bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8]){
 				break;
 				default:
 					robotContainer->print("Unknown command. ");
-					messagePrint(canId, 8, data, false);
+					messagePrint(canId, length, data, false);
 					errorCode = 206;
 					errorInDeviceNumber = deviceNumber;
 				}
@@ -256,20 +259,22 @@ void Mrm_lid_can_b::readingsPrint() {
 */
 bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//robotContainer->print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
+		robotContainer->print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
-			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
-					//print("Lidar confirmed\n\r");
+			while (millis() - startMs < 10) {
+				//robotContainer->print("-try-");
+				if (millis() - (*_lastReadingMs)[deviceNumber] < 20) {
+					//robotContainer->print("%s confirmed\n\r", (char*)name(deviceNumber));
 					return true;
 				}
-				robotContainer->delayMs(1);
+				robotContainer->delayMicros(1000);
 			}
 		}
-		strcpy(errorMessage, "mrm-lid-can-b dead.\n\r");
+		sprintf(errorMessage, "%s not responding.\n\r", (char*)name(deviceNumber)); // To be reported later.
+		robotContainer->print(errorMessage);
 		return false;
 	}
 	else
@@ -288,7 +293,9 @@ void Mrm_lid_can_b::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 	if (millis() - lastMs > (betweenTestsMs == 0 ? 300 : betweenTestsMs)) {
 		uint8_t pass = 0;
 		for (uint8_t i = 0; i < nextFree; i++) {
-			if (alive(i) && (deviceNumber == 0xFF || i == deviceNumber)) {
+			bool isAlive = alive(i);
+			// robotContainer->print("L%i:%s", i, isAlive ? "Y" : "N"); 
+			if (isAlive && (deviceNumber == 0xFF || i == deviceNumber)) {
 				if (pass++)
 					robotContainer->print(" ");
 				robotContainer->print("%4i ", distance(i));

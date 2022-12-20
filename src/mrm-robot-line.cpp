@@ -4,6 +4,7 @@
 #include <mrm-imu.h>
 #include <mrm-lid-can-b.h>
 #include <mrm-lid-can-b2.h>
+#include <mrm-lid-d.h>
 #include <mrm-mot4x3.6can.h>
 #include <mrm-mot4x10.h>
 #include "mrm-robot-line.h"
@@ -19,7 +20,7 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	// 2nd, 4th, 6th, and 8th parameters are output connectors of the controller (number 0 - 3, meaning 1. - 4. connector). 
 	// 2nd one must be connected to LB (Left-Back) motor, 4th to LF (Left-Front), 6th to RF (Right-Front), and 8th to RB (Right-Back). 
 	// Therefore, You can connect motors freely, but have to adjust the parameters here. In this example output (connector) 0 is LB, etc.
-	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 3);
+	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
 
 	// All the actions will be defined here; the objects will be created.
 	actionEvacuationZone = new ActionEvacuationZone(this);
@@ -32,8 +33,6 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 
 	// Generic actions
 	actionLoopMenu = new ActionLoopMenu(this);
-	actionLoop0 = new ActionLoop0(this);
-	actionLoop1 = new ActionLoop1(this);
 	actionLoop2 = new ActionLoop2(this);
 	actionLoop3 = new ActionLoop3(this);
 	actionLoop4 = new ActionLoop4(this);
@@ -66,10 +65,15 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	actionAdd(actionLoop8);
 	actionAdd(actionLoop9);
 
+#define CUSTOMIZE_SERVO 0
+#if CUSTOMIZE_SERVO
 	servoUpAdd = preferences->getInt("srvUpAdd"); // Servo up correction. Positive nubers lift servo.
 	preferences->putInt("srvDown", 0); // Uncomment to correct (add to) servo-up positions. 
 	if (servoUpAdd != 0)
 		print("Servo-up add: %i\n\r", servoUpAdd);
+#else
+	servoUpAdd = 0;
+#endif
 
 	// Servo motors. Note that some pins are not appropriate for PWM (servo)
 	mrm_servo->add(18, (char*)"ServoUp", 0, 300, 0.5, 2.5); // Data for mrm-rds5060-300
@@ -107,32 +111,32 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 */
 void RobotLine::armCatch() {
 	mrm_servo->write(LIFT_SERVO_DOWN, 0); // Lower the arm. Parameter 0 defines servo, in this case lift-servo. LIFT_SERVO_DOWN is angle.
-	mrm_servo->write(CATCH_SERVO_L_CATCH, 1); // Catch the ball. Parameter 1 - catch-servo. CATCH_SERVO_CLOSE is angle.
-	mrm_servo->write(CATCH_SERVO_R_CATCH, 2); // 
+	mrm_servo->write(CATCH_SERVO_R_CATCH, 1); // Catch the ball. Parameter 1 - R catch-servo. CATCH_SERVO_CLOSE is angle.
+	mrm_servo->write(CATCH_SERVO_L_CATCH, 2); // 
 }
 
 /** Arm will go to ball-catch ready position.
 */
 void RobotLine::armCatchReady() {
 	mrm_servo->write(LIFT_SERVO_DOWN + servoUpAdd, 0); // Lower the arm.
-	mrm_servo->write(CATCH_SERVO_L_OPEN, 1); // 
-	mrm_servo->write(CATCH_SERVO_R_OPEN, 2); // 
+	mrm_servo->write(CATCH_SERVO_R_OPEN, 1); // 
+	mrm_servo->write(CATCH_SERVO_L_OPEN, 2); // 
 }
 
 /** Arm will drop the ball
 */
 void RobotLine::armDrop() {
 	mrm_servo->write(LIFT_SERVO_UP + servoUpAdd, 0); // Lift the arm.
-	mrm_servo->write(CATCH_SERVO_L_OPEN, 1); // 
-	mrm_servo->write(CATCH_SERVO_R_OPEN, 2); // 
+	mrm_servo->write(CATCH_SERVO_R_OPEN, 1); // 
+	mrm_servo->write(CATCH_SERVO_L_OPEN, 2); // 
 }
 
 /** Arm in idle (closed - down) position
 */
 void RobotLine::armIdle() {
 	mrm_servo->write(LIFT_SERVO_IDLE + servoUpAdd, 0); // Lower the arm.
-	mrm_servo->write(CATCH_SERVO_L_CLOSE, 1); // 
-	mrm_servo->write(CATCH_SERVO_R_CLOSE, 2); // 
+	mrm_servo->write(CATCH_SERVO_R_CLOSE, 1); // 
+	mrm_servo->write(CATCH_SERVO_L_CLOSE, 2); // 
 }
 
 /** 
@@ -174,6 +178,7 @@ void RobotLine::bitmapsSet() {
 	green[6] = 0b11100001;
 	green[7] = 0b11111111;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_EVACUATION_ZONE);
+	delayMs(1);
 
 	// Full line, no marks
 	for (uint8_t i = 0; i < 8; i++)
@@ -181,6 +186,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_LINE_FULL);
+	delayMs(1);
 
 	// Full line, both marks
 	for (uint8_t i = 0; i < 8; i++)
@@ -196,6 +202,7 @@ void RobotLine::bitmapsSet() {
 	/* Store this bitmap in mrm-8x8a. The 3rd parameter is bitmap's address. If You want to define new bitmaps, expand LedSign enum with
 	Your names, and use the new values for Your bitmaps. This parameter can be a plain number, but enum keeps thing tidy.*/
 	mrm_8x8a->bitmapCustomStore(red, green, LED_LINE_FULL_BOTH_MARKS);
+	delayMs(1);
 
 	// Full line, left mark.
 	for (uint8_t i = 0; i < 8; i++)
@@ -209,6 +216,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_LINE_FULL_MARK_LEFT);
+	delayMs(1);
 
 	// Full line, right mark.
 	for (uint8_t i = 0; i < 8; i++)
@@ -222,6 +230,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_LINE_FULL_MARK_RIGHT);
+	delayMs(1);
 
 	// Full crossing, both marks.
 	green[0] = 0b00000000;
@@ -242,6 +251,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_FULL_CROSSING_BOTH_MARKS);
+	delayMs(1);
 
 	// Full crossing, mark left.
 	green[0] = 0b00000000;
@@ -262,6 +272,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_LEFT);
+	delayMs(1);
 
 	// Full crossing, mark right.
 	green[0] = 0b00000000;
@@ -282,6 +293,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_RIGHT);
+	delayMs(1);
 
 	// Full crossing, no marks.
 	green[0] = 0b00011000;
@@ -295,6 +307,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_FULL_CROSSING_NO_MARK);
+	delayMs(1);
 
 	// Half crossing, mark right.
 	green[0] = 0b00011000;
@@ -315,6 +328,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_RIGHT);
+	delayMs(1);
 
 	// Half crossing, mark left.
 	green[0] = 0b00011000;
@@ -335,6 +349,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_LEFT);
+	delayMs(1);
 
 	// Half crossing right, no mark.
 	green[0] = 0b00011000;
@@ -355,6 +370,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_HALF_CROSSING_RIGHT_NO_MARK);
+	delayMs(1);
 
 	// Half crossing left, no mark
 	green[0] = 0b00011000;
@@ -375,6 +391,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000000;
 	red[7] = 0b00000000;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_HALF_CROSSING_LEFT_NO_MARK);
+	delayMs(1);
 
 	// Interrupted line.
 	green[0] = 0b00011000;
@@ -388,6 +405,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_LINE_INTERRUPTED);
+	delayMs(1);
 
 	// Curve left.
 	green[0] = 0b00000000;
@@ -401,6 +419,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_CURVE_LEFT);
+	delayMs(1);
 
 	// Curve right.
 	green[0] = 0b00000000;
@@ -414,6 +433,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_CURVE_RIGHT);
+	delayMs(1);
 
 	// Obstacle.
 	green[0] = 0b00011000;
@@ -427,6 +447,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_OBSTACLE);
+	delayMs(1);
 
 	// Around obstacle left.
 	green[0] = 0b00000000;
@@ -440,6 +461,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_LEFT);
+	delayMs(1);
 
 	// Around obstacle right.
 	green[0] = 0b00000000;
@@ -453,6 +475,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_RIGHT);
+	delayMs(1);
 
 	// Pause.
 	green[0] = 0b11100111;
@@ -466,6 +489,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_PAUSE);
+	delayMs(1);
 
 	// Play.
 	green[0] = 0b0110000;
@@ -479,6 +503,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_PLAY);
+	delayMs(1);
 
 	// T-crossing approached by left side.
 	green[0] = 0b0100000;
@@ -492,6 +517,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_T_CROSSING_BY_L);
+	delayMs(1);
 
 	// T-crossing approached by right side.
 	green[0] = 0b0000100;
@@ -505,6 +531,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_T_CROSSING_BY_R);
+	delayMs(1);
 
 	// Wall ahead
 	green[0] = 0b11111111;
@@ -518,6 +545,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_WALL_AHEAD);
+	delayMs(1);
 
 	// Wall on the left side
 	green[0] = 0b10001000;
@@ -531,6 +559,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_WALL_L);
+	delayMs(1);
 
 	// Wall on the right side
 	green[0] = 0b00010001;
@@ -544,6 +573,7 @@ void RobotLine::bitmapsSet() {
 	for (uint8_t i = 0; i < 8; i++)
 		red[i] = 0;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_WALL_R);
+	delayMs(1);
 
 	// Define Your bitmaps here.
 		// Example
@@ -565,6 +595,7 @@ void RobotLine::bitmapsSet() {
 	red[6] = 0b00000011;
 	red[7] = 0b00000001;
 	mrm_8x8a->bitmapCustomStore(red, green, LED_CUSTOM);
+	delayMs(1);
 
 }
 
@@ -739,13 +770,6 @@ void RobotLine::goAhead() {
 	end(); // This command will cancel actions and the robot will return in the default idle loop, after displaying menu.
 }
 
-/**Compass
-@return - North is 0�, clockwise are positive angles, values 0 - 360.
-*/
-float RobotLine::heading() {
-	return mrm_imu->heading();
-}
-
 /** Color sensor's hue
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - Hue
@@ -900,70 +924,29 @@ void RobotLine::lineFollow() {
 	// }
 }
 
+#include <SPI.h>
+
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	static bool lastLeft;
-
-	if (setup()){
-		mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES);
-		bitmapsSet();	
-	}
-
-	// Pillars left or right?
-	if (frontLeft() < 130 and not lastLeft){
-		stop();
-		if (frontLeft(5) < 130)
-			lastLeft = true;
-	}
-	if (frontRight() < 130 and lastLeft){
-		stop();
-		if (frontRight(5) < 130)
-			lastLeft = false;
-	}
-
-	// Indicate last pillar's position
-	if (lastLeft)
-		display(LED_CURVE_LEFT);
-	else
-		display(LED_CURVE_RIGHT);
-
-	// Crossing?
-	if (line(8) and line(0)){
-		display(LED_FULL_CROSSING_NO_MARK);
-		stop();
-		delayMs(3000);
-		go(90, 90);
-		delayMs(200);
-		if (lastLeft)
-			go(-90, 90);
-		else
-			go(90, -90);
-		delayMs(500);
-	}
-
-	// Follow line
 	if (line(8))
-		go(-70, 70);
+		go(-90, 90);
 	else if (line(0))
-		go(70, -70);
+		go(90, -90);
 	else if (line(1))
-		go(70, -30);
+		go(70, -20);
 	else if (line(2))
 		go(60, 10);
 	else if (line(3))
-		go(60, 25);
+		go(50, 20);
 	else if (line(5))
-		go(25, 60);
+		go(20, 50);
 	else if (line(6))
 		go(10, 60);
 	else if (line(7))
-		go(-30, 70);
-	else if (line(4))
-		go(60, 60);
+		go(-20, 70);
 	else
-		go(-70, -70);
-
+		go(70, 70);
 }
 
 /** Generic actions, use them as templates
@@ -973,22 +956,11 @@ void RobotLine::loop1() { armCatchReady(); end(); }
 void RobotLine::loop2() { armCatch(); end(); }
 void RobotLine::loop3() { armUp(); end(); }
 void RobotLine::loop4() { armDrop(); end(); }
-void RobotLine::loop5() { }
+void RobotLine::loop5() {	mrm_lid_d->resolutionSet(0, 16); }
 void RobotLine::loop6() { }
-void RobotLine::loop7() {}
-void RobotLine::loop8() {}
-void RobotLine::loop9() {
-	armCatchReady();
-	delayMs(2000);
-	armCatch();
-	delayMs(2000);
-	armUp();
-	delayMs(2000);
-	armDrop();
-	delayMs(2000);
-	armIdle();
-	delayMs(2000);
-}
+void RobotLine::loop7() { }
+void RobotLine::loop8() { }
+void RobotLine::loop9() { }
 
 /** Generic menu
 */
@@ -1146,12 +1118,6 @@ uint8_t RobotLine::patternColors(uint8_t deviceNumber) {
 	return mrm_col_can->patternRecognizedBy6Colors(deviceNumber);
 }
 
-/**Pitch
-@return - Pitch in degrees. Inclination forwards or backwards. Leveled robot shows 0�.
-*/
-float RobotLine::pitch() {
-	return mrm_imu->pitch();
-}
 
 /** Starts the RCJ Line run after this action selected.
 */
@@ -1192,12 +1158,6 @@ uint16_t RobotLine::rightFront(uint8_t sampleCount, uint8_t sigmaCount) {
 	return mrm_lid_can_b->distance(2); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
-/** Roll
-@return - Roll in degrees. Inclination to the left or right. Values -90 - 90. Leveled robot shows 0�.
-*/
-float RobotLine::roll() {
-	return mrm_imu->roll();
-}
 
 /** Color sensor's saturation
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

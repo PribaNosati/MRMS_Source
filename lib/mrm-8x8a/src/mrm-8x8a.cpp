@@ -181,9 +181,10 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
 @param data - 8 bytes from CAN Bus message.
+@param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8]) {
+bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
@@ -209,7 +210,7 @@ bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8]) {
 					break;
 				default:
 					robotContainer->print("Unknown command. ");
-					messagePrint(canId, 8, data, false);
+					messagePrint(canId, length, data, false);
 					robotContainer->print("\n\r");
 					errorCode = 203;
 					errorInDeviceNumber = deviceNumber;
@@ -383,7 +384,7 @@ void Mrm_8x8a::test()
 @param content - text
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_8x8a::text(char content[], uint8_t deviceNumber) {
+void Mrm_8x8a::text(const char content[], uint8_t deviceNumber) {
 	uint8_t message = 0;
 	bool unsent = false;
 	for (uint8_t i = 0; i < MRM_8X8A_TEXT_LENGTH; i++) {

@@ -20,9 +20,9 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, c
 	idIn = new std::vector<uint32_t>(maxNumberOfBoards * devicesOn1Board);
 	idOut = new std::vector<uint32_t>(maxNumberOfBoards * devicesOn1Board);
 	_name = new std::vector<char[10]>(maxNumberOfBoards * devicesOn1Board);
-	fpsLast = new std::vector<uint16_t>(maxNumberOfBoards);
+	fpsLast = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
 	lastMessageReceivedMs = new std::vector<uint32_t>(maxNumberOfBoards * devicesOn1Board);
-	_lastReadingMs = new std::vector<uint32_t>(maxNumberOfBoards);
+	_lastReadingMs = new std::vector<uint32_t>(maxNumberOfBoards * devicesOn1Board);
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
 	strcpy(this->_boardsName, boardName);
@@ -98,6 +98,24 @@ bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAf
 }
 
 
+/** Get aliveness
+@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@return alive or not
+*/
+bool Board::aliveGet(uint8_t deviceNumber){
+	return (_alive >> deviceNumber) & 1;
+}
+
+/** Get aliveness at least once after power-on
+@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+@return alive or not
+*/
+bool Board::aliveOnceGet(uint8_t deviceNumber){
+	return (_aliveOnce >> deviceNumber) & 1;
+}
+
+
+
 /** Set aliveness
 @param yesOrNo
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -108,6 +126,8 @@ void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 		return;
 	}
 	_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
+	if (yesOrNo)
+		_aliveOnce = _alive | (1 << deviceNumber);
 }
 
 
@@ -152,12 +172,21 @@ uint8_t Board::deadOrAliveCount() { return nextFree; }
 uint8_t Board::devicesScan(bool verbose, uint16_t mask) {
 	_aliveReport = verbose;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if ((mask >> deviceNumber) & 1) {
-			aliveSet(false, deviceNumber);
+		if ((mask >> deviceNumber) & 1) { // If in the list requested to be scanned.
+			aliveSet(false, deviceNumber); // Mark as not alive. It will be marked as alive when returned message arrives.
+			int8_t tries = 5;
+			if (aliveOnceGet(deviceNumber))
+				tries = 50;
 			canData[0] = COMMAND_REPORT_ALIVE;
-			messageSend(canData, 1, deviceNumber);
-			// robotContainer->print("%s scanned\n\r", name(deviceNumber));
-			robotContainer->delayMicros(500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+			do{
+				// if (maximumNumberOfBoards == 8)
+				// 	robotContainer->print("Device: %i\n\r", deviceNumber); 
+				messageSend(canData, 1, deviceNumber);
+				// robotContainer->print("%s scanned\n\r", name(deviceNumber));
+				robotContainer->delayMicros(500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+				if (aliveGet(deviceNumber))
+					tries = 0;
+			} while(tries-- > 0);
 		}
 	}
 	//robotContainer->print("%s OVER\n\r", nameGroup);
@@ -348,7 +377,7 @@ bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbou
 	bool found = false;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(msgId, deviceNumber) || isFromMe(msgId, deviceNumber)) {
-			robotContainer->print("%s id:%s (0x%02X)", outbound ? "Out" : "In", (*_name)[deviceNumber], msgId);
+			robotContainer->print("%s id:%s (0x%02X)", outbound ? "To" : "From", (*_name)[deviceNumber], msgId);
 			for (uint8_t i = 0; i < dlc; i++) {
 				if (i == 0)
 					robotContainer->print(" data:");
@@ -358,7 +387,7 @@ bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbou
 			found = true;
 		}
 	if (!found) {
-		robotContainer->print("%s id:0x%02X", outbound ? "Out" : "In", msgId);
+		robotContainer->print("%s id:0x%02X", outbound ? "To" : "From", msgId);
 		for (uint8_t i = 0; i < dlc; i++) {
 			if (i == 0)
 				robotContainer->print(" data:");
@@ -383,6 +412,16 @@ void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
 	else {
 		if (robotContainer->sniffing())
 			messagePrint((*idIn)[deviceNumber], dlc, data, true);
+		// if (maximumNumberOfBoards == 8) {
+		// 	static int cnt = 0;
+		// 	robotContainer->print("Device: %s %i,id: %i, cnt: %i\n\r", name(deviceNumber), deviceNumber,
+		// 		(*idIn)[deviceNumber], cnt);
+		// 	robotContainer->print("Over\n\r");
+		// 	++cnt;
+		// 	delay(500);
+		// 	if (++cnt > 18)
+		// 		return;
+		// }
 		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], dlc, data);
 	}
 }
@@ -463,7 +502,7 @@ void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refre
 			start(i, measuringModeNow, refreshMs);
 	else {
 		if (alive(deviceNumber)) {
-			//robotContainer->print("Alive, start reading: %s, mode: %i\n\r", _boardsName, measuringModeNow);
+			// robotContainer->print("Alive, start reading: %s, mode: %i\n\r", name(deviceNumber), measuringModeNow);
 #if REQUEST_NOTIFICATION
 			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);
 #else
@@ -478,7 +517,11 @@ void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refre
 				canData[1] = refreshMs & 0xFF;
 				canData[2] = (refreshMs >> 8) & 0xFF;
 			}
+			// if (maximumNumberOfBoards == 8) 
+			// 	robotContainer->print("In: %i\n\r", deviceNumber);
 			messageSend(canData, refreshMs == 0 ? 1 : 3, deviceNumber);
+			// if (maximumNumberOfBoards == 8)
+			// 	robotContainer->print("Out: %i\n\r", deviceNumber);
 #endif
 		}
 	}
@@ -534,6 +577,10 @@ MotorBoard::MotorBoard(Robot* robot, uint8_t devicesOnABoard, const char* boardN
 	lastSpeed = new std::vector<int8_t>(devicesOnABoard * maxNumberOfBoards);
 }
 
+MotorBoard::~MotorBoard(){
+	stop();
+}
+
 /** Changes rotation's direction
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
@@ -547,9 +594,10 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
 @param data - 8 bytes from CAN Bus message.
+@param length - number of data bytes
 @return - true if canId for this class
 */
-bool MotorBoard::messageDecode(uint32_t canId, uint8_t data[8]) {
+bool MotorBoard::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)) {
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
@@ -562,7 +610,7 @@ bool MotorBoard::messageDecode(uint32_t canId, uint8_t data[8]) {
 				}
 				default:
 					robotContainer->print("Unknown command. ");
-					messagePrint(canId, 8, data, false);
+					messagePrint(canId, length, data, false);
 					errorCode = 200;
 					errorInDeviceNumber = deviceNumber;
 				}
@@ -893,31 +941,34 @@ int16_t MotorGroupDifferential::checkBounds(int16_t speed) {
 @param speedLimit - Speed limit, 0 to 127. For example, 80 will limit all the speeds to 80/127%. 0 will turn the motors off.
 */
 void MotorGroupDifferential::go(int16_t leftSpeed, int16_t rightSpeed, int16_t lateralSpeedToRight, uint8_t speedLimit) {
-	if (motorBoard[0] != NULL) {
-		if (speedLimit == 0)
-			stop();
-		else {
-			if (speedLimit > 127)
-				speedLimit = 127;
-			int16_t speeds[4];
-			speeds[0] = checkBounds(leftSpeed - lateralSpeedToRight);
-			speeds[1] = checkBounds(-rightSpeed + lateralSpeedToRight);
-			speeds[2] = checkBounds(leftSpeed - lateralSpeedToRight);
-			speeds[3] = checkBounds(-rightSpeed + lateralSpeedToRight);
-			float maxSpeed = abs(speeds[0]);
-			for (int i = 1; i < 4; i++)
-				if (abs(speeds[i]) > maxSpeed)
-					maxSpeed = abs(speeds[i]);
-			for (uint8_t i = 0; i < 4; i++) {
-				//motorBoard[i]->speedSet(motorNumber[i], speeds[i]);
-				if (maxSpeed > speedLimit) {
-					motorBoard[i]->speedSet(motorNumber[i], (int8_t)(speeds[i] / maxSpeed * speedLimit));
-					//Serial.print("MAX ");
-				}
-				else {
-					motorBoard[i]->speedSet(motorNumber[i], (int8_t)speeds[i]);
-					//Serial.print((String)speeds[i] + " ");
-				}
+	for (uint8_t i = 0; i < 4; i++)
+		if (motorBoard[i] == NULL)
+			return;
+
+	if (speedLimit == 0)
+		stop();
+	else {
+		if (speedLimit > 127)
+			speedLimit = 127;
+		int16_t speeds[4];
+		speeds[0] = checkBounds(leftSpeed - lateralSpeedToRight);
+		speeds[1] = checkBounds(leftSpeed + lateralSpeedToRight);
+		speeds[2] = checkBounds(-rightSpeed + lateralSpeedToRight);
+		speeds[3] = checkBounds(-rightSpeed - lateralSpeedToRight);
+		float maxSpeed = abs(speeds[0]);
+		for (int i = 1; i < 4; i++)
+			if (abs(speeds[i]) > maxSpeed)
+				maxSpeed = abs(speeds[i]);
+		// robotContainer->print("M0:%i M1:%i M2:%i M3:%i Lat:%i\n\r", speeds[0], speeds[1], speeds[2], speeds[3], lateralSpeedToRight);
+		for (uint8_t i = 0; i < 4; i++) {
+			//motorBoard[i]->speedSet(motorNumber[i], speeds[i]);
+			if (maxSpeed > speedLimit) {
+				motorBoard[i]->speedSet(motorNumber[i], (int8_t)(speeds[i] / maxSpeed * speedLimit));
+				//Serial.print("MAX ");
+			}
+			else {
+				motorBoard[i]->speedSet(motorNumber[i], (int8_t)speeds[i]);
+				//Serial.print((String)speeds[i] + " ");
 			}
 		}
 	}

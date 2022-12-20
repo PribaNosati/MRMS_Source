@@ -1,44 +1,40 @@
-#include <mrm-8x8a.h>
+﻿#include <mrm-8x8a.h>
 #include <mrm-col-can.h>
 #include <mrm-imu.h>
 #include <mrm-lid-can-b.h>
 #include <mrm-lid-can-b2.h>
 #include <mrm-mot4x3.6can.h>
-#include "mrm-robot-maze.h"
+#include "mrm-robot-maze-competition.h"
 #include <mrm-servo.h>
 #include <mrm-therm-b-can.h>
 
-Tile* Tile::first; // Neccessary for static member variable.
-
-// Declarations in advance needed, declarations later
-void encoder1Increase();
-void encoder2Increase();
+//Tile* Tile::first; // Neccessary for static member variable.
 
 /** Constructor
 @param name - it is also used for Bluetooth so a Bluetooth client (like a phone) will list the device using this name.
 */
-RobotMaze::RobotMaze(char name[]) : Robot(name) {
+RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 	// MotorGroup class drives the motors.
 	// 2nd, 4th, 6th, and 8th parameters are output connectors of the controller (number 0 - 3, meaning 1. - 4. connector). 
 	// 2nd one must be connected to LB (Left-Back) motor, 4th to LF (Left-Front), 6th to RF (Right-Front), and 8th to RB (Right-Back). 
 	// Therefore, You can connect motors freely, but have to adjust the parameters here. In this example output (connector) 0 is LB, etc.
-	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
+	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 3);
 
 	// Depending on your wiring, it may be necessary to spin some motors in the other direction. In this example, no change needed,
 	// but uncommenting the following line will change the direction of the motor 2.
-	// mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
 	mrm_mot4x3_6can->directionChange(1); // Uncomment to change 2nd wheel's rotation direction
 	mrm_mot4x3_6can->directionChange(2); // Uncomment to change 3rd wheel's rotation direction
-	// mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
 
 	// All the actions will be defined here; the objects will be created.
-	actionDecide = new ActionDecide(this);
+	actionDecide = new ActionDecideCompetition(this);
 	actionGoStraightAhead = new ActionMoveAhead(this);
-	actionMap = new ActionMap(this);
-	actionMove = new ActionMove(this);
-	actionMoveAhead = new ActionMoveAhead(this);
-	actionMoveTurn = new ActionMoveTurn(this);
-	actionRescueMaze = new ActionRescueMaze(this);
+	actionMap = new ActionMapCompetition(this);
+	actionMove = new ActionMoveCompetition(this);
+	actionMoveAhead = new ActionMoveAheadCompetition(this);
+	actionMoveTurn = new ActionMoveTurnCompetition(this);
+	actionRescueMaze = new ActionRescueMazeCompetition(this);
 	actionStop = new ActionStop(this);
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
@@ -46,10 +42,10 @@ RobotMaze::RobotMaze(char name[]) : Robot(name) {
 	// called in the code, but only through menus. For example, ActionWallsTest test is only manu-based, and it is all right.
 	// This test is not supposed to be called in code.
 	actionAdd(actionRescueMaze);
-	actionAdd(new ActionOmniWheelsTest(this));
-	actionAdd(new ActionWallsTest(this));
-	actionAdd(new ActionMove1TileTest(this));
-	actionAdd(new ActionMoveTurnTest(this));
+	actionAdd(new ActionOmniWheelsTestCompetition(this));
+	actionAdd(new ActionWallsTestCompetition(this));
+	actionAdd(new ActionMove1TileTestCompetition(this));
+	actionAdd(new ActionMoveTurnTestCompetition(this));
 
 	// Set buttons' actions
 	mrm_8x8a->actionSet(actionRescueMaze, 0); // Button 0 starts RCJ Maze.
@@ -58,22 +54,11 @@ RobotMaze::RobotMaze(char name[]) : Robot(name) {
 
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();
-
-	// Attach interrupts for encoder motors
-	#if ENCODERS_MAZE
-	pinMode(LEFT_ENCODER_PIN, INPUT);
-	attachInterrupt(LEFT_ENCODER_PIN, encoder1Increase, RISING);
-	pinMode(RIGHT_ENCODER_PIN, INPUT);
-	attachInterrupt(RIGHT_ENCODER_PIN, encoder2Increase, RISING);
-	#endif
 }
-
-uint32_t encoder1Count = 0; // Cannot be members since interrupt accpets only pointer to a global function
-uint32_t encoder2Count = 0;
 
 /** Store custom bitmaps in mrm-led8x8a.
 */
-void RobotMaze::bitmapsSet() {
+void RobotMazeCompetition::bitmapsSet() {
 	mrm_8x8a->alive(0, true); // Makes sure that mrm-8x8a is present and functioning. If not, issues a warning message.
 
 	// The 2 arrays will hold red and green pixels. Both red an green pixel on - orange color.
@@ -129,6 +114,48 @@ void RobotMaze::bitmapsSet() {
 	mrm_8x8a->bitmapCustomStore(red, green, LedSign::MAZE_IMU_FOLLOW);
 	delayMs(1);
 
+	// Obstacle L
+	red[0] = 0b11110000;
+	red[1] = 0b00000000;
+	red[2] = 0b00000000;
+	red[3] = 0b00000000;
+	red[4] = 0b00000000;
+	red[5] = 0b00000000;
+	red[6] = 0b00000000;
+	red[7] = 0b00000000;
+
+	green[0] = 0b00000000;
+	green[1] = 0b00100000;
+	green[2] = 0b01110000;
+	green[3] = 0b10101000;
+	green[4] = 0b00100000;
+	green[5] = 0b00100000;
+	green[6] = 0b00000000;
+	green[7] = 0b00000000;
+	mrm_8x8a->bitmapCustomStore(red, green, LedSign::MAZE_OBSTACLE_L);
+	delayMs(1);
+
+	// Obstacle R
+	red[0] = 0b00001111;
+	red[1] = 0b00000000;
+	red[2] = 0b00000000;
+	red[3] = 0b00000000;
+	red[4] = 0b00000000;
+	red[5] = 0b00000000;
+	red[6] = 0b00000000;
+	red[7] = 0b00000000;
+
+	green[0] = 0b00000000;
+	green[1] = 0b00000100;
+	green[2] = 0b00001110;
+	green[3] = 0b00010101;
+	green[4] = 0b00000100;
+	green[5] = 0b00000100;
+	green[6] = 0b00000000;
+	green[7] = 0b00000000;
+	mrm_8x8a->bitmapCustomStore(red, green, LedSign::MAZE_OBSTACLE_L);
+	delayMs(1);
+
 	// Follow wall down, green taken from Follow IMU bitmap.
 	for (uint8_t i = 0; i < 7; i++)
 		red[i] = 0;
@@ -164,10 +191,10 @@ void RobotMaze::bitmapsSet() {
 /** Function that decides what to do next, using Tremaux algorithm. If a not-visited direction exists, go that route.
 If not, return to the tile robot came from.
 */
-void RobotMaze::decide(){
+void RobotMazeCompetition::decide(){
 	motorGroup->stop();
 	wallsDisplay(); // Use mrm-8x8a to display walls.
-	//delayMs(5000);
+	delayMs(1000);
 	actionMove->direction = Direction::NOWHERE; // Initialize direction.
 	for (uint8_t i = 0; i < 4; i++) {
 		Direction dir = (Direction)i; // An integer (i) can be casted to enum (Directory).
@@ -189,7 +216,6 @@ void RobotMaze::decide(){
 		if (tileCurrent->breadcrumb == Direction::NOWHERE) {//We are on the first tile and there is no way back - end of run.
 			end(); // This command will cancel actions and the robot will return to the default idle loop, after displaying menu.
 			mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_LED_PAUSE); // Display pause sign.
-			motorGroup->stop();
 			print("END\n\r");
 		}
 		else { // A way back found. Retreat in that direction.
@@ -212,7 +238,7 @@ void RobotMaze::decide(){
 /** Displays direction in human-readable format. For debugging purposes.
 @param - direction in maze's system.
 */
-void RobotMaze::directionDisplay(Direction direction){
+void RobotMazeCompetition::directionDisplay(Direction direction){
 	switch (direction) {
 	case Direction::DOWN:
 		print("down");
@@ -232,74 +258,25 @@ void RobotMaze::directionDisplay(Direction direction){
 	}
 }
 
-
-/** Increase encoder count
-*/
-void encoder1Increase(){
-	encoder1Count++;
-}
-
-/** Reset encoder count
-*/
-void encoder1Reset(){
-	encoder1Count = 0;
-}
-
-/** Increase encoder count
-*/
-void encoder2Increase(){
-	encoder2Count++;
-}
-
-/** Reset encoder count
-*/
-void encoder2Reset(){
-	encoder2Count = 0;
-}
-
-/** Start motors
-@param leftSpeed, in range -127 to 127
-@param right Speed, in range -127 to 127
-@param speedLimit - Speed limit, 0 to 127. For example, 80 will limit all the speeds to 80/127%. 0 will turn the motors off.
-*/
-void RobotMaze::go(int16_t leftSpeed, int16_t rightSpeed, int16_t lateralSpeedToRight) {
-	motorGroup->go(leftSpeed, rightSpeed, lateralSpeedToRight);
-}
-
-/** Test - go straight ahead using a defined speed.
-*/
-void RobotMaze::goAhead() {
-	const uint8_t speed = 40;
-	go(speed, speed);
-	end(); // This command will cancel actions and the robot will return in the default idle loop, after displaying menu.
-}
-
 /** Drives the robot ahead, maintaing a given compass bearing.
 */
-void RobotMaze::imuFollow() {
+void RobotMazeCompetition::imuFollow() {
 	mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_IMU_FOLLOW); // Display IMU-following sign.
 	float errorCW = imuLastValid - mrm_imu->heading(); // Calculate rotational error in clockwise direction.
 	int16_t slowerMotor = TOP_SPEED - errorCW * IMU_FOLLOW_STRENGTH; // Calculate slower motor's speed in order to adjust heading proportionally to error.
 	motorGroup->go(errorCW > 0 ? slowerMotor : TOP_SPEED, errorCW < 0 ? TOP_SPEED : slowerMotor); // Drive the robot.
 }
 
-/** Line sensor
-@param transistorNumber - starts from 0 and end value depends on sensor. Usually 7 (for mrm-ref-can8) or 8 (for mrm-ref-can9).
-@return - true if black line found
-*/
-bool RobotMaze::line(uint8_t transistorNumber) {
-	return mrm_ref_can->dark(transistorNumber);
-}
-
 /** Custom test. The function will be called many times during the test, till You issue "x" menu-command.
 */
-void RobotMaze::loop() {
-	go(30, -30);
+void RobotMazeCompetition::loop() {
+	if (setup())
+		motorGroup->go(60, 30);
 }
 
 /** Maps walls detected and other external readings in variables.
 */
-void RobotMaze::map() {
+void RobotMazeCompetition::map() {
 	for (uint8_t i = 0; i < 4; i++) { // Iterate the 4 directions.
 		Direction dir = (Direction)i; // An integer (i) can be casted to enum (Directory).
 		if (tileCurrent->wallGet(dir) == WallStatus::WALL_UNKNOWN){ // Map only the walls not mapped before (that have status WALL_UNKNOWN).
@@ -321,7 +298,7 @@ void RobotMaze::map() {
 
 /** Displays the whole maze.
 */
-void RobotMaze::mazePrint() {
+void RobotMazeCompetition::mazePrint() {
 	// First find minimum and maximum for both coordinates.
 	int8_t minX = 127;
 	int8_t maxX = -128;
@@ -360,7 +337,7 @@ void RobotMaze::mazePrint() {
 			print(" ");
 			wallDisplay(wallGet(x, y, Direction::RIGHT), Direction::RIGHT);
 		}
-		print("\n\r"); // This completes vertical middle for this row. The next are bottom walls.
+		print("\n\r"); // This completes verticall middle for this row. The next are bottom walls.
 
 		// Bottom walls
 		print(y == minY ? "└" : "├");
@@ -374,7 +351,7 @@ void RobotMaze::mazePrint() {
 
 /** Moves robot, either forward (moveAhead()) or by turning it (moveTurn()).
 */
-void RobotMaze::move() {
+void RobotMazeCompetition::move() {
 	if (actionMove->direction == directionCurrent) { // The robot is already in position where the next free way is right in front of it. Just go ahead.
 		print("Ahead\n\r");
 		actionSet(actionMoveAhead); // Set the next action: go straight ahead.
@@ -401,15 +378,71 @@ void RobotMaze::move() {
 
 /** Drives the robot straight ahead.
 */
-void RobotMaze::moveAhead() {
+void RobotMazeCompetition::moveAhead() {
 	bool encodersOver = false; // One tile's length covered. Used only when encoders available.
-	// When encoders available, timeout is only a safety measure, to avoid possible endless loop. When not, it marks end of tile.
+	// When encoders available, timeout is only a safety measure, to avoid possible endless loop. 
+	// When not, it marks end of tile.
 	static uint32_t startedAtMs;
-	if (setup())
-		startedAtMs = millis();
-	bool timeOver = millis() - startedAtMs > MOVE_AHEAD_TIMEOUT_MS;
+	
+	if (setup()){
+		startedAtMs = millis(); // Beginning of the move
 
-	// If any of the 3 conditions satisfied, break the movement: encoder, timeout, or a wall to close ahead.
+		// Align the robot before start
+		Direction closestWall = wallClosest(); // Closest wall in maze's perspective
+		print("Align direction: %i \n\r", closestWall);
+		float error;
+		if (closestWall != NOWHERE){
+			/*motorGroup->go(0, 0);
+			switch(closestWall){
+				case UP:
+					mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_WALL_UP_FOLLOW);
+					break;
+				case DOWN:
+					mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_WALL_DOWN_FOLLOW);
+					break;
+				case LEFT:
+					mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_WALL_LEFT_FOLLOW);
+					break;
+				case RIGHT:
+					mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_WALL_RIGHT_FOLLOW);
+					break;
+				default:
+					break;
+			}*/
+			mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_LED_PAUSE);
+			delayMs(1000), startedAtMs+=1000; // Always increase start-time.
+			do{
+				error = distance(closestWall, true) - distance(closestWall, false);
+				motorGroup->go(3*error, -3*error); // 3 is an arbitrary constant to increase the move
+				noLoopWithoutThis();
+			}while(fabsf(error) > 5 and millis() - startedAtMs < 2000); // Continue moving till the error gets small enough
+			motorGroup->go(0, 0);
+			delayMs(1000), startedAtMs+=1000;// Always increase start-time.
+		}
+	}
+
+	// Avoid obstacle
+	Direction obstacle = Direction::NOWHERE;
+	// Obstacle first CCW?
+	if (distance(directionCurrent, true) < 70 and distance(directionCurrent, false) > 120)
+		obstacle = Direction::RIGHT;
+	// Obstacle second CCW?
+	else if (distance(directionCurrent, false) < 70 and distance(directionCurrent, true) > 120)
+		obstacle = Direction::LEFT;
+	// If any obstacle
+	if (obstacle != Direction::NOWHERE){
+		motorGroup->go(obstacle == Direction::RIGHT ? -90 : 90, obstacle == Direction::RIGHT ? 90 : -90);
+		delayMs(500), startedAtMs += 500;
+		motorGroup->go(90, 90);
+		delayMs(500), startedAtMs += 500;
+		motorGroup->go(obstacle == Direction::RIGHT ? 90 : -90, obstacle == Direction::RIGHT ? -90 : 90);
+		delayMs(500), startedAtMs += 500;
+		motorGroup->go(0, 0);
+	}
+
+	// End of tile?
+	// If any of the 3 conditions satisfied, break the movement (end reached): encoder, timeout, or a wall to close ahead.
+	bool timeOver = millis() - startedAtMs > MOVE_AHEAD_TIMEOUT_MS;
 	if (encodersOver || timeOver || distance(directionCurrent, false) < WALL_FOLLOW_DISTANCE || distance(directionCurrent, true) < WALL_FOLLOW_DISTANCE) {
 		if (testMode)
 			motorGroup->go(0, 0),end();
@@ -452,7 +485,7 @@ void RobotMaze::moveAhead() {
 
 /** Move 1 tile ahead.
  */
-void RobotMaze::moveAhead1TileTest(){
+void RobotMazeCompetition::moveAhead1TileTest(){
 	testMode = true; 
 	directionCurrent = Direction::UP;
 	actionSet(actionMoveAhead);
@@ -460,7 +493,7 @@ void RobotMaze::moveAhead1TileTest(){
 
 /** Turns the robot till the target bearing achieved.
 */
-void RobotMaze::moveTurn() {
+void RobotMazeCompetition::moveTurn() {
 	// Note that this function will execute many times during a single turn.
 	static uint32_t startedAtMs;
 	if (setup())
@@ -494,7 +527,7 @@ void RobotMaze::moveTurn() {
 
 /** Turning test.
  */
-void RobotMaze::moveTurnTest(){
+void RobotMazeCompetition::moveTurnTest(){
 	testMode = true; 
 	directionCurrent = Direction::UP;
 	actionMoveTurn->turnByCCW = 90;
@@ -504,7 +537,7 @@ void RobotMaze::moveTurnTest(){
 
 /** Test for Mecanum wheels. Used only when the robot is rigged with mecanum wheels. Not considered here.
 */
-void RobotMaze::omniWheelsTest() {
+void RobotMazeCompetition::omniWheelsTest() {
 	static uint8_t nextMove;
 	static uint32_t lastMs;
 	if (setup()) {
@@ -552,7 +585,7 @@ void RobotMaze::omniWheelsTest() {
 
 /** Starts RCJ Rescue Maze run.
 */
-void RobotMaze::rescueMaze() {
+void RobotMazeCompetition::rescueMaze() {
 	testMode = false; // The robot mustn't stop after each action
 	print("Maze start\n\r");
 	// mrm-8x8a is positioned so that its bottom is aligned robot's left side. Rotate the display so that the image is aligned with robot's back.
@@ -570,20 +603,12 @@ void RobotMaze::rescueMaze() {
 	delayMs(200); // Debounce switch - the switch is turned on repeatedly due to its inductance. Skip that time in a crude manner - just wait.
 }
 
-
-/** Stop the robot
-*/
-void RobotMaze::stop() {
-	motorGroup->stop();
-}
-
-
 /** Traverses all the chain till a tile with (x,y) is found.
 @param x - x coordinate.
 @param y - y coordinata.
 @return - a tile with given coordinates and NULL if none exists.
 */
-Tile* RobotMaze::tileContaining(int8_t x, int8_t y) {
+Tile* RobotMazeCompetition::tileContaining(int8_t x, int8_t y) {
 	for (Tile* curr = Tile::first; curr != NULL; curr = curr->next()) // Use internal links to traverse the whole linked list.
 		if (curr->x == x && curr->y == y) // Tile found.
 			return curr; // Search over.
@@ -593,8 +618,8 @@ Tile* RobotMaze::tileContaining(int8_t x, int8_t y) {
 /** Finds the closest of the 4 walls around the tile.
 @return - direction from maze's perspective.
 */
-Direction RobotMaze:: wallClosest() {
-	Direction closest = NOWHERE; // If no wall found, this will be the result.
+Direction RobotMazeCompetition:: wallClosest() {
+	Direction closest = NOWHERE; // If no wall find, this will be the result.
 	uint16_t leastDistance = 0xFFFF; // Set variable to a huge number so that any distance reading will override it.
 	for (uint8_t i = 0; i < 4; i++) { // Iterate all the 4 directions.
 		Direction dir = (Direction)i; // Cast integer to Direction.
@@ -616,7 +641,7 @@ Direction RobotMaze:: wallClosest() {
 /** Goes ahead by following a wall.
 @wallDirection - direction in maze's perspective.
 */
-void RobotMaze::wallFollow(Direction wallDirection) {
+void RobotMazeCompetition::wallFollow(Direction wallDirection) {
 	// Use mrm-8x8a to display the wall to follow.
 	if (wallDirection == Direction::UP)
 		mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_WALL_UP_FOLLOW);
@@ -662,7 +687,7 @@ void RobotMaze::wallFollow(Direction wallDirection) {
 @param direction - wall's direction.
 @return - type of wall.
 */
-WallStatus RobotMaze::wallGet(int8_t x, int8_t y, Direction direction) {
+WallStatus RobotMazeCompetition::wallGet(int8_t x, int8_t y, Direction direction) {
 	for (Tile* tile = Tile::first; tile != NULL; tile = tile->next()) // Iterate all the tiles.
 		if (tile->x == x && tile->y == y && tile->wallGet(direction) != WallStatus::WALL_UNKNOWN) // Correct (x, y) and wall status known - return it.
 			return tile->wallGet(direction);
@@ -673,7 +698,7 @@ WallStatus RobotMaze::wallGet(int8_t x, int8_t y, Direction direction) {
 @param wallStatus - wall's status.
 @param direction - direction.
 */
-void RobotMaze::wallDisplay(WallStatus wallStatus, Direction direction) {
+void RobotMazeCompetition::wallDisplay(WallStatus wallStatus, Direction direction) {
 	if (direction > Direction::NOWHERE) // Argument checking.
 		strcpy(errorMessage, "Dir. err.");
 	switch (wallStatus)
@@ -701,10 +726,9 @@ void RobotMaze::wallDisplay(WallStatus wallStatus, Direction direction) {
 
 /** Use 8x8 LED to display walls detected.
 */
-void RobotMaze::wallsDisplay() {
+void RobotMazeCompetition::wallsDisplay() {
 	/* Contrary to the method used mostly here, this bitmap is not stored beforehand. There are too many combinations and that will not be feasible.
 	So, it will be built on-line.*/
-
 	// Clear red and green dots.
 	uint8_t red[8];
 	uint8_t green[8];
@@ -745,7 +769,7 @@ void RobotMaze::wallsDisplay() {
 
 /** Test, checking and displaying walls.
 */
-void RobotMaze::wallsTest() {
+void RobotMazeCompetition::wallsTest() {
 	if (setup()) { // First run of the action.
 		directionCurrent = Direction::UP; // We should be standing behind the robot. Otherwise, change this value.
 		mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES); // Rotate the display as it is mounted rotated by 90 degrees.
@@ -769,7 +793,7 @@ void RobotMaze::wallsTest() {
 @param direction.
 @return x coordinate.
 */
-int8_t RobotMaze::x(Direction direction) {
+int8_t RobotMazeCompetition::x(Direction direction) {
 	// A trivial calculation.
 	if (direction == Direction::LEFT)
 		return tileCurrent->x - 1;
@@ -783,7 +807,7 @@ int8_t RobotMaze::x(Direction direction) {
 @param direction.
 @return y coordinate.
 */
-int8_t RobotMaze::y(Direction direction) {
+int8_t RobotMazeCompetition::y(Direction direction) {
 	// A trivial calculation.
 	if (direction == Direction::UP)
 		return tileCurrent->y + 1;
@@ -793,23 +817,23 @@ int8_t RobotMaze::y(Direction direction) {
 		return tileCurrent->y;
 }
 
-/** Constructor.
-@param x - x coordinate.
-@param y - y coordinate.
-@param breadcrumb - way back to the start tile.
-*/
-Tile::Tile(int8_t xNow, int8_t yNow, Direction breadcrumbNow) {
-	x = xNow;
-	y = yNow;
-	breadcrumb = breadcrumbNow;
-	if (breadcrumb != NOWHERE) { // Otherwise it is the first tile and no chain from the previous tile is needed.
-		// Iterate all the tiles in order to find the last one.
-		Tile* tile = NULL;
-		for (tile = first; tile->_chain != NULL; tile = tile->_chain)
-			;
-		if (tile != NULL)
-			tile->_chain = this; // Set last tile's link to this, newly created, tile.
-	}
-	_chain = NULL; // As this is the new end of chain, there is no tile it points to.
-	_wall = 0b01010101; // Unknown walls, stored in bits.
-}
+// /** Constructor.
+// @param x - x coordinate.
+// @param y - y coordinate.
+// @param breadcrumb - way back to the start tile.
+// */
+// Tile::Tile(int8_t xNow, int8_t yNow, Direction breadcrumbNow) {
+// 	x = xNow;
+// 	y = yNow;
+// 	breadcrumb = breadcrumbNow;
+// 	if (breadcrumb != NOWHERE) { // Otherwise it is the first tile and no chain from the previous tile is needed.
+// 		// Iterate all the tiles in order to find the last one.
+// 		Tile* tile = NULL;
+// 		for (tile = first; tile->_chain != NULL; tile = tile->_chain)
+// 			;
+// 		if (tile != NULL)
+// 			tile->_chain = this; // Set last tile's link to this, newly created, tile.
+// 	}
+// 	_chain = NULL; // As this is the new end of chain, there is no tile it points to.
+// 	_wall = 0b01010101; // Unknown walls, stored in bits.
+// }
