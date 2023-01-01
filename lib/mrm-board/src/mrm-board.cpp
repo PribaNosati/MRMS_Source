@@ -183,7 +183,7 @@ uint8_t Board::devicesScan(bool verbose, uint16_t mask) {
 				// 	robotContainer->print("Device: %i\n\r", deviceNumber); 
 				messageSend(canData, 1, deviceNumber);
 				// robotContainer->print("%s scanned\n\r", name(deviceNumber));
-				robotContainer->delayMicros(500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+				robotContainer->delayMicros(1500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
 				if (aliveGet(deviceNumber))
 					tries = 0;
 			} while(tries-- > 0);
