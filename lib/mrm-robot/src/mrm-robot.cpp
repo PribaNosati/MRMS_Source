@@ -815,8 +815,9 @@ void Robot::devicesLEDCount(){
 @return count
 */
 uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
-	while (millis() < 8000) //Wait for all the devices to complete start-up
+	while (millis() < 3000) //Wait for all the devices to complete start-up
 		delayMs(50);
+		// print("AA1\n\r");
 	devicesStop();
 
 	delayMs(5); // Read all the messages sent after stop.
