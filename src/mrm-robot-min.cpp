@@ -46,7 +46,7 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();
 
-	// _actionCurrent = _actionLoop0; // Comment the line if no default action
+	_actionCurrent = _actionLoop0; // Comment the line if no default action
 	pinMode(26, OUTPUT);
 	digitalWrite(26, LOW);
 }
@@ -346,6 +346,7 @@ void RobotMin::loop0(){
 	static uint32_t i = 0;
 	bool ok = true;
 	if (setup()){
+		pinMode(26, OUTPUT);
 		print("Started - devices test.\n\r");
 		uint8_t address = 0;
 		uint8_t count;
@@ -358,6 +359,7 @@ void RobotMin::loop0(){
 	}
 	if (ok){
 		uint8_t count = devicesScan(true);
+		actionSet(_actionLoop0);
 		if (count == DEVICE_COUNT)
 			print("Pass %i OK\n\r", ++i);
 		else{
