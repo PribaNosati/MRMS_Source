@@ -58,8 +58,8 @@ void RobotMin::loop() {
 	#define TEST1 0
 	#define TEST2 0
 	#define TEST3 0
-	#define TEST4 1
-	#define TEST5 0
+	#define TEST4 0
+	#define TEST5 1
 
 	#if LIST_ALL
 	uint8_t cnt = 0;
@@ -291,8 +291,11 @@ void RobotMin::loop() {
 		EEPROM.write(address, 17);
 		EEPROM.commit(); // Warning: only 100000 times writeable
 
+		address = 0;
 		uint8_t content = EEPROM.read(address);
-		print("Content: %i\n\r", (int)content);
+		address++;
+		uint8_t content1 = EEPROM.read(address);
+		print("Content: %i %i\n\r", (int)content, (int)content1);
 		if (content == 0xFF){
 			mrm_8x8a->text("Last failed");
 			print("Last failed");
@@ -307,13 +310,19 @@ void RobotMin::loop() {
 	#endif
 
 	#if TEST5
+		static const uint8_t PINS_COUNT = 7;
+		static uint8_t pins[] = {12, 13, 14, 16, 25, 32, 33};
 		if (setup()){
 			print("Test master\n\r");
-			pinMode(16, OUTPUT);
+			for (uint8_t i = 0; i < PINS_COUNT; i++)
+				pinMode(pins[i], OUTPUT);
 			pinMode(27, INPUT_PULLDOWN);
 		}
 		print("On\n\r");
-		digitalWrite(16, HIGH);
+		for (uint8_t i = 0; i < PINS_COUNT; i++){
+			digitalWrite(pins[i], HIGH);
+			delayMs(100);
+		}
 		delayMs(50000);
 		if (digitalRead(27)){
 			mrm_8x8a->text((char*)"Break");
@@ -322,7 +331,10 @@ void RobotMin::loop() {
 		}
 		else{
 			print("Off\n\r");
-			digitalWrite(16, LOW);
+			for (uint8_t i = 0; i < PINS_COUNT; i++){
+				digitalWrite(pins[i], LOW);
+				delayMs(100);
+			}
 			delayMs(3000);
 		}
 	#endif
@@ -332,6 +344,7 @@ void RobotMin::loop() {
 #define DEVICE_COUNT 9
 void RobotMin::loop0(){
 	static uint32_t i = 0;
+	bool ok = true;
 	if (setup()){
 		print("Started - devices test.\n\r");
 		uint8_t address = 0;
@@ -339,32 +352,33 @@ void RobotMin::loop0(){
 		if (EEPROM.read(address) == 0xFF){
 			mrm_8x8a->text("Last failed");
 			print("Last failed");
+			end();
+			ok = false;
+		}
+	}
+	if (ok){
+		uint8_t count = devicesScan(true);
+		if (count == DEVICE_COUNT)
+			print("Pass %i OK\n\r", ++i);
+		else{
+			mrm_8x8a->text("STOP");
+			print("%i devices, stop\n\r");
+			digitalWrite(26, HIGH);
 			EEPROM.begin(EEPROM_SIZE);
-			EEPROM.write(0, 0);
+			uint8_t address = 0;
+			EEPROM.write(address, 0xFF);
+			address++;
+			EEPROM.write(address, count);
 			EEPROM.commit(); // Warning: only 100000 times writeable
 			for(;;);
 		}
 	}
-	uint8_t count = devicesScan(true);
-	actionSet(_actionLoop0);
-	if (count == DEVICE_COUNT)
-		print("Pass %i OK\n\r", ++i);
-	else{
-		mrm_8x8a->text("STOP");
-		print("%i devices, stop\n\r");
-		digitalWrite(26, HIGH);
-		EEPROM.begin(EEPROM_SIZE);
-		uint8_t address = 0;
-		EEPROM.write(address, 0xFF);
-		address++;
-		EEPROM.write(address, count);
-		EEPROM.commit(); // Warning: only 100000 times writeable
-		for(;;);
-	}
 }
 
 void RobotMin::loop1(){
-
+			EEPROM.begin(12);
+			EEPROM.write(0, 0);
+			EEPROM.commit(); // Warning: only 100000 times writeable
 }
 
 void RobotMin::loop2(){
