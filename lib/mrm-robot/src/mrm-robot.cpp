@@ -818,13 +818,28 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 	while (millis() < 8000) //Wait for all the devices to complete start-up
 		delayMs(50);
 	devicesStop();
-	uint8_t count = 0;
-	delayMs(50); // Read all the messages sent after stop.
-	for (uint8_t i = 0; i < _boardNextFree; i++){
+
+	delayMs(5); // Read all the messages sent after stop.
+
+	// Set not alive
+	for (uint8_t i = 0; i < _boardNextFree; i++)
 		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
-			count += board[i]->devicesScan(verbose);
-			// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
-	}
+			board[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
+
+	// Send alive ping
+	for (uint8_t k = 0; k < 2; k++)
+		for (uint8_t i = 0; i < _boardNextFree; i++){
+			if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+				board[i]->devicesScan(verbose);
+				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
+		}
+
+	// Count alive
+	uint8_t count = 0;
+	for (uint8_t i = 0; i < _boardNextFree; i++)
+		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+			count += board[i]->aliveCount(); 
+
 	if (verbose)
 		print("%i devices.\n\r", count);
 	if (canGap())
@@ -1421,7 +1436,8 @@ bool Robot::stressTest() {
 			errors[i] = 0;
 		uint8_t totalCnt = 0;
 		for (uint8_t i = 0; i < _boardNextFree; i++) {
-			count[i] = board[i]->devicesScan(true);
+			board[i]->devicesScan(true);
+			count[i] = board[i]->aliveCount();
 			totalCnt += count[i];
 			mask[i] = TRY_ONLY_ALIVE ? 0 : 0xFFFF;
 			for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++)
@@ -1454,7 +1470,8 @@ bool Robot::stressTest() {
 		if (count[i] > 0 || !TRY_ONLY_ALIVE) {
 			delayMicros(40);
 			digitalWrite(15, HIGH);
-			uint8_t cnt = board[i]->devicesScan(false, mask[i]);
+			board[i]->devicesScan(false, mask[i]);
+			uint8_t cnt = board[i]->aliveCount();
 			digitalWrite(15, LOW);
 			if (cnt != count[i]) {
 				errors[i]++;

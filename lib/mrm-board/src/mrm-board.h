@@ -155,6 +155,8 @@ public:
 	*/
 	bool alive(uint8_t deviceNumber = 0, bool checkAgainIfDead = false, bool errorIfNotAfterCheckingAgain = false);
 
+	uint8_t aliveCount();
+
 	/** Get aliveness
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return alive or not
@@ -170,8 +172,9 @@ public:
 	/** Set aliveness
 	@param yesOrNo
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+						0xFF - set all
 	*/
-	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0);
+	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0xFF);
 
 	/** Detects if there is a gap in CAN Bus addresses' sequence, like 0, 2, 3 (missing 1).
 	@return - is there a gap.
@@ -203,9 +206,8 @@ public:
 	/** Ping devices and refresh alive array
 	@param verbose - prints statuses
 	@param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
-	@return - alive count
 	*/
-	uint8_t devicesScan(bool verbose = true, uint16_t mask = 0xFFFF);
+	void devicesScan(bool verbose = true, uint16_t mask = 0xFFFF);
 
 	/** Last error code
 	@return - last error code from all devices of this kind

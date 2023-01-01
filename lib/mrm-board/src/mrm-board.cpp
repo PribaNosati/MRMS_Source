@@ -97,6 +97,13 @@ bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAf
 	}
 }
 
+uint8_t Board::aliveCount(){
+	uint8_t count = 0;
+	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
+		if (aliveGet(deviceNumber))
+			count++;
+	return count;
+}
 
 /** Get aliveness
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -119,8 +126,11 @@ bool Board::aliveOnceGet(uint8_t deviceNumber){
 /** Set aliveness
 @param yesOrNo
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+					0xFF - set all
 */
 void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
+	if (deviceNumber == 0xFF)
+		_alive = yesOrNo ? 0xFF : 0x00;
 	if (deviceNumber > 31) {
 		strcpy(errorMessage, "Device number too big.");
 		return;
@@ -167,30 +177,29 @@ uint8_t Board::deadOrAliveCount() { return nextFree; }
 /** Ping devices and refresh alive array
 @param verbose - prints statuses
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
-@return - alive count
 */
-uint8_t Board::devicesScan(bool verbose, uint16_t mask) {
+void Board::devicesScan(bool verbose, uint16_t mask) {
 	_aliveReport = verbose;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if ((mask >> deviceNumber) & 1) { // If in the list requested to be scanned.
-			aliveSet(false, deviceNumber); // Mark as not alive. It will be marked as alive when returned message arrives.
-			int8_t tries = 5;
-			if (aliveOnceGet(deviceNumber))
-				tries = 50;
-			canData[0] = COMMAND_REPORT_ALIVE;
-			do{
+			// aliveSet(false, deviceNumber); // Mark as not alive. It will be marked as alive when returned message arrives.
+			// int8_t tries = 5;
+			// if (aliveOnceGet(deviceNumber))
+			// 	tries = 50;
+			// canData[0] = COMMAND_REPORT_ALIVE;
+			// do{
 				// if (maximumNumberOfBoards == 8)
 				// 	robotContainer->print("Device: %i\n\r", deviceNumber); 
 				messageSend(canData, 1, deviceNumber);
 				// robotContainer->print("%s scanned\n\r", name(deviceNumber));
-				robotContainer->delayMicros(1500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
-				if (aliveGet(deviceNumber))
-					tries = 0;
-			} while(tries-- > 0);
+				robotContainer->delayMicros(500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+			// 	if (aliveGet(deviceNumber))
+			// 		tries = 0;
+			// } while(tries-- > 0);
 		}
 	}
 	//robotContainer->print("%s OVER\n\r", nameGroup);
-	return count();
+	// return count();
 }
 
 /** Request firmware version
