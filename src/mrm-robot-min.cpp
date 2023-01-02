@@ -360,8 +360,15 @@ void RobotMin::loop0(){
 	if (ok){
 		uint8_t count = devicesScan(true);
 		actionSet(_actionLoop0);
-		if (count == DEVICE_COUNT)
+		if (count == DEVICE_COUNT){
 			print("Pass %i OK\n\r", ++i);
+			#define START_MOTORS 1
+			#if START_MOTORS
+			int8_t leftSpeed = millis() % 255 - 128;
+			int8_t rightSpeed = millis() % 255 - 128;
+			motorGroup->go(leftSpeed, rightSpeed);
+			#endif
+		}
 		else{
 			mrm_8x8a->text("STOP");
 			print("%i devices, stop\n\r");
