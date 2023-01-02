@@ -131,13 +131,15 @@ bool Board::aliveOnceGet(uint8_t deviceNumber){
 void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 	if (deviceNumber == 0xFF)
 		_alive = yesOrNo ? 0xFF : 0x00;
-	if (deviceNumber > 31) {
-		strcpy(errorMessage, "Device number too big.");
-		return;
+	else{
+		if (deviceNumber > 31) {
+			strcpy(errorMessage, "Device number too big.");
+			return;
+		}
+		_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
+		if (yesOrNo)
+			_aliveOnce = _alive | (1 << deviceNumber);
 	}
-	_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
-	if (yesOrNo)
-		_aliveOnce = _alive | (1 << deviceNumber);
 }
 
 
@@ -181,17 +183,17 @@ uint8_t Board::deadOrAliveCount() { return nextFree; }
 void Board::devicesScan(bool verbose, uint16_t mask) {
 	_aliveReport = verbose;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if ((mask >> deviceNumber) & 1) { // If in the list requested to be scanned.
+		if (((mask >> deviceNumber) & 1) && !aliveGet(deviceNumber)) { // If in the list requested to be scanned.
 			// aliveSet(false, deviceNumber); // Mark as not alive. It will be marked as alive when returned message arrives.
 			// int8_t tries = 5;
 			// if (aliveOnceGet(deviceNumber))
 			// 	tries = 50;
-			// canData[0] = COMMAND_REPORT_ALIVE;
+			canData[0] = COMMAND_REPORT_ALIVE;
 			// do{
 				// if (maximumNumberOfBoards == 8)
-				// 	robotContainer->print("Device: %i\n\r", deviceNumber); 
+					// robotContainer->print("Device: %i\n\r", deviceNumber); 
 				messageSend(canData, 1, deviceNumber);
-				// robotContainer->print("%s scanned\n\r", name(deviceNumber));
+				//  robotContainer->print("%s scanned\n\r", name(deviceNumber));
 				robotContainer->delayMicros(500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
 			// 	if (aliveGet(deviceNumber))
 			// 		tries = 0;
