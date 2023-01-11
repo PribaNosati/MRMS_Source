@@ -7,30 +7,30 @@
 #include <vector>
 
 // Addresses:
-// 0x0110 mrm-bldc2x125
-// 0x0150 mrm-lid-c2, mrm-lid-can-b2
-// 0x0160 mrm-ref-can*
-// 0x0170 mrm-node
-// 0x0180 mrm-lid-c, mrm-lid-can-b
-// 0x0200 mrm-8x8a
-// 0x0210 mrm-therm-b-can
-// 0x0230 mrm-mot4x3.6can
-// 0x0240 mrm-bldc4x2.5
-// 0x0250 mrm-mot4x10
-// 0x0260 mrm-mot2x50
-// 0x0270 mrm-lid-can-b2, mrm-lid-c2
-// 0x0280 mrm-lid-c, mrm-lid-can-b, mrm-therm-l2
-// 0x0290 mrm-ir-finder-can
-// 0x0300 mrm-us
-// 0x0310 mrm-col-can
-// 0x0320 mrm-us-a, mrm-us-u, mrm-us40sg
-// 0x0330 mrm-ir-finder3
-// 0x0350 mrm-fet-can
-// 0x0360 mrm-us-b
-// 0x0370 mrm-us1
-// 0x0380 mrm-col-b
-// 0x0390 mrm-lid-d
-// 0x0400 mrm-lid-d
+// 0x0110 - 272 mrm-bldc2x125
+// 0x0150 - 336 mrm-lid-c2, mrm-lid-can-b2
+// 0x0160 - 352 mrm-ref-can*
+// 0x0170 - 368 mrm-node
+// 0x0180 - 384 mrm-lid-c, mrm-lid-can-b
+// 0x0200 - 512 mrm-8x8a
+// 0x0210 - 528 mrm-therm-b-can
+// 0x0230 - 560 mrm-mot4x3.6can
+// 0x0240 - 576 mrm-bldc4x2.5
+// 0x0250 - 592 mrm-mot4x10
+// 0x0260 - 608 mrm-mot2x50
+// 0x0270 - 624 mrm-lid-can-b2, mrm-lid-c2
+// 0x0280 - 640 mrm-lid-c, mrm-lid-can-b, mrm-therm-l2
+// 0x0290 - 656 mrm-ir-finder-can
+// 0x0300 - 768 mrm-us
+// 0x0310 - 784 mrm-col-can
+// 0x0320 - 800 mrm-us-a, mrm-us-u, mrm-us40sg
+// 0x0330 - 816 mrm-ir-finder3
+// 0x0350 - 848 mrm-fet-can
+// 0x0360 - 864 mrm-us-b
+// 0x0370 - 880 mrm-us1
+// 0x0380 - 896 mrm-col-b
+// 0x0390 - 912 mrm-lid-d
+// 0x0400 - 1024 mrm-lid-d
 
 #define COMMAND_SENSORS_MEASURE_CONTINUOUS 0x10
 #define COMMAND_SENSORS_MEASURE_ONCE 0x11

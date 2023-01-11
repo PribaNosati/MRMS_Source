@@ -22,8 +22,8 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// 2nd, 4th, 6th, and 8th parameters are output connectors of the controller (0 - 3, meaning 1 - 4. connector). 2nd one must be connected to LB (Left-Back) motor,
 	// 4th to LF (Left-Front), 6th to RF (Right-Front), and 8th to RB (Right-Back). Therefore, You can connect motors freely, but have to
 	// adjust the parameters here. In this example output (connector) 3 is LB, etc.
-	//motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 3, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 0);
-	motorGroup = new MotorGroupDifferential(this, mrm_bldc4x2_5, 3, mrm_bldc4x2_5, 1, mrm_bldc4x2_5, 2, mrm_bldc4x2_5, 0);
+	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 3, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 0);
+	// motorGroup = new MotorGroupDifferential(this, mrm_bldc4x2_5, 3, mrm_bldc4x2_5, 1, mrm_bldc4x2_5, 2, mrm_bldc4x2_5, 0);
 
 	// Depending on your wiring, it may be necessary to spin some motors in the other direction. In this example, no change needed,
 	// but uncommenting the following line will change the direction of the motor 2.
@@ -46,7 +46,7 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();
 
-	_actionCurrent = _actionLoop0; // Comment the line if no default action
+	// _actionCurrent = _actionLoop0; // Comment the line if no default action
 	pinMode(26, OUTPUT);
 	digitalWrite(26, LOW);
 }
@@ -362,7 +362,7 @@ void RobotMin::loop0(){
 		actionSet(_actionLoop0);
 		if (count == DEVICE_COUNT){
 			print("Pass %i OK\n\r", ++i);
-			#define START_MOTORS 1
+			#define START_MOTORS 0
 			#if START_MOTORS
 			int8_t leftSpeed = millis() % 255 - 128;
 			int8_t rightSpeed = millis() % 255 - 128;
@@ -373,6 +373,8 @@ void RobotMin::loop0(){
 			mrm_8x8a->text("STOP");
 			print("%i devices, stop\n\r");
 			digitalWrite(26, HIGH);
+			#define STOP_IF_ERROR 0
+#if STOP_IF_ERROR
 			EEPROM.begin(EEPROM_SIZE);
 			uint8_t address = 0;
 			EEPROM.write(address, 0xFF);
@@ -380,6 +382,9 @@ void RobotMin::loop0(){
 			EEPROM.write(address, count);
 			EEPROM.commit(); // Warning: only 100000 times writeable
 			for(;;);
+#else
+			end();
+#endif
 		}
 	}
 }
