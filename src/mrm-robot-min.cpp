@@ -391,5 +391,38 @@ void RobotMin::loop1(){
 }
 
 void RobotMin::loop2(){
+	while (millis() < 3000) //Wait for all the devices to complete start-up
+		delayMs(50);
+		// print("AA1\n\r");
+	devicesStop();
 
+	delayMs(5); // Read all the messages sent after stop.
+
+	// Set not alive
+	for (uint8_t i = 0; i < _boardNextFree; i++)
+		if (board[i]->boardType() == ID_MRM_REF_CAN)
+			board[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
+
+	// Send alive ping
+	for (uint8_t k = 0; k < 2; k++)
+		for (uint8_t i = 0; i < _boardNextFree; i++){
+			if (board[i]->boardType() == ID_MRM_REF_CAN)
+				board[i]->devicesScan(verbose);
+				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
+		}
+
+	// Count alive
+	uint8_t count = 0;
+	for (uint8_t i = 0; i < _boardNextFree; i++)
+		if (board[i]->boardType() == ID_MRM_REF_CAN)
+			count += board[i]->aliveCount(); 
+
+	if (verbose)
+		print("%i devices.\n\r", count);
+
+	if (count == 0){
+		print("No ref\n\r");
+		_devicesScanBeforeMenu = false;
+		end();
+	}
 }
