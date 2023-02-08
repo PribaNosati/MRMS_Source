@@ -370,10 +370,18 @@ void RobotMin::loop0(){
 			#endif
 		}
 		else{
-			mrm_8x8a->text("STOP");
-			print("%i devices, stop\n\r");
+			bool ref = mrm_ref_can->alive(0);
+			bool lid0 = mrm_lid_can_b->alive(0);
+			bool lid1 = mrm_lid_can_b->alive(1);
+			bool lid2 = mrm_lid_can_b->alive(2);
+			bool mot0 = mrm_mot4x3_6can->alive(0);
+			char buffer[40];
+			sprintf(buffer, "%i dev, %s%s%s%s%s", count, ref ? "" : "R", lid0 ? "" : "L0", 
+				lid1 ? "" : "L1", lid2 ? "" : "L2", mot0 ? "" : "M0");
+			mrm_8x8a->text(buffer);
+			print("%i devices, stop\n\r", count);
 			digitalWrite(26, HIGH);
-			#define STOP_IF_ERROR 0
+			#define STOP_IF_ERROR 1
 #if STOP_IF_ERROR
 			EEPROM.begin(EEPROM_SIZE);
 			uint8_t address = 0;
@@ -404,25 +412,20 @@ void RobotMin::loop2(){
 	delayMs(5); // Read all the messages sent after stop.
 
 	// Set not alive
-	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (board[i]->boardType() == ID_MRM_REF_CAN)
-			board[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
+print("Board: %s\n\r", board[14]->name());
+			board[14]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
 
 	// Send alive ping
 	for (uint8_t k = 0; k < 2; k++)
-		for (uint8_t i = 0; i < _boardNextFree; i++){
-			if (board[i]->boardType() == ID_MRM_REF_CAN)
-				board[i]->devicesScan(verbose);
+				board[14]->devicesScan(verbose);
 				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
-		}
+
 
 	// Count alive
 	uint8_t count = 0;
-	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (board[i]->boardType() == ID_MRM_REF_CAN)
-			count += board[i]->aliveCount(); 
+			count += board[14]->aliveCount(); 
 
-	if (verbose)
+
 		print("%i devices.\n\r", count);
 
 	if (count == 0){
