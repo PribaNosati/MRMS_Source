@@ -929,24 +929,23 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	if (line(8))
-		go(-90, 90);
-	else if (line(0))
-		go(90, -90);
-	else if (line(1))
-		go(70, -20);
-	else if (line(2))
-		go(60, 10);
-	else if (line(3))
-		go(50, 20);
-	else if (line(5))
-		go(20, 50);
-	else if (line(6))
-		go(10, 60);
-	else if (line(7))
-		go(-20, 70);
-	else
-		go(70, 70);
+	static int counter; 
+	static uint32_t startMs; 
+
+	if (setup()) { 
+		counter = 0; 
+		startMs = (long) millis(); 
+		print("Početak: %d ms\n", startMs); 
+	} 
+
+	++counter; 
+
+	if (counter == 1000) { 
+		uint32_t endMs = millis(); 
+		print("Završetak: %d ms\n", endMs); 
+		print("Razlika iznosi %lu ms.\n", endMs - startMs); 
+		end(); 
+	} 
 }
 
 /** Generic actions, use them as templates

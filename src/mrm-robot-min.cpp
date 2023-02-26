@@ -46,7 +46,7 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();
 
-	// _actionCurrent = _actionLoop0; // Comment the line if no default action
+	_actionCurrent = _actionLoop0; // Comment the line if no default action
 	pinMode(26, OUTPUT);
 	digitalWrite(26, LOW);
 }
