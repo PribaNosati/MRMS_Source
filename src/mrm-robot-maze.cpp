@@ -294,8 +294,13 @@ bool RobotMaze::line(uint8_t transistorNumber) {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu-command.
 */
 void RobotMaze::loop() {
-	go(30, -30);
+	if (serialDataCount() > 0)
+		print("Data: %s\n\r", uartRxCommandCumulative);
 }
+
+void RobotMaze::loop0() { }
+void RobotMaze::loop1() {  }
+void RobotMaze::loop2() {  }
 
 /** Maps walls detected and other external readings in variables.
 */

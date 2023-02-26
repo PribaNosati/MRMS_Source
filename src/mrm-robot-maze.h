@@ -159,6 +159,10 @@ public:
 	*/
 	void loop();
 
+	void loop0();
+	void loop1();
+	void loop2();
+	
 	/** Maps walls detected and other external readings in variables.
 	*/
 	void map();
