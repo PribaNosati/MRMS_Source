@@ -449,7 +449,7 @@ void Robot::actionSet() {
 					ch = serialBT->read();
 #endif
 
-			if (ch != 13) //if received data different from ascii 13 (enter)
+			if (ch != 13 && uartRxCommandIndex < 23) //if received data different from ascii 13 (enter)
 				uartRxCommandCumulative[uartRxCommandIndex++] = ch;	//add data to Rx_Buffer
 
 			if (ch == 13 || (uartRxCommandIndex >= 3 && !(uartRxCommandCumulative[0] == 'e' && uartRxCommandCumulative[1] == 's' && uartRxCommandCumulative[2] == 'c')) || ch == 'x' && uartRxCommandIndex == 1) //if received data = 13
@@ -458,6 +458,7 @@ void Robot::actionSet() {
 				print("Command: %s", uartRxCommandCumulative);
 
 				uint8_t found = 0;
+				uartRxCommandCumulative[uartRxCommandIndex] = '\0';
 				if (uartRxCommandCumulative[0] == 'e' && uartRxCommandCumulative[1] == 's' && uartRxCommandCumulative[2] == 'c'){
 					found = 1;
 				}
