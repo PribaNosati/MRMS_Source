@@ -52,11 +52,8 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	actionAdd(actionWallFollow);
 	actionAdd(actionMotorShortTest);
 
-	// Generic actions
+	// // Generic actions
 	actionAdd(actionLoopMenu);
-	actionAdd(actionLoop0);
-	actionAdd(actionLoop1);
-	actionAdd(actionLoop2);
 	actionAdd(actionLoop3);
 	actionAdd(actionLoop4);
 	actionAdd(actionLoop5);
@@ -929,23 +926,16 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	static int counter; 
-	static uint32_t startMs; 
-
-	if (setup()) { 
-		counter = 0; 
-		startMs = (long) millis(); 
-		print("Početak: %d ms\n", startMs); 
-	} 
-
-	++counter; 
-
-	if (counter == 1000) { 
-		uint32_t endMs = millis(); 
-		print("Završetak: %d ms\n", endMs); 
-		print("Razlika iznosi %lu ms.\n", endMs - startMs); 
-		end(); 
-	} 
+	if (line(8))
+		go(-90, 90);
+	else if (line(0))
+		go(90, -90);
+	else if (line(5))
+		go(10, 90);
+	else if (line(3))
+		go(90, 10);
+	else
+		go(60, 60);
 }
 
 /** Generic actions, use them as templates

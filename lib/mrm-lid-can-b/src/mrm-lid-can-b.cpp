@@ -259,7 +259,7 @@ void Mrm_lid_can_b::readingsPrint() {
 */
 bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		robotContainer->print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
+		// robotContainer->print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.

@@ -14,6 +14,14 @@
 
 class ActionMotorShortTest;
 
+#define AUTOSTART 1
+#define DEVICE_COUNT_COLOR 0
+#define DEVICE_COUNT_LED 1
+#define DEVICE_COUNT_IR_FINDER 1
+#define DEVICE_COUNT_LIDARS 4
+#define DEVICE_COUNT_MOTORS 4
+#define DEVICE_COUNT_REFLECTIVE 4
+#define START_MOTORS 0
 /** Constructor
 @param name - it is also used for Bluetooth so a Bluetooth client (like a phone) will list the device using this name.
 */
@@ -46,7 +54,11 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();
 
+	delayMs(500); // For CAN Bus boot
+
+#if AUTOSTART
 	_actionCurrent = _actionLoop0; // Comment the line if no default action
+#endif
 	pinMode(26, OUTPUT);
 	digitalWrite(26, LOW);
 }
@@ -341,7 +353,7 @@ void RobotMin::loop() {
 }
 
 #define EEPROM_SIZE 12
-#define DEVICE_COUNT 9
+
 void RobotMin::loop0(){
 	static uint32_t i = 0;
 	bool ok = true;
@@ -360,9 +372,9 @@ void RobotMin::loop0(){
 	if (ok){
 		uint8_t count = devicesScan(true);
 		actionSet(_actionLoop0);
-		if (count == DEVICE_COUNT){
+		if (count == DEVICE_COUNT_LED + DEVICE_COUNT_LIDARS + DEVICE_COUNT_MOTORS + 
+			DEVICE_COUNT_REFLECTIVE + DEVICE_COUNT_COLOR + DEVICE_COUNT_IR_FINDER){
 			print("Pass %i OK\n\r", ++i);
-			#define START_MOTORS 0
 			#if START_MOTORS
 			int8_t leftSpeed = millis() % 255 - 128;
 			int8_t rightSpeed = millis() % 255 - 128;
@@ -381,8 +393,7 @@ void RobotMin::loop0(){
 			mrm_8x8a->text(buffer);
 			print("%i devices, stop\n\r", count);
 			digitalWrite(26, HIGH);
-			#define STOP_IF_ERROR 1
-#if STOP_IF_ERROR
+#if AUTOSTART
 			EEPROM.begin(EEPROM_SIZE);
 			uint8_t address = 0;
 			EEPROM.write(address, 0xFF);
