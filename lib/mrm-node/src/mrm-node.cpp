@@ -105,7 +105,7 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 					(*switches)[deviceNumber][switchNumber] = data[1] & 1;
 					(*_lastReadingMs)[deviceNumber] = millis();
 				}
-										   break;
+				break;
 				default:
 					robotContainer->print("Unknown command. ");
 					messagePrint(canId, length, data, false);
