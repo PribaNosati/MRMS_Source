@@ -836,6 +836,8 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
 		}
 
+	// In the meantime, Board::messageDecodeCommon and derived count the alives
+
 	// Count alive
 	uint8_t count = 0;
 	for (uint8_t i = 0; i < _boardNextFree; i++)
@@ -1293,7 +1295,7 @@ void Robot::pnpSet(bool enable){
 			mrm_lid_can_b->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_lid_can_b->name(i), enable ? "on" : "off");
 		}
-			count = mrm_lid_can_b->deadOrAliveCount();
+	count = mrm_ref_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_ref_can->alive(i)){
 			mrm_ref_can->pnpSet(enable, i);
