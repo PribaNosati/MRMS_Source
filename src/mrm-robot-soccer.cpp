@@ -448,10 +448,10 @@ int8_t speedY;
 /** Custom test.
 */
 void RobotSoccer::loop() {
-	if (left() < right())
-		go(50, 0, 20);
-	else
-		go(50, 0, -20);
+	if (serialDataCount() > 10 ){
+		print("Data: %s\n\r", uartRxCommandCumulative);
+		serialDataClear();
+	}
 }
 
 /** Generic actions, use them as templates

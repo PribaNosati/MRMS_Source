@@ -449,7 +449,7 @@ void Robot::actionSet() {
 					ch = serialBT->read();
 #endif
 
-			if (ch != 13) //if received data different from ascii 13 (enter)
+			if (ch != 13 && uartRxCommandIndex < 23) //if received data different from ascii 13 (enter)
 				uartRxCommandCumulative[uartRxCommandIndex++] = ch;	//add data to Rx_Buffer
 
 			if (ch == 13 || (uartRxCommandIndex >= 3 && !(uartRxCommandCumulative[0] == 'e' && uartRxCommandCumulative[1] == 's' && uartRxCommandCumulative[2] == 'c')) || ch == 'x' && uartRxCommandIndex == 1) //if received data = 13
@@ -458,6 +458,7 @@ void Robot::actionSet() {
 				print("Command: %s", uartRxCommandCumulative);
 
 				uint8_t found = 0;
+				uartRxCommandCumulative[uartRxCommandIndex] = '\0';
 				if (uartRxCommandCumulative[0] == 'e' && uartRxCommandCumulative[1] == 's' && uartRxCommandCumulative[2] == 'c'){
 					found = 1;
 				}
@@ -834,6 +835,8 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 				board[i]->devicesScan(verbose);
 				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
 		}
+
+	// In the meantime, Board::messageDecodeCommon and derived count the alives
 
 	// Count alive
 	uint8_t count = 0;
@@ -1292,7 +1295,7 @@ void Robot::pnpSet(bool enable){
 			mrm_lid_can_b->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_lid_can_b->name(i), enable ? "on" : "off");
 		}
-			count = mrm_lid_can_b->deadOrAliveCount();
+	count = mrm_ref_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_ref_can->alive(i)){
 			mrm_ref_can->pnpSet(enable, i);
