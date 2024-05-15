@@ -3,7 +3,7 @@
 #include <mrm-action.h>
 #include <mrm-board.h>
 #include <mrm-common.h>
-#include <vector>
+//#include <vector>
 
 /**
 Purpose: mrm-8x8a interface to CANBus.

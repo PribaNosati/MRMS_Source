@@ -80,7 +80,7 @@ void Mrm_8x8a::add(char * deviceName)
 		canOut = CAN_ID_8x8A7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-8x8a");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 	}
 
 	for (uint8_t i = 0; i < MRM_8x8A_SWITCHES_COUNT; i++) {
@@ -177,6 +177,615 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
 	}
 }
+
+void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
+
+	// The 2 arrays will hold red and green pixels. Both red an green pixel on - orange color.
+	uint8_t red[8];
+	uint8_t green[8];
+
+	/* 1 will turn the pixel on, 0 off. 0bxxxxxxxx is a binary format of the number. Start with "0b" and list all the bits, starting from
+	the most significant one (MSB). Do that for each byte of the green and red arrays.*/
+
+	// Define Your bitmaps here.
+	// Example
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_CUSTOM) != selectedImages.end()){
+		green[0] = 0b00000001;
+		green[1] = 0b00000011;
+		green[2] = 0b00000111;
+		green[3] = 0b00001111;
+		green[4] = 0b00011111;
+		green[5] = 0b00111111;
+		green[6] = 0b01111111;
+		green[7] = 0b11111111;
+
+		red[0] = 0b11111111;
+		red[1] = 0b01111111;
+		red[2] = 0b00111111;
+		red[3] = 0b00011111;
+		red[4] = 0b00001111;
+		red[5] = 0b00000111;
+		red[6] = 0b00000011;
+		red[7] = 0b00000001;
+		bitmapCustomStore(red, green, LED_CUSTOM);
+		delay(1);
+	}
+
+
+	// Curve left.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_CURVE_LEFT) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b11111000;
+		green[3] = 0b11111000;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_CURVE_LEFT);
+		delay(1);
+	}
+
+	// Curve right.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_CURVE_RIGHT) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b00011111;
+		green[3] = 0b00011111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_CURVE_RIGHT);
+		delay(1);
+	}
+
+	// Evacuation zone
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_EVACUATION_ZONE) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		green[0] = 0b11111111;
+		green[1] = 0b10000001;
+		green[2] = 0b10000001;
+		green[3] = 0b10000001;
+		green[4] = 0b10000001;
+		green[5] = 0b11000001;
+		green[6] = 0b11100001;
+		green[7] = 0b11111111;
+		bitmapCustomStore(red, green, LED_EVACUATION_ZONE);
+		delay(1);
+	}
+
+	// Full crossing, both marks.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_FULL_CROSSING_BOTH_MARKS) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b11111111;
+		green[3] = 0b11111111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b01100110;
+		red[5] = 0b01100110;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_FULL_CROSSING_BOTH_MARKS);
+		delay(1);
+	}
+
+	// Full crossing, mark left.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_FULL_CROSSING_MARK_LEFT) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b11111111;
+		green[3] = 0b11111111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b01100000;
+		red[5] = 0b01100000;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_LEFT);
+		delay(1);
+	}
+
+	// Full crossing, mark right.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_FULL_CROSSING_MARK_RIGHT) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b11111111;
+		green[3] = 0b11111111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b00000110;
+		red[5] = 0b00000110;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_RIGHT);
+		delay(1);
+	}
+
+	// Full crossing, no marks.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_FULL_CROSSING_NO_MARK) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b11111111;
+		green[3] = 0b11111111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_FULL_CROSSING_NO_MARK);
+		delay(1);
+	}
+
+	// Half crossing, mark right.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_HALF_CROSSING_MARK_RIGHT) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b00011111;
+		green[3] = 0b00011111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b00000110;
+		red[5] = 0b00000110;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_RIGHT);
+		delay(1);
+	}
+
+	// Half crossing, mark left.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_HALF_CROSSING_MARK_LEFT) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b11111000;
+		green[3] = 0b11111000;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b01100000;
+		red[5] = 0b01100000;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_LEFT);
+		delay(1);
+	}
+
+	// Half crossing right, no mark.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_HALF_CROSSING_RIGHT_NO_MARK) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b00011111;
+		green[3] = 0b00011111;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b00000000;
+		red[5] = 0b00000000;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_HALF_CROSSING_RIGHT_NO_MARK);
+		delay(1);
+	}
+
+	// Half crossing left, no mark
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_HALF_CROSSING_LEFT_NO_MARK) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b11111000;
+		green[3] = 0b11111000;
+		green[4] = 0b00011000;
+		green[5] = 0b00011000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b00000000;
+		red[5] = 0b00000000;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_HALF_CROSSING_LEFT_NO_MARK);
+		delay(1);
+	}
+
+	// Follow IMU.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_IMU_FOLLOW) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00010000;
+		green[2] = 0b00111000;
+		green[3] = 0b01111100;
+		green[4] = 0b00111000;
+		green[5] = 0b00111000;
+		green[6] = 0b00000000;
+		green[7] = 0b00000000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_IMU_FOLLOW);
+		delay(1);
+	}
+
+	// Full line, no marks
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_FULL) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			green[i] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_LINE_FULL);
+		delay(1);
+	}
+
+	// Full line, both marks
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_FULL_BOTH_MARKS) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			green[i] = 0b00011000;
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b01100110;
+		red[5] = 0b01100110;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		/* Store this bitmap in mrm-8x8a. The 3rd parameter is bitmap's address. If You want to define new bitmaps, expand LedSign enum with
+		Your names, and use the new values for Your bitmaps. This parameter can be a plain number, but enum keeps thing tidy.*/
+		bitmapCustomStore(red, green, LED_LINE_FULL_BOTH_MARKS);
+		delay(1);
+	}
+
+	// Full line, left mark.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_FULL_MARK_LEFT) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			green[i] = 0b00011000;
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b01100000;
+		red[5] = 0b01100000;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_LINE_FULL_MARK_LEFT);
+		delay(1);
+	}
+
+	// Full line, right mark.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_FULL_MARK_RIGHT) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			green[i] = 0b00011000;
+		red[0] = 0b00000000;
+		red[1] = 0b00000000;
+		red[2] = 0b00000000;
+		red[3] = 0b00000000;
+		red[4] = 0b00000110;
+		red[5] = 0b00000110;
+		red[6] = 0b00000000;
+		red[7] = 0b00000000;
+		bitmapCustomStore(red, green, LED_LINE_FULL_MARK_RIGHT);
+		delay(1);
+	}
+
+	// Interrupted line.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_INTERRUPTED) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b00000000;
+		green[3] = 0b00000000;
+		green[4] = 0b00000000;
+		green[5] = 0b00000000;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_LINE_INTERRUPTED);
+		delay(1);
+	}
+
+	// Obstacle.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_OBSTACLE) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b00000000;
+		green[3] = 0b00011000;
+		green[4] = 0b00111100;
+		green[5] = 0b01111110;
+		green[6] = 0b00011000;
+		green[7] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_OBSTACLE);
+		delay(1);
+	}
+
+	// Around obstacle left.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_OBSTACLE_AROUND_LEFT) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b00000011;
+		green[3] = 0b00100011;
+		green[4] = 0b01110000;
+		green[5] = 0b11111000;
+		green[6] = 0b01110000;
+		green[7] = 0b01110000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_LEFT);
+		delay(1);
+	}
+
+	// Around obstacle right.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_OBSTACLE_AROUND_RIGHT) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b11000000;
+		green[3] = 0b11000100;
+		green[4] = 0b00001110;
+		green[5] = 0b00011111;
+		green[6] = 0b00001110;
+		green[7] = 0b00001110;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_RIGHT);
+		delay(1);
+	}
+
+	// Pause.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_PAUSE) != selectedImages.end()){
+		green[0] = 0b11100111;
+		green[1] = 0b11100111;
+		green[2] = 0b11100111;
+		green[3] = 0b11100111;
+		green[4] = 0b11100111;
+		green[5] = 0b11100111;
+		green[6] = 0b11100111;
+		green[7] = 0b11100111;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_PAUSE);
+		delay(1);
+	}
+
+	// Play.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_PLAY) != selectedImages.end()){
+		green[0] = 0b0110000;
+		green[1] = 0b0111000;
+		green[2] = 0b0111100;
+		green[3] = 0b0111110;
+		green[4] = 0b0111110;
+		green[5] = 0b0111100;
+		green[6] = 0b0111000;
+		green[7] = 0b0110000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_PLAY);
+		delay(1);
+	}
+
+	// T-crossing approached by left side.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_T_CROSSING_BY_L) != selectedImages.end()){
+		green[0] = 0b0100000;
+		green[1] = 0b0100000;
+		green[2] = 0b0100000;
+		green[3] = 0b0111111;
+		green[4] = 0b0100000;
+		green[5] = 0b0100000;
+		green[6] = 0b0100000;
+		green[7] = 0b0100000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_T_CROSSING_BY_L);
+		delay(1);
+	}
+
+	// T-crossing approached by right side.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_T_CROSSING_BY_R) != selectedImages.end()){
+		green[0] = 0b0000100;
+		green[1] = 0b0000100;
+		green[2] = 0b0000100;
+		green[3] = 0b1111100;
+		green[4] = 0b0000100;
+		green[5] = 0b0000100;
+		green[6] = 0b0000100;
+		green[7] = 0b0000100;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_T_CROSSING_BY_R);
+		delay(1);
+	}
+
+	// Wall ahead
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_AHEAD) != selectedImages.end()){
+		green[0] = 0b11111111;
+		green[1] = 0b00010000;
+		green[2] = 0b00111000;
+		green[3] = 0b01010100;
+		green[4] = 0b00000000;
+		green[5] = 0b00111000;
+		green[6] = 0b00101000;
+		green[7] = 0b00111000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_WALL_AHEAD);
+		delay(1);
+	}
+
+	// Follow wall down, green taken from Follow IMU bitmap.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_DOWN_FOLLOW) != selectedImages.end()){
+		for (uint8_t i = 0; i < 7; i++)
+			red[i] = 0;
+		red[7] = 0b11111111;
+		bitmapCustomStore(red, green, LED_WALL_DOWN_FOLLOW);
+		delay(1);
+	}
+
+	// Wall on the left side
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_L) != selectedImages.end()){
+		green[0] = 0b10001000;
+		green[1] = 0b10011100;
+		green[2] = 0b10101010;
+		green[3] = 0b10001000;
+		green[4] = 0b10000000;
+		green[5] = 0b10011100;
+		green[6] = 0b10010100;
+		green[7] = 0b10011100;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_WALL_L);
+		delay(1);
+	}
+
+	// Follow wall left, green taken from Follow IMU bitmap.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_LEFT_FOLLOW) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0b10000000;
+		bitmapCustomStore(red, green, LED_WALL_LEFT_FOLLOW);
+		delay(1);
+	}
+
+	// Wall on the right side
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_R) != selectedImages.end()){
+		green[0] = 0b00010001;
+		green[1] = 0b00111001;
+		green[2] = 0b01010101;
+		green[3] = 0b00010001;
+		green[4] = 0b00000001;
+		green[5] = 0b00111001;
+		green[6] = 0b00101001;
+		green[7] = 0b00111001;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_WALL_R);
+		delay(1);
+	}
+
+	// Follow wall right, green taken from Follow IMU bitmap.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_RIGHT_FOLLOW) != selectedImages.end()){
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0b00000001;
+		bitmapCustomStore(red, green, LED_WALL_RIGHT_FOLLOW);
+		delay(1);
+	}
+
+	// Follow wall up, green taken from Follow IMU bitmap.
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_WALL_UP_FOLLOW) != selectedImages.end()){
+		red[0] = 0b11111111;
+		for (uint8_t i = 1; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_WALL_UP_FOLLOW);
+		delay(1);
+	}
+
+	// LED approach opponent's goal
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_GOAL_APPROACH) != selectedImages.end()){
+		green[0] = 0b01111110;
+		green[1] = 0b01000010;
+		green[2] = 0b00000000;
+		green[3] = 0b00000000;
+		green[4] = 0b00000000;
+		green[5] = 0b00000000;
+		green[6] = 0b00000000;
+		green[7] = 0b00000000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_GOAL_APPROACH);
+		delay(1);
+	}
+
+	// LED approach opponent's goal
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_IDLE) != selectedImages.end()){
+		green[0] = 0b00000000;
+		green[1] = 0b00000000;
+		green[2] = 0b00000000;
+		green[3] = 0b00000000;
+		green[4] = 0b00000000;
+		green[5] = 0b00000000;
+		green[6] = 0b01000010;
+		green[7] = 0b01111110;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_IDLE);
+		delay(1);
+	}
+	// LED approach opponent's goal
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_AVOID) != selectedImages.end()){
+		green[0] = 0b11111111;
+		green[1] = 0b10000001;
+		green[2] = 0b10000001;
+		green[3] = 0b10000001;
+		green[4] = 0b10000001;
+		green[5] = 0b10000001;
+		green[6] = 0b10000001;
+		green[7] = 0b11111111;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_LINE_AVOID);
+		delay(1);
+	}
+	// LED approach opponent's goal
+	if (std::find(selectedImages.begin(), selectedImages.end(), LED_CATCH) != selectedImages.end()){
+		green[0] = 0b00011000;
+		green[1] = 0b00011000;
+		green[2] = 0b00000000;
+		green[3] = 0b00100100;
+		green[4] = 0b01011010;
+		green[5] = 0b01000010;
+		green[6] = 0b00100100;
+		green[7] = 0b00011000;
+		for (uint8_t i = 0; i < 8; i++)
+			red[i] = 0;
+		bitmapCustomStore(red, green, LED_CATCH);
+		delay(1);
+	}
+}
+
 
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
