@@ -561,7 +561,7 @@ void RobotMaze::rescueMaze() {
 	testMode = false; // The robot mustn't stop after each action
 	print("Maze start\n\r");
 	// mrm-8x8a is positioned so that its bottom is aligned robot's left side. Rotate the display so that the image is aligned with robot's back.
-	mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES);
+	mrm_8x8a->rotationSet(Mrm_8x8a::LED_8X8_BY_90_DEGREES);
 	bitmapsSet(); // Upload custom bitmaps into mrm-8x8a.
 	mrm_8x8a->bitmapCustomStoredDisplay(LedSign::MAZE_LED_PLAY); // Display play sign.
 	Tile::first = new Tile(0, 0, NOWHERE); // Set the first tile and start the chain. Tile::first will point to its head, enabling iterating.
@@ -753,7 +753,7 @@ void RobotMaze::wallsDisplay() {
 void RobotMaze::wallsTest() {
 	if (setup()) { // First run of the action.
 		directionCurrent = Direction::UP; // We should be standing behind the robot. Otherwise, change this value.
-		mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES); // Rotate the display as it is mounted rotated by 90 degrees.
+		mrm_8x8a->rotationSet(Mrm_8x8a::LED_8X8_BY_90_DEGREES); // Rotate the display as it is mounted rotated by 90 degrees.
 	}
 	// Display the values in terminals.
 	print(" FR:%i", distance(Direction::UP, false));

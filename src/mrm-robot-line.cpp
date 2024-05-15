@@ -1115,7 +1115,7 @@ void RobotLine::rcjLine() {
 	if (false)
 		if (front() < 100)
 			obstacleAvoid();
-	mrm_8x8a->rotationSet(LED_8X8_BY_90_DEGREES); // Rotate the mrm-8x8a by 90� so that it can be read properly when standing behind the robot.
+	mrm_8x8a->rotationSet(Mrm_8x8a::LED_8X8_BY_90_DEGREES); // Rotate the mrm-8x8a by 90� so that it can be read properly when standing behind the robot.
 	bitmapsSet(); // Upload all the predefined bitmaps into the mrm-8x8a.
 	display(LED_PLAY); // Show "play" sign.
 	mrm_col_can->illumination(0xFF, 1); // Turn mrm-col-can's surface illumination on.
