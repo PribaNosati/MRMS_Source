@@ -274,14 +274,14 @@ public:
 	@boardType - sensor, motor, or all boards
 	@return count
 	*/
-	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, BoardType boardType = ANY_BOARD);
+	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
 
 	/** Contacts all the CAN Bus devices and checks which one is alive.
 	@verbose - if true, print.
 	@boardType - sensor, motor, or all boards.
 	@return count
 	*/
-	uint8_t devicesScan(bool verbose, BoardType boardType = ANY_BOARD);
+	uint8_t devicesScan(bool verbose, Board::BoardType boardType = Board::ANY_BOARD);
 
 	/** Starts devices' CAN Bus messages broadcasting.
 	*/

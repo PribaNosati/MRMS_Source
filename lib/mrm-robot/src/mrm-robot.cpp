@@ -774,10 +774,10 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 @boardType - sensor, motor, or all boards
 @return count
 */
-void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, BoardType boardType){
+void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, Board::BoardType boardType){
 	uint8_t count = 0;
 	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
-		if (boardType == ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
+		if (boardType == Board::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
 			for (uint8_t deviceNumber = 0; deviceNumber < board[boardKind]->count(); deviceNumber++){// Devices for the current board type
 				if (board[boardKind]->alive(deviceNumber)){
 					if (count == deviceGlobalOrdinalNumber)
@@ -786,7 +786,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo
 						deviceInfo->board = board[boardKind];
 						deviceInfo->deviceNumber = deviceNumber;
 						//print("In func: %s %i", deviceInfo->name, deviceNumber);
-						if (boardType == SENSOR_BOARD)
+						if (boardType == Board::SENSOR_BOARD)
 							deviceInfo->readingsCount = ((SensorBoard*)(board[boardKind]))->readingsCount();
 						return;
 					}
@@ -815,7 +815,7 @@ void Robot::devicesLEDCount(){
 @boardType - sensor, motor, or all boards
 @return count
 */
-uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
+uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 	while (millis() < 3000) //Wait for all the devices to complete start-up
 		delayMs(50);
 		// print("AA1\n\r");
@@ -825,13 +825,13 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 
 	// Set not alive
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+		if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 			board[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
 
 	// Send alive ping
 	for (uint8_t k = 0; k < 2; k++)
 		for (uint8_t i = 0; i < _boardNextFree; i++){
-			if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+			if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 				board[i]->devicesScan(verbose);
 				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
 		}
@@ -841,7 +841,7 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 	// Count alive
 	uint8_t count = 0;
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+		if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 			count += board[i]->aliveCount(); 
 
 	if (verbose)
@@ -1094,7 +1094,7 @@ void Robot::menu() {
 	for (uint8_t i = 0; i < _actionNextFree; i++) {
 		if ((_action[i]->_menuLevel | menuLevel) == _action[i]->_menuLevel) {
 			bool anyAlive = false;
-			if (_action[i]->boardsId() == ID_ANY)
+			if (_action[i]->boardsId() == Board::ID_ANY)
 				anyAlive = true;
 			else
 				for (uint8_t j = 0; j < _boardNextFree && !anyAlive; j++)
@@ -1217,7 +1217,7 @@ void Robot::messagesReceive() {
 void Robot::motorTest() {
 	print("Test motors\n\r");
 	for (uint8_t i = 0; i < _boardNextFree; i++) 
-		if (board[i]->boardType() == MOTOR_BOARD && board[i]->count() > 0)
+		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
 			board[i]->test();
 	end();
 }
@@ -1413,7 +1413,7 @@ void Robot::servoInteractive() {
 void Robot::stopAll() {
 	devicesStop();
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (board[i]->boardType() == MOTOR_BOARD && board[i]->count() > 0)
+		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
 			((MotorBoard*)board[i])->stop();
 	end();
 }

@@ -56,8 +56,12 @@
 #define COMMAND_INFO_SENDING_1 0x25
 #define COMMAND_INFO_SENDING_2 0x26
 #define COMMAND_INFO_SENDING_3 0x27
+#define COMMAND_PNP_ENABLE 0x28
+#define COMMAND_PNP_DISABLE 0x29
 #define COMMAND_FPS_REQUEST 0x30
 #define COMMAND_FPS_SENDING 0x31
+#define COMMAND_PNP_REQUEST 0x32
+#define COMMAND_PNP_SENDING 0x33
 #define COMMAND_ID_CHANGE_REQUEST 0x40
 #define COMMAND_NOTIFICATION 0x41
 #define COMMAND_OSCILLATOR_TEST 0x43
@@ -76,12 +80,6 @@
 #define toDeg(x) ((x) / PI * 180.0) // Radians to degrees
 #endif
 
-enum BoardId{ID_MRM_8x8A, ID_ANY, ID_MRM_BLDC2X50, ID_MRM_BLDC4x2_5, ID_MRM_COL_B, ID_MRM_COL_CAN, ID_MRM_FET_CAN, ID_MRM_IR_FINDER_2, 
-	ID_MRM_IR_FINDER3, ID_MRM_IR_FINDER_CAN, ID_MRM_LID_CAN_B, ID_MRM_LID_CAN_B2, ID_MRM_LID_D, ID_MRM_MOT2X50, ID_MRM_MOT4X3_6CAN, ID_MRM_MOT4X10, 
-	ID_MRM_NODE, ID_MRM_REF_CAN, ID_MRM_SERVO, ID_MRM_SWITCH, ID_MRM_THERM_B_CAN, ID_MRM_US, ID_MRM_US_B, ID_MRM_US1};
-
-enum BoardType{ANY_BOARD, MOTOR_BOARD, SENSOR_BOARD};
-
 class Robot;
 
 class Board;
@@ -96,6 +94,12 @@ struct BoardInfo{
 /** Board is a class of all the boards of the same type, not a single board!
 */
 class Board{
+	public:
+	enum BoardId{ID_MRM_8x8A, ID_ANY, ID_MRM_BLDC2X50, ID_MRM_BLDC4x2_5, ID_MRM_COL_B, ID_MRM_COL_CAN, ID_MRM_FET_CAN, ID_MRM_IR_FINDER_2, 
+	ID_MRM_IR_FINDER3, ID_MRM_IR_FINDER_CAN, ID_MRM_LID_CAN_B, ID_MRM_LID_CAN_B2, ID_MRM_LID_D, ID_MRM_MOT2X50, ID_MRM_MOT4X3_6CAN, ID_MRM_MOT4X10, 
+	ID_MRM_NODE, ID_MRM_REF_CAN, ID_MRM_SERVO, ID_MRM_SWITCH, ID_MRM_THERM_B_CAN, ID_MRM_US, ID_MRM_US_B, ID_MRM_US1};
+	enum BoardType{ANY_BOARD, MOTOR_BOARD, SENSOR_BOARD};
+
 protected:
 	uint32_t _alive; // Responded to ping, maximum 32 devices of the same class, stored bitwise. If bit set, that device was alive after power-on.
 	uint32_t _aliveOnce; // The device was alive at least once after power-on.
@@ -118,7 +122,7 @@ protected:
 	uint8_t measuringModeLimit = 0;
 	uint8_t _message[29]; // Message a device sent.
 	std::vector<char[10]>* _name;// Device's name
-	int nextFree;
+	int nextFree = -1;
 	Robot* robotContainer;
 
 	/** Common part of message decoding

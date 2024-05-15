@@ -55,7 +55,7 @@ void Mrm_bldc4x2_5::add(bool isReversed, char * deviceName)
 		canOut = CAN_ID_BLDC4X2_5_1_MOTOR3_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mr-bldc4x2.5");
+		printf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 	}
 	MotorBoard::add(deviceName, canIn, canOut);
 

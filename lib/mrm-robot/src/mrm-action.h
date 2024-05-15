@@ -21,7 +21,7 @@ struct LEDSignText : LEDSign{
 class Robot;
 class ActionBase {
 protected:
-	BoardId _boardsId;
+	Board::BoardId _boardsId;
 	bool _preprocessing = true;
 	Robot* _robot;
 
@@ -40,10 +40,10 @@ public:
 	@param boardId - menu only for a specific board
 	@param ledSign - the LED sign that will be displayed when action set to this one
 	*/
-	ActionBase(Robot* robot, const char shortcut[4], const char text[20], uint8_t menuLevel = 1, BoardId boardsId = ID_ANY,
+	ActionBase(Robot* robot, const char shortcut[4], const char text[20], uint8_t menuLevel = 1, Board::BoardId boardsId = Board::ID_ANY,
 		LEDSign* ledSign8x8 = NULL);
 
-	BoardId boardsId() { return _boardsId; }
+	Board::BoardId boardsId() { return _boardsId; }
 
 	bool preprocessing() { return _preprocessing; }
 
@@ -61,7 +61,7 @@ public:
 class Action8x8Test : public ActionBase {
 	void perform();
 public:
-	Action8x8Test(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "led", "Test 8x8", 1, ID_MRM_8x8A) {}
+	Action8x8Test(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "led", "Test 8x8", 1, Board::ID_MRM_8x8A) {}
 };
 
 class ActionBluetoothTest : public ActionBase {
@@ -91,61 +91,61 @@ public:
 class ActionColorBTest6Colors : public ActionBase {
 	void perform();
 public:
-	ActionColorBTest6Colors(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "10c", "Test 10 colors", 4, ID_MRM_COL_B) {}
+	ActionColorBTest6Colors(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "10c", "Test 10 colors", 4, Board::ID_MRM_COL_B) {}
 };
 
 class ActionColorBTestHSV : public ActionBase {
 	void perform();
 public:
-	ActionColorBTestHSV(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "hs1", "Test HSV", 4, ID_MRM_COL_B) {}
+	ActionColorBTestHSV(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "hs1", "Test HSV", 4, Board::ID_MRM_COL_B) {}
 };
 
 class ActionColorIlluminationOff : public ActionBase {
 	void perform();
 public:
-	ActionColorIlluminationOff(Robot* robot) : ActionBase(robot, "lof", "Light off", 4, ID_MRM_COL_CAN) {}
+	ActionColorIlluminationOff(Robot* robot) : ActionBase(robot, "lof", "Light off", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorIlluminationOn : public ActionBase {
 	void perform();
 public:
-	ActionColorIlluminationOn(Robot* robot) : ActionBase(robot, "lon", "Light on", 4, ID_MRM_COL_CAN) {}
+	ActionColorIlluminationOn(Robot* robot) : ActionBase(robot, "lon", "Light on", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorPatternErase : public ActionBase {
 	void perform();
 public:
-	ActionColorPatternErase(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "per", "Erase patterns", 4, ID_MRM_COL_CAN) {}
+	ActionColorPatternErase(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "per", "Erase patterns", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorPatternPrint : public ActionBase {
 	void perform();
 public:
-	ActionColorPatternPrint(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ppr", "Print patterns", 4, ID_MRM_COL_CAN) {}
+	ActionColorPatternPrint(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ppr", "Print patterns", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorPatternRecognize : public ActionBase {
 	void perform();
 public:
-	ActionColorPatternRecognize(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "pre", "Recognize pattern", 4, ID_MRM_COL_CAN) {}
+	ActionColorPatternRecognize(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "pre", "Recognize pattern", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorPatternRecord : public ActionBase {
 	void perform();
 public:
-	ActionColorPatternRecord(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "par", "Record patterns", 4, ID_MRM_COL_CAN) {}
+	ActionColorPatternRecord(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "par", "Record patterns", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorTest6Colors : public ActionBase {
 	void perform();
 public:
-	ActionColorTest6Colors(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "6co", "Test 6 colors", 4, ID_MRM_COL_CAN) {}
+	ActionColorTest6Colors(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "6co", "Test 6 colors", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionColorTestHSV : public ActionBase {
 	void perform();
 public:
-	ActionColorTestHSV(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "hsv", "Test HSV", 4, ID_MRM_COL_CAN) {}
+	ActionColorTestHSV(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "hsv", "Test HSV", 4, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionDeviceIdChange : public ActionBase {
@@ -199,37 +199,37 @@ public:
 class ActionIRFinderTest : public ActionBase {
 	void perform();
 public:
-	ActionIRFinderTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "irf", "Test ball analog", 1, ID_MRM_IR_FINDER_2) {}
+	ActionIRFinderTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "irf", "Test ball analog", 1, Board::ID_MRM_IR_FINDER_2) {}
 };
 
 class ActionIRFinderCanTest : public ActionBase {
 	void perform();
 public:
-	ActionIRFinderCanTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "irs", "Test ball raw", 1, ID_MRM_IR_FINDER3) {}
+	ActionIRFinderCanTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "irs", "Test ball raw", 1, Board::ID_MRM_IR_FINDER3) {}
 };
 
 class ActionIRFinderCanTestCalculated : public ActionBase {
 	void perform();
 public:
-	ActionIRFinderCanTestCalculated(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "irc", "Test ball calcul.", 1, ID_MRM_IR_FINDER3) {}
+	ActionIRFinderCanTestCalculated(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "irc", "Test ball calcul.", 1, Board::ID_MRM_IR_FINDER3) {}
 };
 
 class ActionLidar2mTest : public ActionBase {
 	void perform();
 public:
-	ActionLidar2mTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "li2", "Test li. 2m", 1, ID_MRM_LID_CAN_B) {}
+	ActionLidar2mTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "li2", "Test li. 2m", 1, Board::ID_MRM_LID_CAN_B) {}
 };
 
 class ActionLidar4mTest : public ActionBase {
 	void perform();
 public:
-	ActionLidar4mTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "li4", "Test li. 4m", 1, ID_MRM_LID_CAN_B2){}
+	ActionLidar4mTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "li4", "Test li. 4m", 1, Board::ID_MRM_LID_CAN_B2){}
 };
 
 class ActionLidar4mMultiTest : public ActionBase {
 	void perform();
 public:
-	ActionLidar4mMultiTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lim", "Test li. mul", 1, ID_MRM_LID_D){}
+	ActionLidar4mMultiTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lim", "Test li. mul", 1, Board::ID_MRM_LID_D){}
 };
 
 class ActionLidarCalibrate : public ActionBase {
@@ -241,37 +241,37 @@ public:
 class ActionLoop : public ActionBase {
 	void perform();
 public:
-	ActionLoop(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "loo", "Loop test", 1, ID_ANY, ledSign) {}
+	ActionLoop(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "loo", "Loop test", 1, Board::ID_ANY, ledSign) {}
 };
 
 class ActionLoop0 : public ActionBase {
 	void perform();
 public:
-	ActionLoop0(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo0", "Loop test 0", 1, ID_ANY, ledSign) {}
+	ActionLoop0(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo0", "Loop test 0", 1, Board::ID_ANY, ledSign) {}
 };
 
 class ActionLoop1 : public ActionBase {
 	void perform();
 public:
-	ActionLoop1(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo1", "Loop test 1", 1, ID_ANY, ledSign) {}
+	ActionLoop1(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo1", "Loop test 1", 1, Board::ID_ANY, ledSign) {}
 };
 
 class ActionLoop2 : public ActionBase {
 	void perform();
 public:
-	ActionLoop2(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo2", "Loop test 2", 1, ID_ANY, ledSign) {}
+	ActionLoop2(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "lo2", "Loop test 2", 1, Board::ID_ANY, ledSign) {}
 };
 
 class ActionMenuColor : public ActionBase {
 	void perform();
 public:
-	ActionMenuColor(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "col", "Color (menu)", 1, ID_MRM_COL_CAN) {}
+	ActionMenuColor(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "col", "Color (menu)", 1, Board::ID_MRM_COL_CAN) {}
 };
 
 class ActionMenuColorB : public ActionBase {
 	void perform();
 public:
-	ActionMenuColorB(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "col", "Color (menu)", 1, ID_MRM_COL_B) {}
+	ActionMenuColorB(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "col", "Color (menu)", 1, Board::ID_MRM_COL_B) {}
 };
 
 class ActionMenuMain : public ActionBase {
@@ -283,7 +283,7 @@ public:
 class ActionMenuReflectance : public ActionBase {
 	void perform();
 public:
-	ActionMenuReflectance(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ref", "Reflect. (menu)", 1, ID_MRM_REF_CAN) {}
+	ActionMenuReflectance(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ref", "Reflect. (menu)", 1, Board::ID_MRM_REF_CAN) {}
 };
 
 class ActionMenuSystem : public ActionBase {
@@ -301,13 +301,13 @@ public:
 class ActionNodeTest : public ActionBase {
 	void perform();
 public:
-	ActionNodeTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "nod", "Test node", 1, ID_MRM_NODE) {}
+	ActionNodeTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "nod", "Test node", 1, Board::ID_MRM_NODE) {}
 };
 
 class ActionNodeServoTest : public ActionBase {
 	void perform();
 public:
-	ActionNodeServoTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "nos", "Test node servo", 1, ID_MRM_NODE) {}
+	ActionNodeServoTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "nos", "Test node servo", 1, Board::ID_MRM_NODE) {}
 };
 
 //class ActionOscillatorTest : public ActionBase {
@@ -337,25 +337,25 @@ public:
 class ActionReflectanceArrayAnalogTest : public ActionBase {
 	void perform();
 public:
-	ActionReflectanceArrayAnalogTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "anr", "Test refl. anal.", 2, ID_MRM_REF_CAN) {}
+	ActionReflectanceArrayAnalogTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "anr", "Test refl. anal.", 2, Board::ID_MRM_REF_CAN) {}
 };
 
 class ActionReflectanceArrayDigitalTest : public ActionBase {
 	void perform();
 public:
-	ActionReflectanceArrayDigitalTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "dgr", "Test refl. digi.", 2, ID_MRM_REF_CAN) {}
+	ActionReflectanceArrayDigitalTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "dgr", "Test refl. digi.", 2, Board::ID_MRM_REF_CAN) {}
 };
 
 class ActionReflectanceArrayCalibrate : public ActionBase {
 	void perform();
 public:
-	ActionReflectanceArrayCalibrate(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "cal", "Calibrate refl.", 2, ID_MRM_REF_CAN) {}
+	ActionReflectanceArrayCalibrate(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "cal", "Calibrate refl.", 2, Board::ID_MRM_REF_CAN) {}
 };
 
 class ActionReflectanceArrayCalibrationPrint : public ActionBase {
 	void perform();
 public:
-	ActionReflectanceArrayCalibrationPrint(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "pri", "Calibration print", 2, ID_MRM_REF_CAN) {}
+	ActionReflectanceArrayCalibrationPrint(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "pri", "Calibration print", 2, Board::ID_MRM_REF_CAN) {}
 };
 
 class ActionServoTest : public ActionBase {
@@ -373,17 +373,17 @@ public:
 class ActionThermoTest : public ActionBase {
 	void perform();
 public:
-	ActionThermoTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "the", "Test thermo", 1, ID_MRM_THERM_B_CAN) {}
+	ActionThermoTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "the", "Test thermo", 1, Board::ID_MRM_THERM_B_CAN) {}
 };
 
 class ActionUS_BTest : public ActionBase {
 	void perform();
 public:
-	ActionUS_BTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "uls", "Test ultras.", 1, ID_MRM_US_B) {}
+	ActionUS_BTest(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "uls", "Test ultras.", 1, Board::ID_MRM_US_B) {}
 };
 
 class ActionUS1Test : public ActionBase {
 	void perform();
 public:
-	ActionUS1Test(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ult", "Test ultras.", 1, ID_MRM_US1) {}
+	ActionUS1Test(Robot* robot, LEDSign* ledSign = NULL) : ActionBase(robot, "ult", "Test ultras.", 1, Board::ID_MRM_US1) {}
 };
