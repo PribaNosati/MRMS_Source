@@ -115,8 +115,8 @@ protected:
 	BoardId _id;
 	std::vector<uint32_t>* idIn;  // Inbound message id
 	std::vector<uint32_t>* idOut; // Outbound message id
-	std::vector<uint32_t>* lastMessageReceivedMs;
-	std::vector<uint32_t>* _lastReadingMs;
+	std::vector<uint64_t>* lastMessageReceivedMs;
+	std::vector<uint64_t>* _lastReadingMs;
 	uint8_t maximumNumberOfBoards;
 	uint8_t measuringMode = 0;
 	uint8_t measuringModeLimit = 0;
@@ -284,7 +284,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) = 0;
+	virtual bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8) = 0;
 
 	/** Prints a frame
 	@param msgId - messageId
@@ -393,7 +393,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t length);
+	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8);
 
 	/** Encoder readings
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -469,7 +469,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t length){return false;}
+	virtual bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8){return false;}
 
 	/** All readings
 	@param subsensorNumberInSensor - like a single IR transistor in mrm-ref-can

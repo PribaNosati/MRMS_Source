@@ -107,7 +107,7 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 				}
 				break;
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
@@ -142,10 +142,10 @@ uint16_t Mrm_node::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber)
 /** Print all readings in a line
 */
 void Mrm_node::readingsPrint() {
-	robotContainer->print("Ref. array:");
+	print("Ref. array:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		for (uint8_t irNo = 0; irNo < MRM_NODE_ANALOG_COUNT; irNo++)
-			robotContainer->print(" %3i", (*readings)[deviceNumber][irNo]);
+			print(" %3i", (*readings)[deviceNumber][irNo]);
 	}
 }
 
@@ -162,7 +162,7 @@ void Mrm_node::servoTest() {
 						servoWrite(servoNumber, deg, deviceNumber);
 				}
 			}
-			robotContainer->print("%i deg.\n\r", deg);
+			print("%i deg.\n\r", deg);
 			robotContainer->delayMs(100);
 		}
 		lastMs = millis();
@@ -196,14 +196,14 @@ void Mrm_node::servoWrite(uint8_t servoNumber, uint16_t degrees, uint8_t deviceN
 */
 bool Mrm_node::started(uint8_t deviceNumber) {
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_NODE_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		//robotContainer->print("Start mrm-node%i \n\r", deviceNumber);
+		//print("Start mrm-node%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
 				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
-					//robotContainer->print("Lidar confirmed\n\r"); 
+					//print("Lidar confirmed\n\r"); 
 					return true;
 				}
 				robotContainer->delayMs(1);
@@ -241,17 +241,17 @@ void Mrm_node::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					robotContainer->print("| ");
-				robotContainer->print("An:");
+					print("| ");
+				print("An:");
 				for (uint8_t i = 0; i < MRM_NODE_ANALOG_COUNT; i++)
-					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
-				robotContainer->print("Di:");
+					print("%i ", (*readings)[deviceNumber][i]);
+				print("Di:");
 				for (uint8_t i = 0; i < MRM_NODE_SWITCHES_COUNT; i++)
-					robotContainer->print("%i ", (*switches)[deviceNumber][i]);
+					print("%i ", (*switches)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }

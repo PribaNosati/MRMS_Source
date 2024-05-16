@@ -161,8 +161,8 @@ void Mrm_imu::test() {
 			testHelper();
 		else {
 			for (int i = 0; i < nextFree; i++)
-				robotContainer->print("Y:%3i P:%3i R:%3i", (int)round(heading()), (int)round(pitch()), (int)round(roll()));
-			robotContainer->print("\n\r");
+				print("Y:%3i P:%3i R:%3i", (int)round(heading()), (int)round(pitch()), (int)round(roll()));
+			print("\n\r");
 		}
 #else
 		testHelper();
@@ -175,9 +175,9 @@ void Mrm_imu::testHelper() {
 	for (int i = 0; i < nextFree; i++)
 	{
 		if (robotContainer != NULL){
-			robotContainer->print("Y:%i", (int)round(heading()));
-			robotContainer->print(" P:%i", (int)round(pitch()));
-			robotContainer->print(" R:%i", (int)round(roll()));
+			print("Y:%i", (int)round(heading()));
+			print(" P:%i", (int)round(pitch()));
+			print(" R:%i", (int)round(roll()));
 		}
 		else{
 			Serial.print("Y:");
@@ -189,7 +189,7 @@ void Mrm_imu::testHelper() {
 		}
 	}
 	if (robotContainer != NULL)
-		robotContainer->print("\n\r");
+		print("\n\r");
 	else
 		Serial.println();
 }
@@ -714,7 +714,7 @@ void Mrm_imu::bno055Initialize(bool defaultI2CAddress)
 {
 #ifdef ESP_PLATFORM
 	if (robotContainer != NULL)
-		robotContainer->print("Starting IMU...");
+		print("Starting IMU...");
 	else
 		Serial.print("Starting IMU...");
 #else
@@ -755,7 +755,7 @@ void Mrm_imu::bno055Initialize(bool defaultI2CAddress)
 	}
 #ifdef ESP_PLATFORM
 	if (robotContainer != NULL)
-		robotContainer->print("OK\n\r");
+		print("OK\n\r");
 	else
 		Serial.print("OK\n\r");
 #else

@@ -71,6 +71,8 @@ protected:
 
 	uint8_t _devicesAtStartup = 0;
 	bool _devicesScanBeforeMenu = true;
+	bool _devicesScanOnStartup = true;
+	bool devicesScanMenu = true;
 
 	// FPS - frames per second calculation
 	uint32_t fpsMs[2] = { 0, 0 };
@@ -223,6 +225,8 @@ public:
 	*/
 	void bluetoothTest();
 
+	bool boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index);
+
 	/** Display all the incomming and outcomming CAN Bus messages
 	*/
 	void canBusSniffToggle();
@@ -260,6 +264,14 @@ public:
 	*/
 	void colorPatternRecord();
 
+	void colorTest10();
+
+	void colorTest6();
+
+	void colorTest6HSV();
+
+	void colorTestHSV();
+
 	/** The right way to use Arduino function delay
 	@param pauseMs - pause in ms. One run even if pauseMs == 0, so that delayMs(0) receives all messages.
 	*/
@@ -282,6 +294,8 @@ public:
 	@return count
 	*/
 	uint8_t devicesScan(bool verbose, Board::BoardType boardType = Board::ANY_BOARD);
+
+	void devicesScan();
 
 	/** Starts devices' CAN Bus messages broadcasting.
 	*/
@@ -336,6 +350,10 @@ public:
 	/** Tests mrm-lid-can-b2
 	*/
 	void lidar4mTest();
+
+	/** Tests mrm-lid-can-d
+	*/
+	void lidar4mMultiTest();
 
 	/** Calibrates lidars
 	*/
@@ -406,15 +424,6 @@ public:
 	@return - Pitch in degrees. Inclination forwards or backwards. Leveled robot shows 0 degrees.
 	*/
 	float pitch();
-
-	/** Print to all serial ports
-	@param fmt - C format string: 
-		%c - character,
-		%i - integer,
-		%s - string.
-	@param ... - variable arguments
-	*/
-	void print(const char* fmt, ...);
 
 	/** Prints mrm-ref-can* calibration data
 	*/
@@ -500,10 +509,6 @@ public:
 	*/
 	void verboseToggle();
 	
-	/** Print to all serial ports, pointer to list
-	*/
-	void vprint(const char* fmt, va_list argp);
-
 #if RADIO == 2
 	/** Web server
 	*/

@@ -82,13 +82,13 @@ void Mrm_switch::test()
 		// uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			//if (alive(deviceNumber)) {
-				robotContainer->print("Sw:");
+				print("Sw:");
 				for (uint8_t i = 0; i < MRM_SWITCHES_COUNT; i++)
-					robotContainer->print("%i ", read(deviceNumber, i));
+					print("%i ", read(deviceNumber, i));
 			//}
 		}
 		lastMs = millis();
-		robotContainer->print("\n\r");
+		print("\n\r");
 	}
 }
 

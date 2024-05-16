@@ -140,33 +140,33 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 					}
 				}
 				rds[i] = (*readings)[deviceNumber];
-				//robotContainer->print("Reading %i\n\r", (*readings)[deviceNumber]);
+				//print("Reading %i\n\r", (*readings)[deviceNumber]);
 			}
 
 			// Average and standard deviation
 			float sum = 0.0;
 			for(uint8_t i = 0; i < sampleCount; i++)
 				sum += rds[i];
-			//robotContainer->print("Sum %i\n\r", (int)sum);
+			//print("Sum %i\n\r", (int)sum);
 			float mean = sum / sampleCount;
-			//robotContainer->print("Mean %i\n\r", (int)mean);
+			//print("Mean %i\n\r", (int)mean);
 			float standardDeviation = 0.0;
 			for(int i = 0; i < sampleCount; i++) 
 				standardDeviation += pow(rds[i] - mean, 2);
 			standardDeviation = sqrt(standardDeviation / sampleCount);
-			//robotContainer->print("SD %i\n\r", (int)standardDeviation);
+			//print("SD %i\n\r", (int)standardDeviation);
 
 			// Filter out all the values outside n-sigma boundaries and return average value of the rest
 			sum = 0;
 			uint8_t cnt = 0;
-			//robotContainer->print("Limits: %i %i (%i)\n\r", (int)(mean - sigmaCount * standardDeviation), (int)(mean + sigmaCount * standardDeviation), sigmaCount);
+			//print("Limits: %i %i (%i)\n\r", (int)(mean - sigmaCount * standardDeviation), (int)(mean + sigmaCount * standardDeviation), sigmaCount);
 			for (uint8_t i = 0; i < sampleCount; i++)
 				if (mean - sigmaCount * standardDeviation < rds[i] && rds[i] < mean + sigmaCount * standardDeviation){
 					sum += rds[i];
 					cnt++;
 				}
 
-			//robotContainer->print("Cnt %i\n\r", cnt);
+			//print("Cnt %i\n\r", cnt);
 			return (uint16_t)(sum / cnt);
 		}
 	}
@@ -192,7 +192,7 @@ bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t lengt
 				}
 				break;
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 206;
 					errorInDeviceNumber = deviceNumber;
@@ -247,10 +247,10 @@ uint16_t Mrm_lid_can_b::reading(uint8_t receiverNumberInSensor, uint8_t deviceNu
 /** Print all readings in a line
 */
 void Mrm_lid_can_b::readingsPrint() {
-	robotContainer->print("Lid2m:");
+	print("Lid2m:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (alive(deviceNumber))
-			robotContainer->print(" %4i", distance(deviceNumber));
+			print(" %4i", distance(deviceNumber));
 }
 
 /** If sensor not started, start it and wait for 1. message
@@ -259,22 +259,22 @@ void Mrm_lid_can_b::readingsPrint() {
 */
 bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		// robotContainer->print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
+		// print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 10) {
-				//robotContainer->print("-try-");
+				//print("-try-");
 				if (millis() - (*_lastReadingMs)[deviceNumber] < 20) {
-					//robotContainer->print("%s confirmed\n\r", (char*)name(deviceNumber));
+					//print("%s confirmed\n\r", (char*)name(deviceNumber));
 					return true;
 				}
 				robotContainer->delayMicros(1000);
 			}
 		}
 		sprintf(errorMessage, "%s not responding.\n\r", (char*)name(deviceNumber)); // To be reported later.
-		robotContainer->print(errorMessage);
+		print(errorMessage);
 		return false;
 	}
 	else
@@ -294,15 +294,15 @@ void Mrm_lid_can_b::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 		uint8_t pass = 0;
 		for (uint8_t i = 0; i < nextFree; i++) {
 			bool isAlive = alive(i);
-			// robotContainer->print("L%i:%s", i, isAlive ? "Y" : "N"); 
+			// print("L%i:%s", i, isAlive ? "Y" : "N"); 
 			if (isAlive && (deviceNumber == 0xFF || i == deviceNumber)) {
 				if (pass++)
-					robotContainer->print(" ");
-				robotContainer->print("%4i ", distance(i));
+					print(" ");
+				print("%4i ", distance(i));
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }

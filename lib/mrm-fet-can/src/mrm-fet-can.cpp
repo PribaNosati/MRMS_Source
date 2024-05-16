@@ -103,7 +103,7 @@ bool Mrm_fet_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length)
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
 				switch (data[0]) {
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 205;
 					errorInDeviceNumber = deviceNumber;
@@ -133,7 +133,7 @@ void Mrm_fet_can::test()
 				else
 					turnOff(fet);
 
-				robotContainer->print(isOn ? "On %i\n\r" : "Off %i\n\r", fet);
+				print(isOn ? "On %i\n\r" : "Off %i\n\r", fet);
 				if (!isOn)
 					fet = 1 - fet;
 			}

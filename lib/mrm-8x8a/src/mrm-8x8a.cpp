@@ -815,12 +815,12 @@ bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 				}
 					break;
 				case COMMAND_8x8_TEST_CAN_BUS:
-					robotContainer->print("Test: %i\n\r", data[1]);
+					print("Test: %i\n\r", data[1]);
 					break;
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
-					robotContainer->print("\n\r");
+					print("\n\r");
 					errorCode = 203;
 					errorInDeviceNumber = deviceNumber;
 				} 
@@ -961,10 +961,10 @@ void Mrm_8x8a::test()
 			if (alive(deviceNumber)) {
 				bitmapDisplay(bitmapId, deviceNumber);
 				if (pass++)
-					robotContainer->print("| ");
-				robotContainer->print("Map 0x%02x, sw:", bitmapId);
+					print("| ");
+				print("Map 0x%02x, sw:", bitmapId);
 				for (uint8_t i = 0; i < MRM_8x8A_SWITCHES_COUNT; i++)
-					robotContainer->print("%i ", switchRead(i, deviceNumber));
+					print("%i ", switchRead(i, deviceNumber));
 			}
 		}
 		bitmapId++;
@@ -985,7 +985,7 @@ void Mrm_8x8a::test()
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }
 
