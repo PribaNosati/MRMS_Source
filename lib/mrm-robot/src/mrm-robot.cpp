@@ -524,6 +524,18 @@ void Robot::blink() {
 	}
 }
 
+bool Robot::boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index){
+	for (uint8_t i = 0; i < _boardNextFree; i++) {
+		for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++) 
+			if (out ? board[i]->isFromMe(canId, j) : board[i]->isForMe(canId, j)){
+				*boardFound = board[i];
+				index = j;
+				return true;
+			}
+	}
+	return false;
+}
+
 /** Displays all boards
 @return - last board and device's index, 0 if none
 */
@@ -858,7 +870,6 @@ void Robot::errors() {
 void Robot::firmwarePrint() {
 	for (uint8_t i = 0; i < _boardNextFree; i++) {
 		board[i]->firmwareRequest();
-		// uint32_t startMs = millis();
 		delayMs(1);
 	}
 	end();
@@ -964,6 +975,18 @@ void Robot::info() {
 		delay(1);
 	}
 	end();
+}
+
+void Robot::irFinderTest(){
+	mrm_ir_finder3->test();
+}
+
+void Robot::irFinderTestCalculated(){
+	mrm_ir_finder3->testCalculated();
+}
+
+void Robot::led8x8Test(){
+	mrm_8x8a->test(); 
 }
 
 /** Tests mrm-lid-can-b
@@ -1107,6 +1130,13 @@ void Robot::menuColor() {
 	end();
 }
 
+/** Generic menu
+*/
+void Robot::menuLoop() {
+	menuLevel = 8;
+	end();
+}
+
 /** Displays menu and stops motors
 */
 void Robot::menuMainAndIdle() {
@@ -1132,23 +1162,45 @@ void Robot::menuSystem() {
 @param msg - message
 @param oubound - if not, inbound
 */
-void Robot::messagePrint(CANBusMessage *msg, bool outbound) {
-	bool any = false;
-	for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
-		if (board[boardId]->messagePrint(msg->messageId, msg->dlc, msg->data, outbound)) {
-			any = true;
-			break;
-		}
+void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, bool outbound) {
+	if (msg->dlc > 8){
+		print("dlc too big: %i\n\r", (int)msg->dlc);
+		exit(12);
 	}
-	if (!any) {
-		print("Id:0x%02X", msg->messageId);
-		for (uint8_t i = 0; i < msg->dlc; i++) {
-			if (i == 0)
-				print(" data:");
-			print(" %02X", msg->data[i]);
+	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", 
+		board == NULL ? "Unknown" : board->name(boardIndex), msg->messageId);
+
+	for (uint8_t i = 0; i < msg->dlc; i++) {
+		if (i == 0){
+			print(" command: ");
+			if (false/*(data[0] > 0x0F && data[0] < 0x50) || data[0] == 0xFF*/)
+				/*print(Board::commandNames[data[0]]*/;
+			else{	
+				/*if (board != NULL && board->commandName(data[0]) != "")
+					print(board->commandName(data[0]));
+				else*/
+					print("Unknown");
+			}
+			print(" (%02X)", _msg->data[0]);
 		}
-		print("\n\r");
+		else
+			print(" %02X", _msg->data[i]);
 	}
+	// bool any = false;
+	// for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
+	// 	if (board[boardId]->messagePrint(msg->messageId, msg->dlc, msg->data, outbound)) {
+	// 		any = true;
+	// 		break;
+	// 	}
+	// }
+	// if (!any) {
+	// 	print("Id:0x%02X", msg->messageId);
+	// 	for (uint8_t i = 0; i < msg->dlc; i++) {
+	// 		if (i == 0)
+	// 			print(" data:");
+	// 		print(" %02X", msg->data[i]);
+	// 	}
+	print("\n\r");
 }
 
 
@@ -1161,8 +1213,14 @@ void Robot::messagesReceive() {
 		if (_msg == NULL) // No more messages
 			break;
 		uint32_t id = _msg->messageId;
-		if (_sniff)
-			messagePrint(_msg, false);
+		if (_sniff){
+			Board* boardFound;
+			int index;
+			if (boardIdentify(_msg->messageId, true , &boardFound, index))
+				messagePrint(_msg, boardFound, index, true);
+			else
+				messagePrint(_msg, NULL, 0, true);
+		}
 		#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 		bool any = false;
 		#endif
@@ -1194,6 +1252,10 @@ void Robot::motorTest() {
 		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
 			board[i]->test();
 	end();
+}
+
+void Robot::nodeServoTest() {
+	mrm_node->servoTest();
 }
 
 /** Tests mrm-node
@@ -1276,6 +1338,10 @@ void Robot::pnpSet(bool enable){
 			print("%s PnP %s\n\r", mrm_ref_can->name(i), enable ? "on" : "off");
 		}
 	end();
+}
+
+void Robot::reflectanceArrayCalibrate(){
+	mrm_ref_can->calibrate();
 }
 
 /** Prints mrm-ref-can* calibration data
@@ -1380,6 +1446,10 @@ uint16_t Robot::serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween,
 void Robot::servoInteractive() {
 	mrm_servo->writeInteractive();
 	end();
+}
+
+void Robot::servoTest(){
+	mrm_servo->test();
 }
 
 /** Stops all motors
@@ -1495,6 +1565,14 @@ void Robot::thermoTest() {
 	if (setup())
 		mrm_therm_b_can->start();
 	mrm_therm_b_can->test();
+}
+
+void Robot::us1Test(){
+	mrm_us_b->test();
+}
+
+void Robot::usBTest(){
+	mrm_us1->test();;
 }
 
 /** Checks if user tries to break the program

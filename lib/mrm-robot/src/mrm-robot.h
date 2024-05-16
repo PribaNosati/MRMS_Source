@@ -343,6 +343,12 @@ public:
 	*/
 	void info();
 
+	void irFinderTest();
+
+	void irFinderTestCalculated();
+
+	void led8x8Test();
+
 	/** Tests mrm-lid-can-b
 	*/
 	void lidar2mTest();
@@ -374,6 +380,10 @@ public:
 	*/
 	void menuColor();
 
+	/** Generic menu
+	*/
+	void menuLoop();
+
 	/** Displays menu and stops motors
 	*/
 	void menuMainAndIdle();
@@ -390,7 +400,7 @@ public:
 	@param msg - message
 	@param oubound - if not, inbound
 	*/
-	void messagePrint(CANBusMessage* msg, bool outbound);
+	void messagePrint(CANBusMessage* msg, Board* board, uint8_t boardIndex, bool outbound);
 
 	/** Receives CAN Bus messages.
 	*/
@@ -399,6 +409,8 @@ public:
 	/** Tests motors
 	*/
 	void motorTest();
+
+	void nodeServoTest();
 
 	/** Tests mrm-node
 	*/
@@ -424,6 +436,8 @@ public:
 	@return - Pitch in degrees. Inclination forwards or backwards. Leveled robot shows 0 degrees.
 	*/
 	float pitch();
+
+	void reflectanceArrayCalibrate();
 
 	/** Prints mrm-ref-can* calibration data
 	*/
@@ -475,6 +489,8 @@ public:
 	*/
 	void servoInteractive();
 
+	void servoTest();
+
 	/** Shorthand for actionPreprocessing(). Checks if this is first run.
 	@param andFinish - finish initialization
 	@return - first run or not.
@@ -504,6 +520,10 @@ public:
 	@return - true if break requested.
 	*/
 	bool userBreak();
+
+	void us1Test();
+
+	void usBTest();
 
 	/** Verbose output toggle
 	*/
