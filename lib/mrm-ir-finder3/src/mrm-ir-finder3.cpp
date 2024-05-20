@@ -59,7 +59,7 @@ void Mrm_ir_finder3::add(char * deviceName)
 		canOut = ID_IR_FINDER3_7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-ir-finder3");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -98,7 +98,7 @@ bool Mrm_ir_finder3::calculatedStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-ir-finder3 dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
@@ -170,7 +170,7 @@ bool Mrm_ir_finder3::messageDecode(uint32_t canId, uint8_t data[8], uint8_t leng
 */
 uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber){
 	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_IR_FINDER3_SENSOR_COUNT) {
-		strcpy(errorMessage, "mrm-ir-finder3 doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	if (singleStarted(deviceNumber))
@@ -242,7 +242,7 @@ bool Mrm_ir_finder3::singleStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-ir-finder3 dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else

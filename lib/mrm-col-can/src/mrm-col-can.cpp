@@ -61,7 +61,7 @@ void Mrm_col_can::add(char * deviceName)
 		canOut = CAN_ID_COL_CAN7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-col-can");
+		printf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 
@@ -134,7 +134,7 @@ bool Mrm_col_can::colorsStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-col-can dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
@@ -202,7 +202,7 @@ bool Mrm_col_can::hsvStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-col-can dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else

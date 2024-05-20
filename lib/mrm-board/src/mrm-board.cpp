@@ -542,7 +542,7 @@ If we want to change the order so that now the device 1 is the one with the smal
 */
 void Board::swap(uint8_t deviceNumber1, uint8_t deviceNumber2) {
 	if (deviceNumber1 >= nextFree || deviceNumber2 >= nextFree)
-		strcpy(errorMessage, "Device overflow");
+		sprintf(errorMessage, "%s: device overflow: %i or %i", name(), deviceNumber1, deviceNumber2);
 	else {
 		uint16_t idInTemp = (*idIn)[deviceNumber1];
 		uint16_t idOutTemp = (*idOut)[deviceNumber1];
@@ -577,7 +577,7 @@ MotorBoard::~MotorBoard(){
 */
 void MotorBoard::directionChange(uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree)
-		strcpy(errorMessage, "Wrong device");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 	else
 		(*reversed)[deviceNumber] = !(*reversed)[deviceNumber];
 }
@@ -618,7 +618,7 @@ bool MotorBoard::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) 
 */
 uint16_t MotorBoard::reading(uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree) {
-		strcpy(errorMessage, "MotorBoard doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber, true);
@@ -689,8 +689,10 @@ bool MotorBoard::started(uint8_t deviceNumber) {
 /** Stop all motors
 */
 void MotorBoard::stop() {
-	for (uint8_t i = 0; i < nextFree; i++) 
+	for (uint8_t i = 0; i < nextFree; i++) {
 		speedSet(i, 0);
+		delayMicroseconds(200);
+	}
 }
 
 /**Test
@@ -1027,6 +1029,7 @@ void MotorGroupStar::go(float speed, float angleDegrees, float rotation, uint8_t
 					motorBoard[i]->speedSet(motorNumber[i], (int8_t)speeds[i]);
 					//Serial.print((String)speeds[i] + " ");
 				}
+				delayMicroseconds(200);
 			}
 			//Serial.println();
 		}

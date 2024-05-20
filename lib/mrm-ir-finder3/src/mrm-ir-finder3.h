@@ -26,7 +26,7 @@ Licence: You can use this code any way you like.
 #define ID_IR_FINDER3_7_IN 0x033E
 #define ID_IR_FINDER3_7_OUT 0x033F
 
-#define MRM_IR_FINDER3_SENSOR_COUNT 12 // Number of IR receivers in each device.
+#define MRM_IR_FINDER3_SENSOR_COUNT 18 // Number of IR receivers in each device.
 
 //CANBus commands
 #define COMMAND_IR_FINDER3_SENDING_SENSORS_1_TO_7 0x04

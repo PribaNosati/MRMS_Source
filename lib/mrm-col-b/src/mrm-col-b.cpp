@@ -61,7 +61,7 @@ void Mrm_col_b::add(char * deviceName)
 		canOut = CAN_ID_COL_B7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-col-b");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 
@@ -164,7 +164,7 @@ bool Mrm_col_b::colorsStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-col-b dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
@@ -250,7 +250,7 @@ bool Mrm_col_b::hsvStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-col-b dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
