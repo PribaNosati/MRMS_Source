@@ -65,7 +65,7 @@ void Mrm_ref_can::add(char * deviceName)
 		canOut = CAN_ID_REF_CAN7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-ref-cans");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	(*dataFresh)[nextFree] = 0xFF;
@@ -93,7 +93,7 @@ bool Mrm_ref_can::analogStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-ref-can dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
@@ -165,7 +165,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 */
 uint16_t Mrm_ref_can::calibrationDataGet(uint8_t receiverNumberInSensor, bool isDark, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_REF_CAN_SENSOR_COUNT) {
-		strcpy(errorMessage, "mrm-ref-can doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber);
@@ -306,7 +306,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 					robotContainer->delayMs(1);
 				}
 			}
-			strcpy(errorMessage, "mrm-ref-can dead.\n\r");
+			sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		}
 		return false;
 	}
@@ -414,6 +414,21 @@ bool Mrm_ref_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length)
 	return false;
 }
 
+/** Sets recording of peaks between refreshes
+ * 
+*/
+void Mrm_ref_can::peakRecordingSet(RecordPeakType type, uint8_t deviceNumber){
+	if (deviceNumber == 0xFF)
+		for (uint8_t i = 0; i < nextFree; i++)
+			peakRecordingSet(type, i);
+	else if (alive(deviceNumber)) {
+		delay(1);
+		canData[0] = COMMAND_REF_CAN_RECORD_PEAK;
+		canData[1] = type;
+		messageSend(canData, 2, deviceNumber);
+	}
+}
+
 /** Enable plug and play
 @param enable - enable or disable
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -424,7 +439,7 @@ void Mrm_ref_can::pnpSet(bool enable, uint8_t deviceNumber){
 			pnpSet(enable, i);
 	else if (alive(deviceNumber)) {
 		delay(1);
-		canData[0] = enable ? COMMAND_REF_CAN_PNP_ENABLE : COMMAND_REF_CAN_PNP_DISABLE;
+		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
 		messageSend(canData, 2, deviceNumber);
 	}
@@ -437,7 +452,7 @@ void Mrm_ref_can::pnpSet(bool enable, uint8_t deviceNumber){
 */
 uint16_t Mrm_ref_can::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber){
 	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_REF_CAN_SENSOR_COUNT) {
-		strcpy(errorMessage, "mrm-ref-can doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber, true);
@@ -455,6 +470,22 @@ void Mrm_ref_can::readingsPrint() {
 		for (uint8_t irNo = 0; irNo < min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); irNo++)
 			if (alive(deviceNumber))
 				print("%3i ", reading(irNo, deviceNumber));
+	}
+}
+
+/** Sets refresh rate for sensor 
+ * 
+*/
+void Mrm_ref_can::refreshSet(uint16_t ms, uint8_t deviceNumber){
+	if (deviceNumber == 0xFF)
+		for (uint8_t i = 0; i < nextFree; i++)
+			refreshSet(ms, i);
+	else if (alive(deviceNumber)) {
+		delay(1);
+		canData[0] = COMMAND_REF_CAN_REFRESH_MS;
+		canData[1] = ms & 0xFF;
+		canData[2] = (ms >> 8) & 0xFF;
+		messageSend(canData, 3, deviceNumber);
 	}
 }
 
