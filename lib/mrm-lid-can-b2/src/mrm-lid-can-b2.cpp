@@ -56,7 +56,7 @@ void Mrm_lid_can_b2::add(char * deviceName)
 		canOut = CAN_ID_LID_CAN_B2_7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-lid-can-b2");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -216,7 +216,7 @@ void Mrm_lid_can_b2::pnpSet(bool enable, uint8_t deviceNumber){
 			pnpSet(enable, i);
 	else if (alive(deviceNumber)) {
 		delay(1);
-		canData[0] = enable ? COMMAND_LID_CAN_B2_PNP_ENABLE : COMMAND_LID_CAN_B2_PNP_DISABLE;
+		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
 		messageSend(canData, 2, deviceNumber);
 	}
@@ -279,7 +279,7 @@ bool Mrm_lid_can_b2::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-lid-can-b2 dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else

@@ -88,7 +88,7 @@ void Mrm_lid_can_b::add(char * deviceName)
 		canOut = CAN_ID_LID_CAN_B15_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-lid-can-b");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -119,7 +119,7 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t sigmaCount){
 	const uint16_t TIMEOUT = 3000;
 	if (deviceNumber > nextFree) {
-		strcpy(errorMessage, "mrm-lid-can-b doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber, true); // This command doesn't make sense
@@ -214,7 +214,7 @@ void Mrm_lid_can_b::pnpSet(bool enable, uint8_t deviceNumber){
 			pnpSet(enable, i);
 	else if (alive(deviceNumber)) {
 		delay(1);
-		canData[0] = enable ? COMMAND_LID_CAN_B_PNP_ENABLE : COMMAND_LID_CAN_B_PNP_DISABLE;
+		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
 		messageSend(canData, 2, deviceNumber);
 	}
@@ -264,16 +264,16 @@ bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
-			while (millis() - startMs < 10) {
+			while (millis() - startMs < 50) {
 				//print("-try-");
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 20) {
+				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
 					//print("%s confirmed\n\r", (char*)name(deviceNumber));
 					return true;
 				}
 				robotContainer->delayMicros(1000);
 			}
 		}
-		sprintf(errorMessage, "%s not responding.\n\r", (char*)name(deviceNumber)); // To be reported later.
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		print(errorMessage);
 		return false;
 	}

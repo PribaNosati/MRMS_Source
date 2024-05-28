@@ -58,7 +58,7 @@ void Mrm_lid_d::add(char * deviceName, uint8_t resolution)
 		canOut = CAN_ID_LID_D_7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-lid-d");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	(*_resolution)[nextFree] = resolution;
@@ -92,7 +92,7 @@ void Mrm_lid_d::defaults(uint8_t deviceNumber) {
 uint16_t Mrm_lid_d::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t sigmaCount){
 	const uint16_t TIMEOUT = 3000;
 	if (deviceNumber >= nextFree) {
-		strcpy(errorMessage, "mrm-lid-d doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	if (started(deviceNumber))
@@ -191,7 +191,7 @@ void Mrm_lid_d::frequencySet(uint8_t deviceNumber, uint8_t frequency){
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_lid_d::messageDecode(uint32_t canId, uint8_t data[8]){
+bool Mrm_lid_d::messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc){
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)){
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
@@ -212,7 +212,7 @@ bool Mrm_lid_d::messageDecode(uint32_t canId, uint8_t data[8]){
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, 8, data, false);
+					messagePrint(canId, dlc, data, false);
 					errorCode = 202;
 					errorInDeviceNumber = deviceNumber;
 				}
@@ -232,7 +232,7 @@ void Mrm_lid_d::pnpSet(bool enable, uint8_t deviceNumber){
 			pnpSet(enable, i);
 	else if (alive(deviceNumber)) {
 		delay(1);
-		canData[0] = enable ? COMMAND_LID_D_PNP_ENABLE : COMMAND_LID_D_PNP_DISABLE;
+		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
 		messageSend(canData, 2, deviceNumber);
 	}
@@ -297,7 +297,7 @@ bool Mrm_lid_d::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-lid-d dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
