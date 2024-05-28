@@ -26,6 +26,7 @@
 // #include <mrm-us.h>
 #include <mrm-us-b.h>
 #include <mrm-us1.h>
+#include <BluetoothSerial.h>
 
 #if RADIO == 1
 extern BluetoothSerial* serialBT;
@@ -56,12 +57,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	preferences = new Preferences();
 	preferences->begin("data", false);
 
-#if RADIO == 1
-	if (serialBT == NULL) {
-		serialBT = new BluetoothSerial(); // Additional serial port
-		serialBT->begin(_name); //Start Bluetooth. ESP32 - Bluetooth device name, choose one.
-	}
-#endif
+	startBT(_name);
 
 	delay(50);
 	print("%s started.\r\n", _name);

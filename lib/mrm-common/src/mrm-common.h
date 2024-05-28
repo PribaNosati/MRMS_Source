@@ -3,6 +3,8 @@
 #include <Arduino.h>
 extern char errorMessage[60];
 
+void startBT(const char* name);
+
 /** Print to all serial ports
 @param fmt - C format string
 @param ... - variable arguments

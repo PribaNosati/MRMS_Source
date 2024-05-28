@@ -56,7 +56,7 @@ void Mrm_mot4x10::add(bool isReversed, char * deviceName)
 		canOut = CAN_ID_MOT4X10_1_MOTOR3_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-mot4x10");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	MotorBoard::add(deviceName, canIn, canOut);

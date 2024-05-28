@@ -3,9 +3,6 @@
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
 #include <Preferences.h>
-#if RADIO == 1
-#include <BluetoothSerial.h>
-#endif
 
 #define ACTIONS_LIMIT 82 // Increase if more actions are needed.
 #define BOARDS_LIMIT 30 // Maximum number of different board types.
@@ -83,9 +80,6 @@ protected:
 	CANBusMessage* _msg;
 	char _name[16];
 	Preferences* preferences; // EEPROM
-	#if RADIO == 1
-	BluetoothSerial *serialBT = NULL;
-	#endif
 	bool _sniff = false;
 	char _ssid[16];
 	char uartRxCommandCumulative[24];

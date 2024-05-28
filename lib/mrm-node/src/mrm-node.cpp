@@ -58,7 +58,7 @@ void Mrm_node::add(char * deviceName)
 		canOut = CAN_ID_NODE7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-node");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 
@@ -75,7 +75,7 @@ void Mrm_node::add(char * deviceName)
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
+bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc) {
 
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(canId, deviceNumber)) {
@@ -108,7 +108,7 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 				break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
+					messagePrint(canId, dlc, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
 				}
@@ -129,7 +129,7 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 */
 uint16_t Mrm_node::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_NODE_ANALOG_COUNT) {
-		strcpy(errorMessage, "mrm-node doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	if (started(deviceNumber))
@@ -209,7 +209,7 @@ bool Mrm_node::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-node dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
@@ -223,7 +223,7 @@ bool Mrm_node::started(uint8_t deviceNumber) {
 */
 bool Mrm_node::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree || switchNumber >= MRM_NODE_SWITCHES_COUNT) {
-		strcpy(errorMessage, "Switch doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return false;
 	}
 	return (*switches)[deviceNumber][switchNumber];
