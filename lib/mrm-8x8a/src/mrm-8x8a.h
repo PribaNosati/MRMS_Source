@@ -1,6 +1,5 @@
 #pragma once
 #include "Arduino.h"
-#include <mrm-action.h>
 #include <mrm-board.h>
 #include <mrm-common.h>
 //#include <vector>
@@ -53,6 +52,8 @@ Licence: You can use this code any way you like.
 #define MRM_8X8A_TEXT_LENGTH 44
 
 #define MRM_8X8A_INACTIVITY_ALLOWED_MS 30000
+
+class ActionBase;
 
 class Mrm_8x8a : public SensorBoard
 {

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Arduino.h"
-#include <mrm-can-bus.h>
-#include <mrm-common.h>
-#include <mrm-pid.h>
+#include "../../mrm-can-bus/src/mrm-can-bus.h"
+#include "../../mrm-common/src/mrm-common.h"
+#include "../../mrm-pid/src/mrm-pid.h"
 #include <vector>
 
 // Addresses:

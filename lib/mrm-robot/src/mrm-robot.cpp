@@ -95,7 +95,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	mrm_can_bus = new Mrm_can_bus();
 
 	// LED Test
-	LEDSignText* signTest = new LEDSignText();
+	Mrm_8x8a::LEDSignText* signTest = new Mrm_8x8a::LEDSignText();
 	strcpy(signTest->text, "Test");
 
 	_actionCurrent = NULL;
@@ -469,12 +469,12 @@ void Robot::actionSet(ActionBase* newAction) {
 	if (mrm_8x8a->alive() && _actionTextDisplay){
 		if (_actionCurrent->ledSign == NULL)
 			devicesLEDCount();
-		else if (_actionCurrent->ledSign->type == 1 && strcmp(((LEDSignText*)(_actionCurrent->ledSign))->text, "") != 0)
-			mrm_8x8a->text(((LEDSignText*)(_actionCurrent->ledSign))->text);
+		else if (_actionCurrent->ledSign->type == 1 && strcmp(((Mrm_8x8a::LEDSignText*)(_actionCurrent->ledSign))->text, "") != 0)
+			mrm_8x8a->text(((Mrm_8x8a::LEDSignText*)(_actionCurrent->ledSign))->text);
 		else if (_actionCurrent->ledSign->type == 0){
 			mrm_8x8a->bitmapCustomDisplay(
-				((LEDSignBitmap*)_actionCurrent->ledSign)->red, 
-				((LEDSignBitmap*)_actionCurrent->ledSign)->green);
+				((Mrm_8x8a::LEDSignBitmap*)_actionCurrent->ledSign)->red, 
+				((Mrm_8x8a::LEDSignBitmap*)_actionCurrent->ledSign)->green);
 		}
 	}
 }

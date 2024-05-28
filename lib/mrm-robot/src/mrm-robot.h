@@ -1,8 +1,8 @@
 #pragma once
+#include <Preferences.h>
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
-#include <Preferences.h>
 
 #define ACTIONS_LIMIT 82 // Increase if more actions are needed.
 #define BOARDS_LIMIT 30 // Maximum number of different board types.
