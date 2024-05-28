@@ -22,25 +22,21 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	// Therefore, You can connect motors freely, but have to adjust the parameters here. In this example output (connector) 0 is LB, etc.
 	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
 
-	// All the actions will be defined here; the objects will be created.
-	actionEvacuationZone = new ActionEvacuationZone(this);
-	actionLineFollow = new ActionLineFollow(this);
-	actionObstacleAvoid = new ActionObstacleAvoid(this);
-	actionRCJLine = new ActionRCJLine(this);
-	actionWallFollow = new ActionWallFollow(this);
-	actionStop = new ActionStop(this);
-	actionMotorShortTest = new ActionMotorShortTest(this);
+	Mrm_8x8a::LEDSignText* signTest = new Mrm_8x8a::LEDSignText();
 
+	// All the actions that sholuld be called from code will be defined here; the callable objects will be created.
+	actionEvacuationZone = new ActionRobotLine(this, "eva", "Evacuation zone", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::evacuationZone);
+	actionLineFollow = new ActionRobotLine(this, "lnf", "Line follow", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::lineFollow);
+	actionObstacleAvoid = new ActionRobotLine(this, "obs", "Obstacle avoid", 0, Board::BoardId::ID_ANY, NULL, &RobotLine::obstacleAvoid);
+	actionRCJLine = new ActionRobotLine(this, "lin", "RCJ line", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::rcjLine);
+	actionStop = new ActionRobotLine(this, "sto", "Stop", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop);
+	actionMotorShortTest = new ActionRobotLine(this, "msh", "Motor short test", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::motorShortTest);
 	// Generic actions
-	actionLoopMenu = new ActionLoopMenu(this);
-	actionLoop2 = new ActionLoop2(this);
-	actionLoop3 = new ActionLoop3(this);
-	actionLoop4 = new ActionLoop4(this);
-	actionLoop5 = new ActionLoop5(this);
-	actionLoop6 = new ActionLoop6(this);
-	actionLoop7 = new ActionLoop7(this);
-	actionLoop8 = new ActionLoop8(this);
-	actionLoop9 = new ActionLoop9(this);
+	actionLoop5 = new ActionRobotLine(this, "lo5", "loop5", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop5);
+	actionLoop6 = new ActionRobotLine(this, "lo6", "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop6);
+	actionLoop7 = new ActionRobotLine(this, "lo7", "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop7);
+	actionLoop8 = new ActionRobotLine(this, "lo8", "loop8", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop8);
+	actionLoop9 = new ActionRobotLine(this, "lo9", "loop9", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop9);
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
@@ -49,13 +45,7 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	actionAdd(actionLineFollow);
 	actionAdd(actionObstacleAvoid);
 	actionAdd(actionRCJLine);
-	actionAdd(actionWallFollow);
 	actionAdd(actionMotorShortTest);
-
-	// // Generic actions
-	actionAdd(actionLoopMenu);
-	actionAdd(actionLoop3);
-	actionAdd(actionLoop4);
 	actionAdd(actionLoop5);
 	actionAdd(actionLoop6);
 	actionAdd(actionLoop7);

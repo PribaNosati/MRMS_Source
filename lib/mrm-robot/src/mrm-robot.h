@@ -10,6 +10,8 @@
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
 #define LED_OK 2 // mrm-esp32's pin number, hardware defined.
 
+#define TEST 0
+
 // Forward declarations
 
 class Mrm_8x8a;
@@ -49,15 +51,16 @@ protected:
 	uint8_t _actionNextFree = 0;
 
 	// Robot's actions that can be callect directly, not just by iterating _action collection
-	ActionBase* _actionCANBusStress;
 	ActionBase* _actionCurrent;
 	ActionBase* _actionDoNothing;
-	ActionBase* _actionLoop;
+    ActionBase* _actionLoop;
 	ActionBase* _actionLoop0;
 	ActionBase* _actionLoop1;
 	ActionBase* _actionLoop2;
+	ActionBase* _actionLoop3;
+	ActionBase* _actionLoop4;
 	ActionBase* _actionMenuMain;
-	ActionBase* _actionPrevious;
+    ActionBase* _actionPrevious;
 	ActionBase* _actionStop;
 
 	bool _actionTextDisplay = true;
@@ -333,6 +336,8 @@ public:
 	*/
 	void i2cTest();
 
+	void imuTest();
+
 	/** Request information
 	*/
 	void info();
@@ -359,12 +364,14 @@ public:
 	*/
 	void lidarCalibrate();
 
-	/** User test, defined in derived classes.
+    /** User test, defined in derived classes.
 	*/
 	virtual void loop() = 0;
 	virtual void loop0() = 0;
 	virtual void loop1() = 0;
 	virtual void loop2() = 0;
+	virtual void loop3() = 0;
+	virtual void loop4() = 0;
 
 	/** Displays menu
 	*/
@@ -437,6 +444,13 @@ public:
 	*/
 	void reflectanceArrayCalibrationPrint();
 
+	/** Tests mrm-ref-can*
+	@digital - digital data. Otherwise analog.
+	*/
+	void reflectanceArrayTestAnalog();
+
+	void reflectanceArrayTestDigital();
+
 	/** One pass of robot's program
 	*/
 	void refresh();
@@ -504,7 +518,7 @@ public:
 
 	/** CAN Bus stress test
 	*/
-	bool stressTest();
+	void stressTest();
 
 	/** Tests mrm-therm-b-can
 	*/

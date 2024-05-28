@@ -35,7 +35,6 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 	actionMoveAhead = new ActionMoveAheadCompetition(this);
 	actionMoveTurn = new ActionMoveTurnCompetition(this);
 	actionRescueMaze = new ActionRescueMazeCompetition(this);
-	actionStop = new ActionStop(this);
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
@@ -50,7 +49,7 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 	// Set buttons' actions
 	mrm_8x8a->actionSet(actionRescueMaze, 0); // Button 0 starts RCJ Maze.
 	mrm_8x8a->actionSet(_actionLoop, 2); // Button 3 starts user defined loop() function
-	mrm_8x8a->actionSet(actionStop, 3); // Stop the robot
+	mrm_8x8a->actionSet(_actionStop, 3); // Stop the robot
 
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();

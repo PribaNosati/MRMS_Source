@@ -83,7 +83,6 @@ class RobotMazeCompetition : public Robot {
 	ActionMoveAheadCompetition* actionMoveAhead;
 	ActionMoveTurnCompetition* actionMoveTurn;
 	ActionRescueMazeCompetition* actionRescueMaze;
-	ActionStop* actionStop;
 	ActionWallsTestCompetition* actionWallsTest;
 
 	Direction directionCurrent; // Current robot's (in maze's perspective) direction.

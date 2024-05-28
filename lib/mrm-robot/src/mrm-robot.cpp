@@ -101,69 +101,75 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	_actionCurrent = NULL;
 	_actionPrevious = _actionCurrent;
 
-	_actionCANBusStress = new ActionCANBusStress(this);
-	_actionDoNothing = new ActionDoNothing(this);
-	_actionLoop = new ActionLoop(this, signTest);
-	_actionLoop0 = new ActionLoop0(this, signTest);
-	_actionLoop1 = new ActionLoop1(this, signTest);
-	_actionLoop2 = new ActionLoop2(this, signTest);
-	_actionMenuMain = new ActionMenuMain(this);
-	_actionStop = new ActionStop(this);
+	// Actions that will be called from code, so it is necessary to assign them to objects. 
+	// Also, if an action is to be assigned to a button, it will have to be defined here.
+	_actionDoNothing = new ActionRobot(this, "", "No action", 0, Board::BoardId::ID_ANY, NULL, NULL);
+	_actionLoop = new ActionRobot(this, "loo", "Loop", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop);
+	_actionLoop0 = new ActionRobot(this, "lo0", "Loop 0", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop0);
+	_actionLoop1 = new ActionRobot(this, "lo1", "Loop 1", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop1);
+	_actionLoop2 = new ActionRobot(this, "lo2", "Loop 2", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop2);
+	_actionLoop3 = new ActionRobot(this, "lo3", "Loop 3", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop3);
+	_actionLoop4 = new ActionRobot(this, "lo4", "Loop 4", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop4);
+	_actionStop = new ActionRobot(this, "sto", "Stop", 1, Board::BoardId::ID_ANY, signTest, &Robot::stopAll);
 
-	actionAdd(new Action8x8Test(this));
-	actionAdd(new ActionBluetoothTest(this, signTest));
-	actionAdd(new ActionCANBusScan(this));
-	actionAdd(new ActionCANBusSniff(this));
-	actionAdd(new ActionCANBusStress(this));
-	actionAdd(new ActionColorBTest6Colors(this, signTest));
-	actionAdd(new ActionColorBTestHSV(this, signTest));
-	actionAdd(new ActionColorIlluminationOff(this));
-	actionAdd(new ActionColorIlluminationOn(this));
-	actionAdd(new ActionColorPatternErase(this));
-	actionAdd(new ActionColorPatternPrint(this));
-	actionAdd(new ActionColorPatternRecognize(this));
-	actionAdd(new ActionColorPatternRecord(this));
-	actionAdd(new ActionColorTest6Colors(this, signTest));
-	actionAdd(new ActionColorTestHSV(this, signTest));
-	actionAdd(new ActionDeviceIdChange(this));
-	actionAdd(new ActionFirmware(this));
-	actionAdd(new ActionFPS(this));
-	actionAdd(new ActionGoAhead(this));
-	actionAdd(new ActionI2CTest(this, signTest));
-	actionAdd(new ActionIMUTest(this, signTest));
-	actionAdd(new ActionInfo(this));
-	actionAdd(new ActionIRFinderTest(this, signTest));
-	actionAdd(new ActionIRFinderCanTest(this, signTest));
-	actionAdd(new ActionIRFinderCanTestCalculated(this, signTest));
-	actionAdd(new ActionLidar2mTest(this, signTest));
-	actionAdd(new ActionLidar4mTest(this, signTest));
-	actionAdd(new ActionLidar4mMultiTest(this, signTest));
-	actionAdd(new ActionLidarCalibrate(this));
+	// Each object must be added to the collection of actions if we want to display them in menu
 	actionAdd(_actionLoop);
 	actionAdd(_actionLoop0);
 	actionAdd(_actionLoop1);
 	actionAdd(_actionLoop2);
-	actionAdd(new ActionMenuColor(this));
-	actionAdd(new ActionMenuColorB(this));
-	actionAdd(new ActionMenuMain(this));
-	actionAdd(new ActionMenuReflectance(this));
-	actionAdd(new ActionMenuSystem(this));
-	actionAdd(new ActionMotorTest(this, signTest));
-	actionAdd(new ActionNodeTest(this, signTest));
-	actionAdd(new ActionNodeServoTest(this, signTest));
-	//actionAdd(new ActionOscillatorTest(this));
-	actionAdd(new ActionPnPOff(this));
-	actionAdd(new ActionPnPOn(this));
-	actionAdd(new ActionReflectanceArrayCalibrate(this));
-	actionAdd(new ActionReflectanceArrayCalibrationPrint(this));
-	actionAdd(new ActionReflectanceArrayAnalogTest(this, signTest));
-	actionAdd(new ActionReflectanceArrayDigitalTest(this, signTest));
-	actionAdd(new ActionServoInteractive(this));
-	actionAdd(new ActionServoTest(this, signTest));
+	actionAdd(_actionLoop3);
+	actionAdd(_actionLoop4);
 	actionAdd(_actionStop);
-	actionAdd(new ActionThermoTest(this, signTest));
-	actionAdd(new ActionUS_BTest(this, signTest));
-	actionAdd(new ActionUS1Test(this, signTest));
+
+	// Actions for menu only, therefore no (non-anonymus) objects needed.
+	actionAdd(new ActionRobot(this, "all", "CAN Bus stress", 16, Board::BoardId::ID_ANY, signTest, &Robot::stressTest));///1 | 2 | 4 | 8 | 16 | 32 | 64 | 128-> in all menus. 0 - in no menu.
+	actionAdd(new ActionRobot(this, "led", "Test 8x8", 1, Board::BoardId::ID_MRM_8x8A, signTest, &Robot::led8x8Test));
+	actionAdd(new ActionRobot(this, "blt", "Test Bluetooth", 16, Board::BoardId::ID_ANY, signTest, &Robot::bluetoothTest));
+	actionAdd(new ActionRobot(this, "can", "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan));
+	actionAdd(new ActionRobot(this, "sni", "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle));
+	actionAdd(new ActionRobot(this, "10c", "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10));
+	actionAdd(new ActionRobot(this, "hsv", "Test HSV", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTestHSV));
+	actionAdd(new ActionRobot(this, "lof", "Light off", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOff));
+	actionAdd(new ActionRobot(this, "lon", "Light on", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOn));
+	actionAdd(new ActionRobot(this, "per", "Erase patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternErase));
+	actionAdd(new ActionRobot(this, "ppr", "Print patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternPrint));
+	actionAdd(new ActionRobot(this, "pre", "Recognize patern", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecognize));
+	actionAdd(new ActionRobot(this, "par", "Record patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecord));
+	actionAdd(new ActionRobot(this, "6co", "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6));
+	actionAdd(new ActionRobot(this, "hsv", "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV));
+	actionAdd(new ActionRobot(this, "idc", "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange));
+	actionAdd(new ActionRobot(this, "fir", "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint));
+	actionAdd(new ActionRobot(this, "fps", "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint));
+	actionAdd(new ActionRobot(this, "ahe", "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead));
+	actionAdd(new ActionRobot(this, "i2c", "Test I2C", 8, Board::BoardId::ID_ANY, signTest, &Robot::i2cTest));
+	actionAdd(new ActionRobot(this, "imu", "Test IMU", 1, Board::BoardId::ID_ANY, signTest, &Robot::imuTest));
+	actionAdd(new ActionRobot(this, "inf", "Info", 8, Board::BoardId::ID_ANY, signTest, &Robot::info));
+	actionAdd(new ActionRobot(this, "irf", "Test ball analog", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTest));
+	actionAdd(new ActionRobot(this, "irc", "Test bal calcul.", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTestCalculated));
+	actionAdd(new ActionRobot(this, "li2", "Test li. 2m", 1, Board::BoardId::ID_MRM_LID_CAN_B, signTest, &Robot::lidar2mTest));
+	actionAdd(new ActionRobot(this, "li4", "Test li 4m", 1, Board::BoardId::ID_MRM_LID_CAN_B2, signTest, &Robot::lidar4mTest));
+	actionAdd(new ActionRobot(this, "lim", "Test li. mul.", 1, Board::BoardId::ID_MRM_LID_D, signTest, &Robot::lidar4mMultiTest));
+	actionAdd(new ActionRobot(this, "lic", "Calibrate lidar", 1, Board::BoardId::ID_ANY, signTest, &Robot::lidarCalibrate));
+	actionAdd(new ActionRobot(this, "col", "Color (menu)", 1, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::menuColor));
+	actionAdd(new ActionRobot(this, "col", "Color (menu)", 1, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::menuColor));
+	actionAdd(new ActionRobot(this, "x", "Escape", 1 | 2 | 4 | 8 | 16, Board::BoardId::ID_ANY, signTest, &Robot::menuMainAndIdle)); //2 | 4 | 8 | 16 -> in all menus except 1. 0 - in no menu.
+	actionAdd(new ActionRobot(this, "ref", "Reflectance (menu)", 1, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::menuReflectance));
+	actionAdd(new ActionRobot(this, "sys", "System (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuSystem));
+	actionAdd(new ActionRobot(this, "mot", "Test motors", 1, Board::BoardId::ID_ANY, signTest, &Robot::motorTest));
+	actionAdd(new ActionRobot(this, "nod", "Test node", 1, Board::BoardId::ID_ANY, signTest, &Robot::nodeTest));
+	actionAdd(new ActionRobot(this, "nos", "Test node servo", 1, Board::BoardId::ID_MRM_NODE, signTest, &Robot::nodeServoTest));
+	actionAdd(new ActionRobot(this, "pof", "PnP off", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOff));
+	actionAdd(new ActionRobot(this, "pon", "PnP on", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOn));
+	actionAdd(new ActionRobot(this, "cal", "Calibrate ref.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrate));
+	actionAdd(new ActionRobot(this, "pri", "Calibration printrint", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrationPrint));
+	actionAdd(new ActionRobot(this, "anr", "Test refl. anal.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestAnalog));
+	actionAdd(new ActionRobot(this, "dgr", "Test refl. dig.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestDigital));
+	actionAdd(new ActionRobot(this, "ses", "Set servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoInteractive));
+	actionAdd(new ActionRobot(this, "ser", "Test servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoTest));
+	actionAdd(new ActionRobot(this, "the", "Test thermo", 1, Board::BoardId::ID_MRM_THERM_B_CAN, signTest, &Robot::thermoTest));
+	actionAdd(new ActionRobot(this, "uls", "Test ultras.", 1, Board::BoardId::ID_MRM_US_B, signTest, &Robot::usBTest));
+	actionAdd(new ActionRobot(this, "ult", "Test ultras.", 1, Board::BoardId::ID_MRM_US1, signTest, &Robot::us1Test));
+	actionAdd(new ActionRobot(this, "lme", "Loop (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuLoop));
 
 	mrm_8x8a = new Mrm_8x8a(this);
 	mrm_bldc2x50 = new Mrm_bldc2x50(this);
@@ -726,6 +732,24 @@ void Robot::colorPatternRecognize() {
 	end();
 }
 
+void Robot::colorTest10(){
+		// mrm_col_b->test(false);
+	mrm_col_b->test(false);
+}
+
+void Robot::colorTest6(){
+	mrm_col_can->test(false);
+}
+
+void Robot::colorTest6HSV(){
+	mrm_col_can->test(true);
+}
+
+void Robot::colorTestHSV(){
+	// mrm_col_b->test(true);
+	mrm_col_b->test(true);
+}
+
 /** The right way to use Arduino function delay
 @param pauseMs - pause in ms. One run even if pauseMs == 0, so that delayMs(0) receives all messages.
 */
@@ -963,6 +987,10 @@ void Robot::i2cTest() {
 	end();
 }
 
+void Robot::imuTest(){
+	mrm_imu->test();
+}
+
 /** Request information
 */
 void Robot::info() {
@@ -1010,6 +1038,12 @@ void Robot::lidar2mTest() {
 		//mrm_lid_can_b->start(selected);
 	}
 	mrm_lid_can_b->test(selected);
+}
+
+/** Tests mrm-lid-can-d
+*/
+void Robot::lidar4mMultiTest() {
+	mrm_lid_d->test();
 }
 
 /** Tests mrm-lid-can-b2
@@ -1348,6 +1382,14 @@ void Robot::reflectanceArrayCalibrationPrint() {
 	end();
 }
 
+void Robot::reflectanceArrayTestAnalog(){
+	mrm_ref_can->test(true);
+}
+
+void Robot::reflectanceArrayTestDigital(){
+	mrm_ref_can->test(false);
+}
+
 /** One pass of robot's program
 */
 void Robot::refresh(){
@@ -1460,7 +1502,7 @@ void Robot::stopAll() {
 
 /** CAN Bus stress test
 */
-bool Robot::stressTest() {
+void Robot::stressTest() {
 	const bool STOP_ON_ERROR = true;
 	const uint32_t LOOP_COUNT = 1000000;
 	const bool TRY_ONLY_ALIVE = true;
@@ -1549,10 +1591,10 @@ bool Robot::stressTest() {
 		}
 		print("\n\r");
 		end();
-		return true;
+		// return true;
 	}
-	else
-		return false;
+	// else
+	// 	return false;
 }
 
 /** Tests mrm-therm-b-can
