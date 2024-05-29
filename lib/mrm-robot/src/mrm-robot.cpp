@@ -351,7 +351,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	add(mrm_us_b);
 	add(mrm_us1);
 
-	_devicesAtStartup = devicesScan(true);
+	_devicesAtStartup =  _devicesScanOnStartup ? devicesScan(true) : 0;
 	devicesLEDCount();
 }
 
@@ -375,6 +375,12 @@ bool Robot::actionPreprocessing(bool andFinish) {
 	if (andFinish)
 		_actionCurrent->preprocessingEnd();
 	return itIs;
+}
+
+/** Finish action's intialization phase
+*/
+void Robot::actionPreprocessingEnd() { 
+	_actionCurrent->preprocessingEnd(); 
 }
 
 /** Actually perform the action
@@ -526,18 +532,6 @@ void Robot::blink() {
 	}
 }
 
-bool Robot::boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index){
-	for (uint8_t i = 0; i < _boardNextFree; i++) {
-		for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++) 
-			if (out ? board[i]->isFromMe(canId, j) : board[i]->isForMe(canId, j)){
-				*boardFound = board[i];
-				index = j;
-				return true;
-			}
-	}
-	return false;
-}
-
 /** Displays all boards
 @return - last board and device's index, 0 if none
 */
@@ -586,6 +580,18 @@ bool Robot::boardDisplayAndSelect(uint8_t *selectedBoardIndex, uint8_t* selected
 
 	}
 	return found;
+}
+
+bool Robot::boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index){
+	for (uint8_t i = 0; i < _boardNextFree; i++) {
+		for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++) 
+			if (out ? board[i]->isFromMe(canId, j) : board[i]->isForMe(canId, j)){
+				*boardFound = board[i];
+				index = j;
+				return true;
+			}
+	}
+	return false;
 }
 
 /** Finds board and device's index for a number received from boardsDisplayAll()
@@ -1128,7 +1134,7 @@ void Robot::menu() {
 					if (board[j]->alive(0xFF) && board[j]->id() == _action[i]->boardsId())
 						anyAlive = true;
 			if (anyAlive) {
-				print("%-3s - %-15s%s", _action[i]->_shortcut, _action[i]->_text, column == maxColumns ? "\n\r" : ""); // -19
+				print("%-3s - %-15s%s", _action[i]->_shortcut, _action[i]->_text, column == maxColumns ? "\n\r" : ""); 
 				delayMs(2);
 				any = true;
 				if (column++ == maxColumns)

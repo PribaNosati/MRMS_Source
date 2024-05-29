@@ -14,6 +14,9 @@
 
 // Forward declarations
 
+class ActionBase;
+class Board;
+struct BoardInfo;
 class Mrm_8x8a;
 class Mrm_bldc2x50;
 class Mrm_bldc4x2_5;
@@ -203,7 +206,7 @@ public:
 
 	/** Finish action's intialization phase
 	*/
-	void actionPreprocessingEnd() { _actionCurrent->preprocessingEnd(); }
+	void actionPreprocessingEnd();
 
 	/** Add a new board to the collection of possible boards for the robot
 	@param aBoard - the board.
