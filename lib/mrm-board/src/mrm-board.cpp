@@ -5,6 +5,9 @@
 #define REPORT_STRAY 1
 #define REQUEST_NOTIFICATION 0
 
+std::vector<uint8_t>* commandIndexes = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames = NULL;
+
 /** Board is a single instance for all boards of the same type, not a single board (if there are more than 1 of the same type)! */
 
 /**
@@ -34,6 +37,73 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, c
 
 	for (uint8_t deviceNumber = 0; deviceNumber < maxNumberOfBoards; deviceNumber++)
 		(*_lastReadingMs)[deviceNumber] = 0;
+
+	if (commandIndexes == NULL){
+		commandIndexes = new std::vector<uint8_t>();
+		commandNames = new std::vector<std::string>();
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CONTINUOUS);
+		commandNames->push_back("Measure cont");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_ONCE);
+		commandNames->push_back("Measure once");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_STOP);
+		commandNames->push_back("Measure stop");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_SENDING);
+		commandNames->push_back("Measure send");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION);
+		commandNames->push_back("Meas req not");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CONTINUOUS_AND_RETURN_CALCULATED_DATA);
+		commandNames->push_back("Meas con cal");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CALCULATED_SENDING);
+		commandNames->push_back("Meas cal sen");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CONTINUOUS_VERSION_2);
+		commandNames->push_back("Measure co 2");
+		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CONTINUOUS_VERSION_3);
+		commandNames->push_back("Measure co 3");
+		commandIndexes->push_back((uint8_t)COMMAND_FIRMWARE_REQUEST);
+		commandNames->push_back("Firmware req");
+		commandIndexes->push_back((uint8_t)COMMAND_FIRMWARE_SENDING);
+		commandNames->push_back("Firmware sen");
+		commandIndexes->push_back((uint8_t)COMMAND_RESET);
+		commandNames->push_back("Reset");
+		commandIndexes->push_back((uint8_t)COMMAND_MESSAGE_SENDING_1);
+		commandNames->push_back("Messa send 1");
+		commandIndexes->push_back((uint8_t)COMMAND_MESSAGE_SENDING_2);
+		commandNames->push_back("Messa send 2");
+		commandIndexes->push_back((uint8_t)COMMAND_MESSAGE_SENDING_3);
+		commandNames->push_back("Messa send 3");
+		commandIndexes->push_back((uint8_t)COMMAND_MESSAGE_SENDING_4);
+		commandNames->push_back("Messa send 4");
+		commandIndexes->push_back((uint8_t)COMMAND_SPEED_SET);
+		commandNames->push_back("Speed set");
+		commandIndexes->push_back((uint8_t)COMMAND_SPEED_SET_REQUEST_NOTIFICATION);
+		commandNames->push_back("Speed set re");
+		commandIndexes->push_back((uint8_t)COMMAND_DUPLICATE_ID_PING);
+		commandNames->push_back("Dupl id ping");
+		commandIndexes->push_back((uint8_t)COMMAND_DUPLICATE_ID_ECHO);
+		commandNames->push_back("Dupl id echo");
+		commandIndexes->push_back((uint8_t)COMMAND_INFO_REQUEST);
+		commandNames->push_back("Info request");
+		commandIndexes->push_back((uint8_t)COMMAND_INFO_SENDING_1);
+		commandNames->push_back("Info sendi 1");
+		commandIndexes->push_back((uint8_t)COMMAND_INFO_SENDING_2);
+		commandNames->push_back("Info sendi 2");
+		commandIndexes->push_back((uint8_t)COMMAND_INFO_SENDING_3);
+		commandNames->push_back("Info sendi 3");
+		commandIndexes->push_back((uint8_t)COMMAND_FPS_REQUEST);
+		commandNames->push_back("FPS request");
+		commandIndexes->push_back((uint8_t)COMMAND_FPS_SENDING);
+		commandNames->push_back("FPS sending");
+		commandIndexes->push_back((uint8_t)COMMAND_ID_CHANGE_REQUEST);
+		commandNames->push_back("Id change re");
+		commandIndexes->push_back((uint8_t)COMMAND_NOTIFICATION);
+		commandNames->push_back("Notification");
+		commandIndexes->push_back((uint8_t)COMMAND_OSCILLATOR_TEST);
+		commandNames->push_back("Oscilla test");
+		commandIndexes->push_back((uint8_t)COMMAND_ERROR);
+		commandNames->push_back("Error");
+		commandIndexes->push_back((uint8_t)COMMAND_REPORT_ALIVE);
+		commandNames->push_back("Report alive");
+	}
 }
 
 /** Add a device.
@@ -158,6 +228,14 @@ bool Board::canGap() {
 
 	}
 	return false;
+}
+
+void Board::commandNamePrint(uint8_t commandIndex){
+	for (int j = 0; j < commandIndexes->size(); j++)
+		if (commandIndexes->at(j) == commandIndex){
+			print(" command: %s", commandNames->at(j));
+			break;
+		}
 }
 
 /** Did any device respond to last ping?
@@ -371,18 +449,20 @@ bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbou
 			print("%s id:%s (0x%02X)", outbound ? "To" : "From", (*_name)[deviceNumber], msgId);
 			for (uint8_t i = 0; i < dlc; i++) {
 				if (i == 0)
-					print(" data:");
-				print(" %02X", data[i]);
+					commandNamePrint(data[0]);
+				else
+					print(" %02X", data[i]);
 			}
 			print("\n\r");
 			found = true;
 		}
 	if (!found) {
-		print("%s id:0x%02X", outbound ? "To" : "From", msgId);
+		print("%s id:0x%02X", outbound ? "Out" : "In", msgId);
 		for (uint8_t i = 0; i < dlc; i++) {
 			if (i == 0)
-				print(" data:");
-			print(" %02X", data[i]);
+				commandNamePrint(data[0]);
+			else
+				print(" %02X", data[i]);
 		}
 		print("\n\r");
 	}

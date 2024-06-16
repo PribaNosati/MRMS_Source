@@ -1209,12 +1209,12 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, b
 	for (uint8_t i = 0; i < msg->dlc; i++) {
 		if (i == 0){
 			print(" command: ");
-			if (false/*(data[0] > 0x0F && data[0] < 0x50) || data[0] == 0xFF*/)
-				/*print(Board::commandNames[data[0]]*/;
+			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] == 0xFF)
+				board->commandNamePrint(msg->data[0]);
 			else{	
-				/*if (board != NULL && board->commandName(data[0]) != "")
-					print(board->commandName(data[0]));
-				else*/
+				// if (board != NULL && board->commandName(msg->data[0]) != "")
+				// 	print(board->commandName(msg->data[0]));
+				// else
 					print("Unknown");
 			}
 			print(" (%02X)", _msg->data[0]);

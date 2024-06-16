@@ -55,7 +55,7 @@ void Mrm_us1::add(char * deviceName)
 		canOut = CAN_ID_US1_7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-us1");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 
@@ -134,7 +134,7 @@ bool Mrm_us1::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-us1 dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else

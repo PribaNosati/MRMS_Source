@@ -56,7 +56,7 @@ void Mrm_therm_b_can::add(char * deviceName)
 		canOut = CAN_ID_THERM_B_CAN7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-therm-b-can\n\r");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -98,7 +98,7 @@ bool Mrm_therm_b_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t len
 */
 int16_t Mrm_therm_b_can::reading(uint8_t deviceNumber){
 	if (deviceNumber >= nextFree) {
-		strcpy(errorMessage, "Mrm_therm_b_can overflow.");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	else
@@ -137,7 +137,7 @@ bool Mrm_therm_b_can::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-therm-b-can dead.\n\r");
+		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else

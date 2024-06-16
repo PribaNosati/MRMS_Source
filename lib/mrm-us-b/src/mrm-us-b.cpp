@@ -56,7 +56,7 @@ void Mrm_us_b::add(char * deviceName)
 		canOut = CAN_ID_US_B7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-us-b");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 
@@ -99,7 +99,7 @@ bool Mrm_us_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 */
 uint16_t Mrm_us_b::reading(uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree) {
-		strcpy(errorMessage, "mrm-us-b doesn't exist");
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber, true);

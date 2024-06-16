@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Arduino.h"
-#include "../../mrm-can-bus/src/mrm-can-bus.h"
-#include "../../mrm-common/src/mrm-common.h"
-#include "../../mrm-pid/src/mrm-pid.h"
+#include <mrm-can-bus.h>
+#include <mrm-common.h>
+#include <mrm-pid.h>
 #include <vector>
 
 // Addresses:
@@ -134,7 +134,6 @@ protected:
 	bool messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceNumber = 0);
 
 public:
-	
 	/**
 	@param robot - robot containing this board
 	@param maxNumberOfBoards - maximum number of boards
@@ -184,6 +183,8 @@ public:
 	@return - is there a gap.
 	*/
 	bool canGap();
+
+	void commandNamePrint(uint8_t commandIndex);
 
 	/** Did any device respond to last ping?
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
