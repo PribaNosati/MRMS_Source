@@ -1,6 +1,9 @@
 #include "mrm-col-can.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_col_can = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_col_can = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
@@ -15,6 +18,33 @@ Mrm_col_can::Mrm_col_can(Robot* robot, uint8_t maxNumberOfBoards) :
 	_patternByHSV = new std::vector<uint8_t>(maxNumberOfBoards);
 	_patternBy6Colors = new std::vector<uint8_t>(maxNumberOfBoards);
 	_patternRecognizedAtMs = new std::vector<uint32_t>(maxNumberOfBoards);
+
+	if (commandIndexes_mrm_col_can->empty()){
+		commandIndexes_mrm_col_can->push_back(CAN_COL_SENDING_COLORS_1_TO_3);
+		commandNames_mrm_col_can->push_back("Send 1-3");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_SENDING_COLORS_4_TO_6);
+		commandNames_mrm_col_can->push_back("Send 4-6");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_ILLUMINATION_CURRENT);
+		commandNames_mrm_col_can->push_back("Ill curre");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_SWITCH_TO_HSV);
+		commandNames_mrm_col_can->push_back("To HSV");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_SWITCH_TO_6_COLORS);
+		commandNames_mrm_col_can->push_back("To 6 colo");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_SENDING_HSV);
+		commandNames_mrm_col_can->push_back("Send HSV");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_INTEGRATION_TIME);
+		commandNames_mrm_col_can->push_back("Inte time");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_GAIN);
+		commandNames_mrm_col_can->push_back("Gain");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_RECORD);
+		commandNames_mrm_col_can->push_back("Patt reco");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_SENDING);
+		commandNames_mrm_col_can->push_back("Patt send");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_REQUEST);
+		commandNames_mrm_col_can->push_back("Patt requ");
+		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_ERASE);
+		commandNames_mrm_col_can->push_back("Patt eras");
+	}
 }
 
 Mrm_col_can::~Mrm_col_can()

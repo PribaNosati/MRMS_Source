@@ -184,6 +184,8 @@ public:
 	*/
 	bool canGap();
 
+	virtual std::string commandName(uint8_t byte);
+
 	void commandNamePrint(uint8_t commandIndex);
 
 	/** Did any device respond to last ping?

@@ -1,6 +1,9 @@
 #include "mrm-col-b.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_col_b = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_col_b = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
@@ -15,6 +18,37 @@ Mrm_col_b::Mrm_col_b(Robot* robot, uint8_t maxNumberOfBoards) :
 	_patternByHSV = new std::vector<uint8_t>(maxNumberOfBoards);
 	_patternBy8Colors = new std::vector<uint8_t>(maxNumberOfBoards);
 	_patternRecognizedAtMs = new std::vector<uint32_t>(maxNumberOfBoards);
+
+	if (commandIndexes_mrm_col_b->empty()){
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SENDING_COLORS_1_TO_3);
+		commandNames_mrm_col_b->push_back("Send 1-3");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SENDING_COLORS_4_TO_6);
+		commandNames_mrm_col_b->push_back("Send 4-6");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SENDING_COLORS_7_TO_9);
+		commandNames_mrm_col_b->push_back("Send 7-9");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SENDING_COLORS_10_TO_11);
+		commandNames_mrm_col_b->push_back("Send10-11");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_ILLUMINATION_CURRENT);
+		commandNames_mrm_col_b->push_back("Illu curr");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SWITCH_TO_HSV);
+		commandNames_mrm_col_b->push_back("To HSV");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SWITCH_TO_8_COLORS);
+		commandNames_mrm_col_b->push_back("To 8 colo");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_SENDING_HSV);
+		commandNames_mrm_col_b->push_back("Send HSV");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_INTEGRATION_TIME);
+		commandNames_mrm_col_b->push_back("Inte time");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_GAIN);
+		commandNames_mrm_col_b->push_back("Gain");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_PATTERN_RECORD);
+		commandNames_mrm_col_b->push_back("Patt reco");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_PATTERN_SENDING);
+		commandNames_mrm_col_b->push_back("Patt send");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_PATTERN_REQUEST);
+		commandNames_mrm_col_b->push_back("Patt requ");
+		commandIndexes_mrm_col_b->push_back(MRM_COL_B_PATTERN_ERASE);
+		commandNames_mrm_col_b->push_back("Patt eras");
+	}
 }
 
 Mrm_col_b::~Mrm_col_b()

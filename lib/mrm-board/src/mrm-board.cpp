@@ -230,6 +230,10 @@ bool Board::canGap() {
 	return false;
 }
 
+std::string Board::commandName(uint8_t byte){
+	return "";
+}
+
 void Board::commandNamePrint(uint8_t commandIndex){
 	for (int j = 0; j < commandIndexes->size(); j++)
 		if (commandIndexes->at(j) == commandIndex){
