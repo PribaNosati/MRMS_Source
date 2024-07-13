@@ -1213,7 +1213,7 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, b
 				board->commandNamePrint(msg->data[0]);
 			else{	
 				if (board != NULL && board->commandName(msg->data[0]) != "")
-					print(board->commandName(msg->data[0]));
+					print((board->commandName(msg->data[0])).c_str());
 				else
 					print("Unknown");
 			}
@@ -1222,20 +1222,6 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, b
 		else
 			print(" %02X", _msg->data[i]);
 	}
-	// bool any = false;
-	// for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
-	// 	if (board[boardId]->messagePrint(msg->messageId, msg->dlc, msg->data, outbound)) {
-	// 		any = true;
-	// 		break;
-	// 	}
-	// }
-	// if (!any) {
-	// 	print("Id:0x%02X", msg->messageId);
-	// 	for (uint8_t i = 0; i < msg->dlc; i++) {
-	// 		if (i == 0)
-	// 			print(" data:");
-	// 		print(" %02X", msg->data[i]);
-	// 	}
 	print("\n\r");
 }
 

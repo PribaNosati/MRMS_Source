@@ -763,7 +763,7 @@ bool MotorBoard::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-bldc4x2.5 dead.\n\r");
+		printf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
 		return false;
 	}
 	else
@@ -1047,6 +1047,7 @@ void MotorGroupDifferential::go(int16_t leftSpeed, int16_t rightSpeed, int16_t l
 				motorBoard[i]->speedSet(motorNumber[i], (int8_t)speeds[i]);
 				//Serial.print((String)speeds[i] + " ");
 			}
+			robotContainer->delayMs(1);
 		}
 	}
 }
@@ -1113,7 +1114,7 @@ void MotorGroupStar::go(float speed, float angleDegrees, float rotation, uint8_t
 					motorBoard[i]->speedSet(motorNumber[i], (int8_t)speeds[i]);
 					//Serial.print((String)speeds[i] + " ");
 				}
-				delayMicroseconds(200);
+				robotContainer->delayMs(1);
 			}
 			//Serial.println();
 		}

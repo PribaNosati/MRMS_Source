@@ -1,6 +1,9 @@
 #include "mrm-fet-can.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_fet_can = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_fet_can = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
@@ -9,6 +12,13 @@
 */
 Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : 
 	MotorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
+
+	if (commandIndexes_mrm_fet_can->empty()){
+		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_ON);
+		commandNames_mrm_fet_can->push_back("Turn on");
+		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_OFF);
+		commandNames_mrm_fet_can->push_back("Turn off");
+	}
 }
 
 Mrm_fet_can::~Mrm_fet_can()

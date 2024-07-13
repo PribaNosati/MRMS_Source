@@ -1,6 +1,9 @@
 #include "mrm-node.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_node = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_node = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
@@ -12,6 +15,19 @@ Mrm_node::Mrm_node(Robot* robot, uint8_t maxNumberOfBoards) :
 	readings = new std::vector<uint16_t[MRM_NODE_ANALOG_COUNT]>(maxNumberOfBoards);
 	switches = new std::vector<bool[MRM_NODE_SWITCHES_COUNT]>(maxNumberOfBoards);
 	servoDegrees = new std::vector<uint16_t[MRM_NODE_SERVO_COUNT]>(maxNumberOfBoards);
+	
+	if (commandIndexes_mrm_node->empty()){
+		commandIndexes_mrm_node->push_back(COMMAND_NODE_SENDING_SENSORS_1_TO_3);
+		commandNames_mrm_node->push_back("Send 1-3");
+		commandIndexes_mrm_node->push_back(COMMAND_NODE_SENDING_SENSORS_4_TO_6);
+		commandNames_mrm_node->push_back("Send 4-6");
+		commandIndexes_mrm_node->push_back(COMMAND_NODE_SENDING_SENSORS_7_TO_9);
+		commandNames_mrm_node->push_back("Send 7-9");
+		commandIndexes_mrm_node->push_back(COMMAND_NODE_SWITCH_ON);
+		commandNames_mrm_node->push_back("Switch on");
+		commandIndexes_mrm_node->push_back(COMMAND_NODE_SERVO_SET);
+		commandNames_mrm_node->push_back("Servo set");
+	}
 }
 
 Mrm_node::~Mrm_node()

@@ -1,6 +1,9 @@
 #include "mrm-ir-finder3.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_ir_finder3 = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_ir_finder3 = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
@@ -13,6 +16,15 @@ Mrm_ir_finder3::Mrm_ir_finder3(Robot* robot, uint8_t maxNumberOfBoards) :
 	_near = new std::vector<bool>(maxNumberOfBoards);
 	readings = new std::vector<uint16_t[MRM_IR_FINDER3_SENSOR_COUNT]>(maxNumberOfBoards);
 	measuringModeLimit = 2;
+
+	if (commandIndexes_mrm_ir_finder3->empty()){
+		commandIndexes_mrm_ir_finder3->push_back(COMMAND_IR_FINDER3_SENDING_SENSORS_1_TO_7);
+		commandNames_mrm_ir_finder3->push_back("Send 1-7");
+		commandIndexes_mrm_ir_finder3->push_back(COMMAND_IR_FINDER3_SENDING_SENSORS_8_TO_12);
+		commandNames_mrm_ir_finder3->push_back("Send 8-12");
+		commandIndexes_mrm_ir_finder3->push_back(COMMAND_IR_FINDER3_SENDING_ANGLE_AND_DISTANCE);
+		commandNames_mrm_ir_finder3->push_back("Send angl");
+	}
 }
 
 Mrm_ir_finder3::~Mrm_ir_finder3()

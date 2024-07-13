@@ -1,6 +1,9 @@
 #include "mrm-lid-can-b2.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_lid_can_b2 = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_lid_can_b2 = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
@@ -10,6 +13,17 @@
 Mrm_lid_can_b2::Mrm_lid_can_b2(Robot* robot, uint8_t maxNumberOfBoards) : 
 	SensorBoard(robot, 1, "Lid4m", maxNumberOfBoards, ID_MRM_LID_CAN_B2, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
+
+	if (commandIndexes_mrm_lid_can_b2->empty()){
+		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_DISTANCE_MODE);
+		commandNames_mrm_lid_can_b2->push_back("Dist mode");
+		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_TIMING_BUDGET);
+		commandNames_mrm_lid_can_b2->push_back("Tim budge");
+		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_MEASUREMENT_TIME);
+		commandNames_mrm_lid_can_b2->push_back("Meas time");
+		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_ROI);
+		commandNames_mrm_lid_can_b2->push_back("ROI");
+	}
 }
 
 Mrm_lid_can_b2::~Mrm_lid_can_b2()
