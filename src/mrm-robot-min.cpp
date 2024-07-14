@@ -14,7 +14,7 @@
 
 class ActionMotorShortTest;
 
-#define AUTOSTART 1
+#define AUTOSTART 0
 #define DEVICE_COUNT_COLOR 0
 #define DEVICE_COUNT_LED 1
 #define DEVICE_COUNT_IR_FINDER 1

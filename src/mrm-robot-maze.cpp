@@ -298,7 +298,15 @@ void RobotMaze::loop() {
 		print("Data: %s\n\r", uartRxCommandCumulative);
 }
 
-void RobotMaze::loop0() { }
+void RobotMaze::loop0() { 
+if (setup())
+	pinMode(25, OUTPUT);
+	digitalWrite(25, HIGH);
+	delay(500);
+	digitalWrite(25, LOW);
+	delay(500);
+
+}
 void RobotMaze::loop1() {  }
 void RobotMaze::loop2() {  }
 
