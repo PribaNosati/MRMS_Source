@@ -170,8 +170,9 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	actionAdd(new ActionRobot(this, "uls", "Test ultras.", 1, Board::BoardId::ID_MRM_US_B, signTest, &Robot::usBTest));
 	actionAdd(new ActionRobot(this, "ult", "Test ultras.", 1, Board::BoardId::ID_MRM_US1, signTest, &Robot::us1Test));
 	actionAdd(new ActionRobot(this, "lme", "Loop (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuLoop));
-
+// return;
 	mrm_8x8a = new Mrm_8x8a(this);
+	return;
 	mrm_bldc2x50 = new Mrm_bldc2x50(this);
 	mrm_bldc4x2_5 = new Mrm_bldc4x2_5(this);
 	mrm_col_b = new Mrm_col_b(this);
@@ -198,7 +199,6 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 
 	// 8x8 LED
 	mrm_8x8a->add((char*)"LED8x8-0");
-
 	// Motors mrm-bldc2x50
 	mrm_bldc2x50->add(false, (char*)"BL2x50-0");
 	mrm_bldc2x50->add(false, (char*)"BL2x50-1");
@@ -1385,6 +1385,7 @@ void Robot::reflectanceArrayTestDigital(){
 /** One pass of robot's program
 */
 void Robot::refresh(){
+	return;
 		actionSet(); // Check if a key pressed and update current command buffer.
 		if (_actionCurrent == NULL) // If last command finished, display menu.
 			menu();

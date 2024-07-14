@@ -13,6 +13,7 @@
 @param name - it is also used for Bluetooth so a Bluetooth client (like a phone) will list the device using this name.
 */
 RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
+	return;
 	motorGroup = new MotorGroupStar(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
 
 	// LED signs to be assigned to different actions follow. It is easier to follow action flow by checking the display.
