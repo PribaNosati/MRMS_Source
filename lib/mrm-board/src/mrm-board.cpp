@@ -5,8 +5,8 @@
 #define REPORT_STRAY 1
 #define REQUEST_NOTIFICATION 0
 
-std::vector<uint8_t>* commandIndexes = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<std::string>* commandNames = NULL;
+std::vector<uint8_t>* commandIndexes =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames =  new std::vector<std::string>();
 
 /** Board is a single instance for all boards of the same type, not a single board (if there are more than 1 of the same type)! */
 

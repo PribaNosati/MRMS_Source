@@ -1,8 +1,8 @@
 #include "mrm-ref-can.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_ref_can = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<std::string>* commandNames_mrm_ref_can = NULL;
+std::vector<uint8_t>* commandIndexes_mrm_ref_can =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_ref_can =  new std::vector<std::string>();
 
 /** Constructor
 @param robot - robot containing this board

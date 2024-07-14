@@ -1,8 +1,8 @@
 #include "mrm-col-b.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_col_b = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<std::string>* commandNames_mrm_col_b = NULL;
+std::vector<uint8_t>* commandIndexes_mrm_col_b =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_col_b =  new std::vector<std::string>();
 
 /** Constructor
 @param robot - robot containing this board

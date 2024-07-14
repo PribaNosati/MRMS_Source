@@ -1,8 +1,8 @@
 #include "mrm-lid-can-b2.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_lid_can_b2 = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<std::string>* commandNames_mrm_lid_can_b2 = NULL;
+std::vector<uint8_t>* commandIndexes_mrm_lid_can_b2 =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_lid_can_b2 =  new std::vector<std::string>();
 
 /** Constructor
 @param robot - robot containing this board
