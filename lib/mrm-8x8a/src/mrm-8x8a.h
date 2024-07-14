@@ -1,8 +1,8 @@
 #pragma once
 #include "Arduino.h"
-#include <mrm-action.h>
 #include <mrm-board.h>
 #include <mrm-common.h>
+//#include <vector>
 
 /**
 Purpose: mrm-8x8a interface to CANBus.
@@ -53,8 +53,7 @@ Licence: You can use this code any way you like.
 
 #define MRM_8X8A_INACTIVITY_ALLOWED_MS 30000
 
-enum LED8x8Rotation { LED_8X8_BY_0_DEGREES, LED_8X8_BY_90_DEGREES, LED_8X8_BY_270_DEGREES };
-enum LED8x8Type{LED_8X8_CUSTOM, LED_8X8_STORED, LED_8X8_STORED_CUSTOM };
+class ActionBase;
 
 class Mrm_8x8a : public SensorBoard
 {
@@ -72,6 +71,32 @@ class Mrm_8x8a : public SensorBoard
 	bool started(uint8_t deviceNumber);
 	
 public:
+	struct LEDSign{
+		uint8_t type;
+	};
+
+	struct LEDSignBitmap : LEDSign{
+		uint8_t red[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+		uint8_t green[8] =  {0, 0, 0, 0, 0, 0, 0, 0};;
+		LEDSignBitmap(){type = 0;}
+	};
+
+	struct LEDSignText : LEDSign{
+		char text[8];
+		LEDSignText(){type = 1;}
+	};
+
+	enum LED8x8Rotation { LED_8X8_BY_0_DEGREES, LED_8X8_BY_90_DEGREES, LED_8X8_BY_270_DEGREES };
+
+	enum LED8x8Type{LED_8X8_CUSTOM, LED_8X8_STORED, LED_8X8_STORED_CUSTOM };
+
+	enum ledSign {LED_CATCH, LED_CUSTOM, LED_EVACUATION_ZONE, LED_FULL_CROSSING_BOTH_MARKS, LED_FULL_CROSSING_MARK_LEFT,
+		LED_FULL_CROSSING_MARK_RIGHT, LED_FULL_CROSSING_NO_MARK, LED_GOAL_APPROACH, LED_HALF_CROSSING_MARK_LEFT, LED_HALF_CROSSING_MARK_RIGHT, 
+		LED_HALF_CROSSING_LEFT_NO_MARK, LED_HALF_CROSSING_RIGHT_NO_MARK, LED_IDLE, LED_IMU_FOLLOW, LED_LINE_AVOID, LED_LINE_FULL, 
+		LED_LINE_FULL_BOTH_MARKS, LED_LINE_FULL_MARK_LEFT, LED_LINE_FULL_MARK_RIGHT, LED_LINE_INTERRUPTED, LED_CURVE_LEFT,
+		LED_CURVE_RIGHT, LED_OBSTACLE, LED_OBSTACLE_AROUND_LEFT, LED_OBSTACLE_AROUND_RIGHT, LED_PAUSE, LED_PLAY, LED_T_CROSSING_BY_L,
+		LED_T_CROSSING_BY_R, LED_WALL_AHEAD, LED_WALL_DOWN_FOLLOW, LED_WALL_L, LED_WALL_LEFT_FOLLOW, LED_WALL_R, 
+		 LED_WALL_RIGHT_FOLLOW, LED_WALL_UP_FOLLOW }; 
 	
 	/** Constructor
 	@param robot - robot containing this board
@@ -122,13 +147,15 @@ public:
 	*/
 	void bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber = 0);
 
+	void bitmapsSet(const std::vector<ledSign>& selectedImages);
+
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t length);
+	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8);
 
 	/** Displays 8-row progress bar. Useful for visual feedback of a long process.
 	@param period - total count (100%)

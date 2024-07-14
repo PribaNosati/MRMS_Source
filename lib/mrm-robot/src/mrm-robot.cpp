@@ -26,40 +26,11 @@
 // #include <mrm-us.h>
 #include <mrm-us-b.h>
 #include <mrm-us1.h>
+#include <BluetoothSerial.h>
 
 #if RADIO == 1
 extern BluetoothSerial* serialBT;
 #endif
-
-/** Print to all serial ports
-@param fmt - C format string: 
-	%c - character,
-	%i - integer,
-	%s - string.
-@param ... - variable arguments
-*/
-void Robot::print(const char* fmt, ...) {
-	va_list argp;
-	va_start(argp, fmt);
-	vprint(fmt, argp);
-	va_end(argp);
-}
-
-
-/** Print to all serial ports, pointer to list
-*/
-void Robot::vprint(const char* fmt, va_list argp) {
-	if (strlen(fmt) >= 100)
-		return;
-	static char buffer[100];
-	vsprintf(buffer, fmt, argp);
-
-	Serial.print(buffer);
-#if RADIO == 1
-	if (serialBT != NULL)
-		serialBT->print(buffer);
-#endif
-}
 
 /**
 */
@@ -86,12 +57,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	preferences = new Preferences();
 	preferences->begin("data", false);
 
-#if RADIO == 1
-	if (serialBT == NULL) {
-		serialBT = new BluetoothSerial(); // Additional serial port
-		serialBT->begin(_name); //Start Bluetooth. ESP32 - Bluetooth device name, choose one.
-	}
-#endif
+	startBT(_name);
 
 	delay(50);
 	print("%s started.\r\n", _name);
@@ -129,75 +95,81 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	mrm_can_bus = new Mrm_can_bus();
 
 	// LED Test
-	LEDSignText* signTest = new LEDSignText();
+	Mrm_8x8a::LEDSignText* signTest = new Mrm_8x8a::LEDSignText();
 	strcpy(signTest->text, "Test");
 
 	_actionCurrent = NULL;
 	_actionPrevious = _actionCurrent;
 
-	_actionCANBusStress = new ActionCANBusStress(this);
-	_actionDoNothing = new ActionDoNothing(this);
-	_actionLoop = new ActionLoop(this, signTest);
-	_actionLoop0 = new ActionLoop0(this, signTest);
-	_actionLoop1 = new ActionLoop1(this, signTest);
-	_actionLoop2 = new ActionLoop2(this, signTest);
-	_actionMenuMain = new ActionMenuMain(this);
-	_actionStop = new ActionStop(this);
+	// Actions that will be called from code, so it is necessary to assign them to objects. 
+	// Also, if an action is to be assigned to a button, it will have to be defined here.
+	_actionDoNothing = new ActionRobot(this, "", "No action", 0, Board::BoardId::ID_ANY, NULL, NULL);
+	_actionLoop = new ActionRobot(this, "loo", "Loop", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop);
+	_actionLoop0 = new ActionRobot(this, "lo0", "Loop 0", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop0);
+	_actionLoop1 = new ActionRobot(this, "lo1", "Loop 1", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop1);
+	_actionLoop2 = new ActionRobot(this, "lo2", "Loop 2", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop2);
+	_actionLoop3 = new ActionRobot(this, "lo3", "Loop 3", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop3);
+	_actionLoop4 = new ActionRobot(this, "lo4", "Loop 4", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop4);
+	_actionStop = new ActionRobot(this, "sto", "Stop", 1, Board::BoardId::ID_ANY, signTest, &Robot::stopAll);
 
-	actionAdd(new Action8x8Test(this));
-	actionAdd(new ActionBluetoothTest(this, signTest));
-	actionAdd(new ActionCANBusScan(this));
-	actionAdd(new ActionCANBusSniff(this));
-	actionAdd(new ActionCANBusStress(this));
-	actionAdd(new ActionColorBTest6Colors(this, signTest));
-	actionAdd(new ActionColorBTestHSV(this, signTest));
-	actionAdd(new ActionColorIlluminationOff(this));
-	actionAdd(new ActionColorIlluminationOn(this));
-	actionAdd(new ActionColorPatternErase(this));
-	actionAdd(new ActionColorPatternPrint(this));
-	actionAdd(new ActionColorPatternRecognize(this));
-	actionAdd(new ActionColorPatternRecord(this));
-	actionAdd(new ActionColorTest6Colors(this, signTest));
-	actionAdd(new ActionColorTestHSV(this, signTest));
-	actionAdd(new ActionDeviceIdChange(this));
-	actionAdd(new ActionFirmware(this));
-	actionAdd(new ActionFPS(this));
-	actionAdd(new ActionGoAhead(this));
-	actionAdd(new ActionI2CTest(this, signTest));
-	actionAdd(new ActionIMUTest(this, signTest));
-	actionAdd(new ActionInfo(this));
-	actionAdd(new ActionIRFinderTest(this, signTest));
-	actionAdd(new ActionIRFinderCanTest(this, signTest));
-	actionAdd(new ActionIRFinderCanTestCalculated(this, signTest));
-	actionAdd(new ActionLidar2mTest(this, signTest));
-	actionAdd(new ActionLidar4mTest(this, signTest));
-	actionAdd(new ActionLidar4mMultiTest(this, signTest));
-	actionAdd(new ActionLidarCalibrate(this));
+	// Each object must be added to the collection of actions if we want to display them in menu
 	actionAdd(_actionLoop);
 	actionAdd(_actionLoop0);
 	actionAdd(_actionLoop1);
 	actionAdd(_actionLoop2);
-	actionAdd(new ActionMenuColor(this));
-	actionAdd(new ActionMenuColorB(this));
-	actionAdd(new ActionMenuMain(this));
-	actionAdd(new ActionMenuReflectance(this));
-	actionAdd(new ActionMenuSystem(this));
-	actionAdd(new ActionMotorTest(this, signTest));
-	actionAdd(new ActionNodeTest(this, signTest));
-	actionAdd(new ActionNodeServoTest(this, signTest));
-	//actionAdd(new ActionOscillatorTest(this));
-	actionAdd(new ActionPnPOff(this));
-	actionAdd(new ActionPnPOn(this));
-	actionAdd(new ActionReflectanceArrayCalibrate(this));
-	actionAdd(new ActionReflectanceArrayCalibrationPrint(this));
-	actionAdd(new ActionReflectanceArrayAnalogTest(this, signTest));
-	actionAdd(new ActionReflectanceArrayDigitalTest(this, signTest));
-	actionAdd(new ActionServoInteractive(this));
-	actionAdd(new ActionServoTest(this, signTest));
+	actionAdd(_actionLoop3);
+	actionAdd(_actionLoop4);
 	actionAdd(_actionStop);
-	actionAdd(new ActionThermoTest(this, signTest));
-	actionAdd(new ActionUS_BTest(this, signTest));
-	actionAdd(new ActionUS1Test(this, signTest));
+
+	// Actions for menu only, therefore no (non-anonymus) objects needed.
+	actionAdd(new ActionRobot(this, "all", "CAN Bus stress", 16, Board::BoardId::ID_ANY, signTest, &Robot::stressTest));///1 | 2 | 4 | 8 | 16 | 32 | 64 | 128-> in all menus. 0 - in no menu.
+	actionAdd(new ActionRobot(this, "led", "Test 8x8", 1, Board::BoardId::ID_MRM_8x8A, signTest, &Robot::led8x8Test));
+	actionAdd(new ActionRobot(this, "blt", "Test Bluetooth", 16, Board::BoardId::ID_ANY, signTest, &Robot::bluetoothTest));
+	actionAdd(new ActionRobot(this, "can", "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan));
+	actionAdd(new ActionRobot(this, "sni", "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle));
+	actionAdd(new ActionRobot(this, "10c", "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10));
+	actionAdd(new ActionRobot(this, "hsv", "Test HSV", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTestHSV));
+	actionAdd(new ActionRobot(this, "lof", "Light off", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOff));
+	actionAdd(new ActionRobot(this, "lon", "Light on", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOn));
+	actionAdd(new ActionRobot(this, "per", "Erase patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternErase));
+	actionAdd(new ActionRobot(this, "ppr", "Print patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternPrint));
+	actionAdd(new ActionRobot(this, "pre", "Recognize patern", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecognize));
+	actionAdd(new ActionRobot(this, "par", "Record patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecord));
+	actionAdd(new ActionRobot(this, "6co", "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6));
+	actionAdd(new ActionRobot(this, "hsv", "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV));
+	actionAdd(new ActionRobot(this, "idc", "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange));
+	actionAdd(new ActionRobot(this, "fir", "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint));
+	actionAdd(new ActionRobot(this, "fps", "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint));
+	actionAdd(new ActionRobot(this, "ahe", "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead));
+	actionAdd(new ActionRobot(this, "i2c", "Test I2C", 8, Board::BoardId::ID_ANY, signTest, &Robot::i2cTest));
+	actionAdd(new ActionRobot(this, "imu", "Test IMU", 1, Board::BoardId::ID_ANY, signTest, &Robot::imuTest));
+	actionAdd(new ActionRobot(this, "inf", "Info", 8, Board::BoardId::ID_ANY, signTest, &Robot::info));
+	actionAdd(new ActionRobot(this, "irf", "Test ball analog", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTest));
+	actionAdd(new ActionRobot(this, "irc", "Test bal calcul.", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTestCalculated));
+	actionAdd(new ActionRobot(this, "li2", "Test li. 2m", 1, Board::BoardId::ID_MRM_LID_CAN_B, signTest, &Robot::lidar2mTest));
+	actionAdd(new ActionRobot(this, "li4", "Test li 4m", 1, Board::BoardId::ID_MRM_LID_CAN_B2, signTest, &Robot::lidar4mTest));
+	actionAdd(new ActionRobot(this, "lim", "Test li. mul.", 1, Board::BoardId::ID_MRM_LID_D, signTest, &Robot::lidar4mMultiTest));
+	actionAdd(new ActionRobot(this, "lic", "Calibrate lidar", 1, Board::BoardId::ID_ANY, signTest, &Robot::lidarCalibrate));
+	actionAdd(new ActionRobot(this, "col", "Color (menu)", 1, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::menuColor));
+	actionAdd(new ActionRobot(this, "col", "Color (menu)", 1, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::menuColor));
+	actionAdd(new ActionRobot(this, "x", "Escape", 1 | 2 | 4 | 8 | 16, Board::BoardId::ID_ANY, signTest, &Robot::menuMainAndIdle)); //2 | 4 | 8 | 16 -> in all menus except 1. 0 - in no menu.
+	actionAdd(new ActionRobot(this, "ref", "Reflectance (menu)", 1, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::menuReflectance));
+	actionAdd(new ActionRobot(this, "sys", "System (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuSystem));
+	actionAdd(new ActionRobot(this, "mot", "Test motors", 1, Board::BoardId::ID_ANY, signTest, &Robot::motorTest));
+	actionAdd(new ActionRobot(this, "nod", "Test node", 1, Board::BoardId::ID_ANY, signTest, &Robot::nodeTest));
+	actionAdd(new ActionRobot(this, "nos", "Test node servo", 1, Board::BoardId::ID_MRM_NODE, signTest, &Robot::nodeServoTest));
+	actionAdd(new ActionRobot(this, "pof", "PnP off", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOff));
+	actionAdd(new ActionRobot(this, "pon", "PnP on", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOn));
+	actionAdd(new ActionRobot(this, "cal", "Calibrate ref.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrate));
+	actionAdd(new ActionRobot(this, "pri", "Calibration printrint", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrationPrint));
+	actionAdd(new ActionRobot(this, "anr", "Test refl. anal.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestAnalog));
+	actionAdd(new ActionRobot(this, "dgr", "Test refl. dig.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestDigital));
+	actionAdd(new ActionRobot(this, "ses", "Set servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoInteractive));
+	actionAdd(new ActionRobot(this, "ser", "Test servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoTest));
+	actionAdd(new ActionRobot(this, "the", "Test thermo", 1, Board::BoardId::ID_MRM_THERM_B_CAN, signTest, &Robot::thermoTest));
+	actionAdd(new ActionRobot(this, "uls", "Test ultras.", 1, Board::BoardId::ID_MRM_US_B, signTest, &Robot::usBTest));
+	actionAdd(new ActionRobot(this, "ult", "Test ultras.", 1, Board::BoardId::ID_MRM_US1, signTest, &Robot::us1Test));
+	actionAdd(new ActionRobot(this, "lme", "Loop (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuLoop));
 
 	mrm_8x8a = new Mrm_8x8a(this);
 	mrm_bldc2x50 = new Mrm_bldc2x50(this);
@@ -379,7 +351,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	add(mrm_us_b);
 	add(mrm_us1);
 
-	_devicesAtStartup = devicesScan(true);
+	_devicesAtStartup =  _devicesScanOnStartup ? devicesScan(true) : 0;
 	devicesLEDCount();
 }
 
@@ -403,6 +375,12 @@ bool Robot::actionPreprocessing(bool andFinish) {
 	if (andFinish)
 		_actionCurrent->preprocessingEnd();
 	return itIs;
+}
+
+/** Finish action's intialization phase
+*/
+void Robot::actionPreprocessingEnd() { 
+	_actionCurrent->preprocessingEnd(); 
 }
 
 /** Actually perform the action
@@ -503,12 +481,12 @@ void Robot::actionSet(ActionBase* newAction) {
 	if (mrm_8x8a->alive() && _actionTextDisplay){
 		if (_actionCurrent->ledSign == NULL)
 			devicesLEDCount();
-		else if (_actionCurrent->ledSign->type == 1 && strcmp(((LEDSignText*)(_actionCurrent->ledSign))->text, "") != 0)
-			mrm_8x8a->text(((LEDSignText*)(_actionCurrent->ledSign))->text);
+		else if (_actionCurrent->ledSign->type == 1 && strcmp(((Mrm_8x8a::LEDSignText*)(_actionCurrent->ledSign))->text, "") != 0)
+			mrm_8x8a->text(((Mrm_8x8a::LEDSignText*)(_actionCurrent->ledSign))->text);
 		else if (_actionCurrent->ledSign->type == 0){
 			mrm_8x8a->bitmapCustomDisplay(
-				((LEDSignBitmap*)_actionCurrent->ledSign)->red, 
-				((LEDSignBitmap*)_actionCurrent->ledSign)->green);
+				((Mrm_8x8a::LEDSignBitmap*)_actionCurrent->ledSign)->red, 
+				((Mrm_8x8a::LEDSignBitmap*)_actionCurrent->ledSign)->green);
 		}
 	}
 }
@@ -602,6 +580,18 @@ bool Robot::boardDisplayAndSelect(uint8_t *selectedBoardIndex, uint8_t* selected
 
 	}
 	return found;
+}
+
+bool Robot::boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index){
+	for (uint8_t i = 0; i < _boardNextFree; i++) {
+		for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++) 
+			if (out ? board[i]->isFromMe(canId, j) : board[i]->isForMe(canId, j)){
+				*boardFound = board[i];
+				index = j;
+				return true;
+			}
+	}
+	return false;
 }
 
 /** Finds board and device's index for a number received from boardsDisplayAll()
@@ -748,6 +738,24 @@ void Robot::colorPatternRecognize() {
 	end();
 }
 
+void Robot::colorTest10(){
+		// mrm_col_b->test(false);
+	mrm_col_b->test(false);
+}
+
+void Robot::colorTest6(){
+	mrm_col_can->test(false);
+}
+
+void Robot::colorTest6HSV(){
+	mrm_col_can->test(true);
+}
+
+void Robot::colorTestHSV(){
+	// mrm_col_b->test(true);
+	mrm_col_b->test(true);
+}
+
 /** The right way to use Arduino function delay
 @param pauseMs - pause in ms. One run even if pauseMs == 0, so that delayMs(0) receives all messages.
 */
@@ -774,10 +782,10 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 @boardType - sensor, motor, or all boards
 @return count
 */
-void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, BoardType boardType){
+void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, Board::BoardType boardType){
 	uint8_t count = 0;
 	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
-		if (boardType == ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
+		if (boardType == Board::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
 			for (uint8_t deviceNumber = 0; deviceNumber < board[boardKind]->count(); deviceNumber++){// Devices for the current board type
 				if (board[boardKind]->alive(deviceNumber)){
 					if (count == deviceGlobalOrdinalNumber)
@@ -786,7 +794,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo
 						deviceInfo->board = board[boardKind];
 						deviceInfo->deviceNumber = deviceNumber;
 						//print("In func: %s %i", deviceInfo->name, deviceNumber);
-						if (boardType == SENSOR_BOARD)
+						if (boardType == Board::SENSOR_BOARD)
 							deviceInfo->readingsCount = ((SensorBoard*)(board[boardKind]))->readingsCount();
 						return;
 					}
@@ -815,23 +823,23 @@ void Robot::devicesLEDCount(){
 @boardType - sensor, motor, or all boards
 @return count
 */
-uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
+uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 	while (millis() < 3000) //Wait for all the devices to complete start-up
 		delayMs(50);
-		// print("AA1\n\r");
+
 	devicesStop();
 
 	delayMs(5); // Read all the messages sent after stop.
 
 	// Set not alive
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+		if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 			board[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
 
 	// Send alive ping
 	for (uint8_t k = 0; k < 2; k++)
 		for (uint8_t i = 0; i < _boardNextFree; i++){
-			if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+			if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 				board[i]->devicesScan(verbose);
 				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
 		}
@@ -841,7 +849,7 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 	// Count alive
 	uint8_t count = 0;
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == ANY_BOARD || board[i]->boardType() == boardType)
+		if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 			count += board[i]->aliveCount(); 
 
 	if (verbose)
@@ -850,6 +858,10 @@ uint8_t Robot::devicesScan(bool verbose, BoardType boardType) {
 		strcpy(errorMessage, "CAN gap");
 	end();
 	return count;
+}
+
+void Robot::devicesScan(){
+	devicesScan(true);
 }
 
 /** Starts devices' CAN Bus messages broadcasting.
@@ -884,7 +896,6 @@ void Robot::errors() {
 void Robot::firmwarePrint() {
 	for (uint8_t i = 0; i < _boardNextFree; i++) {
 		board[i]->firmwareRequest();
-		// uint32_t startMs = millis();
 		delayMs(1);
 	}
 	end();
@@ -982,6 +993,10 @@ void Robot::i2cTest() {
 	end();
 }
 
+void Robot::imuTest(){
+	mrm_imu->test();
+}
+
 /** Request information
 */
 void Robot::info() {
@@ -990,6 +1005,18 @@ void Robot::info() {
 		delay(1);
 	}
 	end();
+}
+
+void Robot::irFinderTest(){
+	mrm_ir_finder3->test();
+}
+
+void Robot::irFinderTestCalculated(){
+	mrm_ir_finder3->testCalculated();
+}
+
+void Robot::led8x8Test(){
+	mrm_8x8a->test(); 
 }
 
 /** Tests mrm-lid-can-b
@@ -1017,6 +1044,12 @@ void Robot::lidar2mTest() {
 		//mrm_lid_can_b->start(selected);
 	}
 	mrm_lid_can_b->test(selected);
+}
+
+/** Tests mrm-lid-can-d
+*/
+void Robot::lidar4mMultiTest() {
+	mrm_lid_d->test();
 }
 
 /** Tests mrm-lid-can-b2
@@ -1094,14 +1127,14 @@ void Robot::menu() {
 	for (uint8_t i = 0; i < _actionNextFree; i++) {
 		if ((_action[i]->_menuLevel | menuLevel) == _action[i]->_menuLevel) {
 			bool anyAlive = false;
-			if (_action[i]->boardsId() == ID_ANY)
+			if (_action[i]->boardsId() == Board::ID_ANY)
 				anyAlive = true;
 			else
 				for (uint8_t j = 0; j < _boardNextFree && !anyAlive; j++)
 					if (board[j]->alive(0xFF) && board[j]->id() == _action[i]->boardsId())
 						anyAlive = true;
 			if (anyAlive) {
-				print("%-3s - %-15s%s", _action[i]->_shortcut, _action[i]->_text, column == maxColumns ? "\n\r" : ""); // -19
+				print("%-3s - %-15s%s", _action[i]->_shortcut, _action[i]->_text, column == maxColumns ? "\n\r" : ""); 
 				delayMs(2);
 				any = true;
 				if (column++ == maxColumns)
@@ -1133,6 +1166,13 @@ void Robot::menuColor() {
 	end();
 }
 
+/** Generic menu
+*/
+void Robot::menuLoop() {
+	menuLevel = 8;
+	end();
+}
+
 /** Displays menu and stops motors
 */
 void Robot::menuMainAndIdle() {
@@ -1158,23 +1198,31 @@ void Robot::menuSystem() {
 @param msg - message
 @param oubound - if not, inbound
 */
-void Robot::messagePrint(CANBusMessage *msg, bool outbound) {
-	bool any = false;
-	for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
-		if (board[boardId]->messagePrint(msg->messageId, msg->dlc, msg->data, outbound)) {
-			any = true;
-			break;
-		}
+void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, bool outbound) {
+	if (msg->dlc > 8){
+		print("dlc too big: %i\n\r", (int)msg->dlc);
+		exit(12);
 	}
-	if (!any) {
-		print("Id:0x%02X", msg->messageId);
-		for (uint8_t i = 0; i < msg->dlc; i++) {
-			if (i == 0)
-				print(" data:");
-			print(" %02X", msg->data[i]);
+	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", 
+		board == NULL ? "Unknown" : board->name(boardIndex), msg->messageId);
+
+	for (uint8_t i = 0; i < msg->dlc; i++) {
+		if (i == 0){
+			print(" command: ");
+			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] == 0xFF)
+				board->commandNamePrint(msg->data[0]);
+			else{	
+				if (board != NULL && board->commandName(msg->data[0]) != "")
+					print((board->commandName(msg->data[0])).c_str());
+				else
+					print("Unknown");
+			}
+			print(" (%02X)", _msg->data[0]);
 		}
-		print("\n\r");
+		else
+			print(" %02X", _msg->data[i]);
 	}
+	print("\n\r");
 }
 
 
@@ -1187,8 +1235,14 @@ void Robot::messagesReceive() {
 		if (_msg == NULL) // No more messages
 			break;
 		uint32_t id = _msg->messageId;
-		if (_sniff)
-			messagePrint(_msg, false);
+		if (_sniff){
+			Board* boardFound;
+			int index;
+			if (boardIdentify(_msg->messageId, true , &boardFound, index))
+				messagePrint(_msg, boardFound, index, true);
+			else
+				messagePrint(_msg, NULL, 0, true);
+		}
 		#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 		bool any = false;
 		#endif
@@ -1217,9 +1271,13 @@ void Robot::messagesReceive() {
 void Robot::motorTest() {
 	print("Test motors\n\r");
 	for (uint8_t i = 0; i < _boardNextFree; i++) 
-		if (board[i]->boardType() == MOTOR_BOARD && board[i]->count() > 0)
+		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
 			board[i]->test();
 	end();
+}
+
+void Robot::nodeServoTest() {
+	mrm_node->servoTest();
 }
 
 /** Tests mrm-node
@@ -1304,12 +1362,24 @@ void Robot::pnpSet(bool enable){
 	end();
 }
 
+void Robot::reflectanceArrayCalibrate(){
+	mrm_ref_can->calibrate();
+}
+
 /** Prints mrm-ref-can* calibration data
 */
 void Robot::reflectanceArrayCalibrationPrint() {
 	mrm_ref_can->calibrationDataRequest(0xFF, true);
 	mrm_ref_can->calibrationPrint();
 	end();
+}
+
+void Robot::reflectanceArrayTestAnalog(){
+	mrm_ref_can->test(true);
+}
+
+void Robot::reflectanceArrayTestDigital(){
+	mrm_ref_can->test(false);
 }
 
 /** One pass of robot's program
@@ -1408,19 +1478,23 @@ void Robot::servoInteractive() {
 	end();
 }
 
+void Robot::servoTest(){
+	mrm_servo->test();
+}
+
 /** Stops all motors
 */
 void Robot::stopAll() {
 	devicesStop();
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (board[i]->boardType() == MOTOR_BOARD && board[i]->count() > 0)
+		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
 			((MotorBoard*)board[i])->stop();
 	end();
 }
 
 /** CAN Bus stress test
 */
-bool Robot::stressTest() {
+void Robot::stressTest() {
 	const bool STOP_ON_ERROR = true;
 	const uint32_t LOOP_COUNT = 1000000;
 	const bool TRY_ONLY_ALIVE = true;
@@ -1509,10 +1583,10 @@ bool Robot::stressTest() {
 		}
 		print("\n\r");
 		end();
-		return true;
+		// return true;
 	}
-	else
-		return false;
+	// else
+	// 	return false;
 }
 
 /** Tests mrm-therm-b-can
@@ -1521,6 +1595,14 @@ void Robot::thermoTest() {
 	if (setup())
 		mrm_therm_b_can->start();
 	mrm_therm_b_can->test();
+}
+
+void Robot::us1Test(){
+	mrm_us_b->test();
+}
+
+void Robot::usBTest(){
+	mrm_us1->test();;
 }
 
 /** Checks if user tries to break the program

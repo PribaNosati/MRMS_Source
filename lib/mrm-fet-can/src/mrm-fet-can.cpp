@@ -1,6 +1,9 @@
 #include "mrm-fet-can.h"
 #include <mrm-robot.h>
 
+std::vector<uint8_t>* commandIndexes_mrm_fet_can = NULL; // C++ 17 enables static variables without global initialization, but no C++ 17 here
+std::vector<std::string>* commandNames_mrm_fet_can = NULL;
+
 /** Constructor
 @param robot - robot containing this board
 @param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
@@ -9,6 +12,13 @@
 */
 Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : 
 	MotorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
+
+	if (commandIndexes_mrm_fet_can->empty()){
+		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_ON);
+		commandNames_mrm_fet_can->push_back("Turn on");
+		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_OFF);
+		commandNames_mrm_fet_can->push_back("Turn off");
+	}
 }
 
 Mrm_fet_can::~Mrm_fet_can()
@@ -55,7 +65,7 @@ void Mrm_fet_can::add(char * deviceName)
 		canOut = CAN_ID_FET7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-fet-can\n\r");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 	MotorBoard::add(deviceName, canIn, canOut);
@@ -67,7 +77,7 @@ void Mrm_fet_can::add(char * deviceName)
 */
 void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 	if (outputNumber > 1) {
-		strcpy(errorMessage, "FET not found");
+		sprintf(errorMessage, "%s %i not found.", _boardsName, nextFree);
 		return;
 	}
 	canData[0] = COMMAND_TURN_ON;
@@ -82,7 +92,7 @@ void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 */
 void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 	if (outputNumber > 1) {
-		strcpy(errorMessage, "FET not found");
+		sprintf(errorMessage, "%s %i not found.", _boardsName, nextFree);
 		return;
 	}
 	canData[0] = COMMAND_TURN_OFF;
@@ -103,7 +113,7 @@ bool Mrm_fet_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length)
 			if (!messageDecodeCommon(canId, data, deviceNumber)) {
 				switch (data[0]) {
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 205;
 					errorInDeviceNumber = deviceNumber;
@@ -133,7 +143,7 @@ void Mrm_fet_can::test()
 				else
 					turnOff(fet);
 
-				robotContainer->print(isOn ? "On %i\n\r" : "Off %i\n\r", fet);
+				print(isOn ? "On %i\n\r" : "Off %i\n\r", fet);
 				if (!isOn)
 					fet = 1 - fet;
 			}

@@ -1,11 +1,8 @@
 #pragma once
+#include <Preferences.h>
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
-#include <Preferences.h>
-#if RADIO == 1
-#include <BluetoothSerial.h>
-#endif
 
 #define ACTIONS_LIMIT 82 // Increase if more actions are needed.
 #define BOARDS_LIMIT 30 // Maximum number of different board types.
@@ -13,8 +10,13 @@
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
 #define LED_OK 2 // mrm-esp32's pin number, hardware defined.
 
+#define TEST 0
+
 // Forward declarations
 
+class ActionBase;
+class Board;
+struct BoardInfo;
 class Mrm_8x8a;
 class Mrm_bldc2x50;
 class Mrm_bldc4x2_5;
@@ -52,15 +54,16 @@ protected:
 	uint8_t _actionNextFree = 0;
 
 	// Robot's actions that can be callect directly, not just by iterating _action collection
-	ActionBase* _actionCANBusStress;
 	ActionBase* _actionCurrent;
 	ActionBase* _actionDoNothing;
-	ActionBase* _actionLoop;
+    ActionBase* _actionLoop;
 	ActionBase* _actionLoop0;
 	ActionBase* _actionLoop1;
 	ActionBase* _actionLoop2;
+	ActionBase* _actionLoop3;
+	ActionBase* _actionLoop4;
 	ActionBase* _actionMenuMain;
-	ActionBase* _actionPrevious;
+    ActionBase* _actionPrevious;
 	ActionBase* _actionStop;
 
 	bool _actionTextDisplay = true;
@@ -71,6 +74,8 @@ protected:
 
 	uint8_t _devicesAtStartup = 0;
 	bool _devicesScanBeforeMenu = true;
+	bool _devicesScanOnStartup = true;
+	bool devicesScanMenu = true;
 
 	// FPS - frames per second calculation
 	uint32_t fpsMs[2] = { 0, 0 };
@@ -81,9 +86,6 @@ protected:
 	CANBusMessage* _msg;
 	char _name[16];
 	Preferences* preferences; // EEPROM
-	#if RADIO == 1
-	BluetoothSerial *serialBT = NULL;
-	#endif
 	bool _sniff = false;
 	char _ssid[16];
 	char uartRxCommandCumulative[24];
@@ -204,7 +206,7 @@ public:
 
 	/** Finish action's intialization phase
 	*/
-	void actionPreprocessingEnd() { _actionCurrent->preprocessingEnd(); }
+	void actionPreprocessingEnd();
 
 	/** Add a new board to the collection of possible boards for the robot
 	@param aBoard - the board.
@@ -222,6 +224,8 @@ public:
 	/** Test Bluetooth
 	*/
 	void bluetoothTest();
+
+	bool boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index);
 
 	/** Display all the incomming and outcomming CAN Bus messages
 	*/
@@ -260,6 +264,14 @@ public:
 	*/
 	void colorPatternRecord();
 
+	void colorTest10();
+
+	void colorTest6();
+
+	void colorTest6HSV();
+
+	void colorTestHSV();
+
 	/** The right way to use Arduino function delay
 	@param pauseMs - pause in ms. One run even if pauseMs == 0, so that delayMs(0) receives all messages.
 	*/
@@ -274,14 +286,16 @@ public:
 	@boardType - sensor, motor, or all boards
 	@return count
 	*/
-	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, BoardType boardType = ANY_BOARD);
+	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
 
 	/** Contacts all the CAN Bus devices and checks which one is alive.
 	@verbose - if true, print.
 	@boardType - sensor, motor, or all boards.
 	@return count
 	*/
-	uint8_t devicesScan(bool verbose, BoardType boardType = ANY_BOARD);
+	uint8_t devicesScan(bool verbose, Board::BoardType boardType = Board::ANY_BOARD);
+
+	void devicesScan();
 
 	/** Starts devices' CAN Bus messages broadcasting.
 	*/
@@ -325,9 +339,17 @@ public:
 	*/
 	void i2cTest();
 
+	void imuTest();
+
 	/** Request information
 	*/
 	void info();
+
+	void irFinderTest();
+
+	void irFinderTestCalculated();
+
+	void led8x8Test();
 
 	/** Tests mrm-lid-can-b
 	*/
@@ -337,16 +359,22 @@ public:
 	*/
 	void lidar4mTest();
 
+	/** Tests mrm-lid-can-d
+	*/
+	void lidar4mMultiTest();
+
 	/** Calibrates lidars
 	*/
 	void lidarCalibrate();
 
-	/** User test, defined in derived classes.
+    /** User test, defined in derived classes.
 	*/
 	virtual void loop() = 0;
 	virtual void loop0() = 0;
 	virtual void loop1() = 0;
 	virtual void loop2() = 0;
+	virtual void loop3() = 0;
+	virtual void loop4() = 0;
 
 	/** Displays menu
 	*/
@@ -355,6 +383,10 @@ public:
 	/** Color menu
 	*/
 	void menuColor();
+
+	/** Generic menu
+	*/
+	void menuLoop();
 
 	/** Displays menu and stops motors
 	*/
@@ -372,7 +404,7 @@ public:
 	@param msg - message
 	@param oubound - if not, inbound
 	*/
-	void messagePrint(CANBusMessage* msg, bool outbound);
+	void messagePrint(CANBusMessage* msg, Board* board, uint8_t boardIndex, bool outbound);
 
 	/** Receives CAN Bus messages.
 	*/
@@ -381,6 +413,8 @@ public:
 	/** Tests motors
 	*/
 	void motorTest();
+
+	void nodeServoTest();
 
 	/** Tests mrm-node
 	*/
@@ -407,18 +441,18 @@ public:
 	*/
 	float pitch();
 
-	/** Print to all serial ports
-	@param fmt - C format string: 
-		%c - character,
-		%i - integer,
-		%s - string.
-	@param ... - variable arguments
-	*/
-	void print(const char* fmt, ...);
+	void reflectanceArrayCalibrate();
 
 	/** Prints mrm-ref-can* calibration data
 	*/
 	void reflectanceArrayCalibrationPrint();
+
+	/** Tests mrm-ref-can*
+	@digital - digital data. Otherwise analog.
+	*/
+	void reflectanceArrayTestAnalog();
+
+	void reflectanceArrayTestDigital();
 
 	/** One pass of robot's program
 	*/
@@ -466,6 +500,8 @@ public:
 	*/
 	void servoInteractive();
 
+	void servoTest();
+
 	/** Shorthand for actionPreprocessing(). Checks if this is first run.
 	@param andFinish - finish initialization
 	@return - first run or not.
@@ -485,7 +521,7 @@ public:
 
 	/** CAN Bus stress test
 	*/
-	bool stressTest();
+	void stressTest();
 
 	/** Tests mrm-therm-b-can
 	*/
@@ -496,14 +532,14 @@ public:
 	*/
 	bool userBreak();
 
+	void us1Test();
+
+	void usBTest();
+
 	/** Verbose output toggle
 	*/
 	void verboseToggle();
 	
-	/** Print to all serial ports, pointer to list
-	*/
-	void vprint(const char* fmt, va_list argp);
-
 #if RADIO == 2
 	/** Web server
 	*/

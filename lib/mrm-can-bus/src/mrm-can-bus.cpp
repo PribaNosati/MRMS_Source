@@ -36,10 +36,10 @@ CANBusMessage::CANBusMessage(Robot* robot){
 
 void CANBusMessage::print() {
 	if (robotContainer != NULL){
-		robotContainer->print("Id: 0x%04X, data:", messageId);
+		::print("Id: 0x%04X, data:", messageId);
 		for (uint8_t i = 0; i < dlc; i++)
-			robotContainer->print(" %02X", data[i]);
-		robotContainer->print("\n\r");
+			::print(" %02X", data[i]);
+		::print("\n\r");
 	}
 }
 

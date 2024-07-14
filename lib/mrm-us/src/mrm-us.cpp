@@ -7,7 +7,7 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_us::Mrm_us(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "US", maxNumberOfBoards, ID_MRM_US) {
+Mrm_us::Mrm_us(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "US", maxNumberOfBoards, ID_MRM_US, 1) {
 	readings = new std::vector<uint16_t[MRM_US_ECHOES_COUNT]>(maxNumberOfBoards);
 }
 
@@ -55,7 +55,7 @@ void Mrm_us::add(char * deviceName)
 		canOut = CAN_ID_US7_OUT;
 		break;
 	default:
-		strcpy(errorMessage, "Too many mrm-us");
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
 		return;
 	}
 
@@ -81,7 +81,7 @@ bool Mrm_us::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 					// any = true;
 					break;
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 204;
 					errorInDeviceNumber = deviceNumber;
@@ -108,10 +108,10 @@ uint16_t Mrm_us::reading(uint8_t echoNumber, uint8_t deviceNumber) {
 /** Print all readings in a line
 */
 void Mrm_us::readingsPrint() {
-	robotContainer->print("US:");
+	print("US:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		for (uint8_t echoNumber = 0; echoNumber < MRM_US_ECHOES_COUNT; echoNumber++)
-			robotContainer->print(" %3i", (*readings)[deviceNumber][echoNumber]);
+			print(" %3i", (*readings)[deviceNumber][echoNumber]);
 	}
 }
 
@@ -127,14 +127,14 @@ void Mrm_us::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
-					robotContainer->print("| ");
-				robotContainer->print("Echo:");
+					print("| ");
+				print("Echo:");
 				for (uint8_t i = 0; i < MRM_US_ECHOES_COUNT; i++)
-					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
+					print("%i ", (*readings)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }
