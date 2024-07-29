@@ -138,7 +138,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	actionAdd(new ActionRobot(this, "6co", "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6));
 	actionAdd(new ActionRobot(this, "hsv", "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV));
 	actionAdd(new ActionRobot(this, "idc", "Dev. id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange));
-	actionAdd(new ActionRobot(this, "sof", "CAN scan toggl", 16, Board::BoardId::ID_ANY, signTest, &Robot::canScanToggle));
+	actionAdd(new ActionRobot(this, "sca", "CAN scan toggl", 16, Board::BoardId::ID_ANY, signTest, &Robot::canScanToggle));
 	actionAdd(new ActionRobot(this, "fir", "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint));
 	actionAdd(new ActionRobot(this, "fps", "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint));
 	actionAdd(new ActionRobot(this, "ahe", "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead));
@@ -682,6 +682,7 @@ void Robot::canIdChange() {
 void Robot::canScanToggle(){
 	_devicesScanBeforeMenu = !_devicesScanBeforeMenu;
 	print(_devicesScanBeforeMenu ? "CAN scan on\n\r" : "CAN scan off\n\r");
+	end();
 }
 
 /** mrm-color-can illumination off
