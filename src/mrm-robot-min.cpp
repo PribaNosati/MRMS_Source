@@ -441,7 +441,7 @@ print("Board: %s\n\r", board[14]->name());
 
 	if (count == 0){
 		print("No ref\n\r");
-		_devicesScanBeforeMenu = false;
+		_devicesScanBeforeMenuAndSwitches = false;
 		end();
 	}
 }

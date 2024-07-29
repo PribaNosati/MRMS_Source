@@ -263,7 +263,7 @@ uint8_t Board::deadOrAliveCount() { return nextFree; }
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 */
 void Board::devicesScan(bool verbose, uint16_t mask) {
-	_aliveReport = verbose;
+	_aliveReport = verbose; // If true, Board::messageDecodeCommon() will print board's name
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (((mask >> deviceNumber) & 1) && !aliveGet(deviceNumber)) { // If in the list requested to be scanned.
 			canData[0] = COMMAND_REPORT_ALIVE;

@@ -103,7 +103,6 @@ class Board{
 protected:
 	uint32_t _alive; // Responded to ping, maximum 32 devices of the same class, stored bitwise. If bit set, that device was alive after power-on.
 	uint32_t _aliveOnce; // The device was alive at least once after power-on.
-	bool _aliveReport = false;
 	char _boardsName[12];
 	BoardType _boardType; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
@@ -134,6 +133,8 @@ protected:
 	bool messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceNumber = 0);
 
 public:
+	bool _aliveReport = false;
+	
 	/**
 	@param robot - robot containing this board
 	@param maxNumberOfBoards - maximum number of boards

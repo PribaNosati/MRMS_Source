@@ -73,7 +73,7 @@ protected:
 	uint8_t _boardNextFree = 0;
 
 	uint8_t _devicesAtStartup = 0;
-	bool _devicesScanBeforeMenu = true;
+	bool _devicesScanBeforeMenuAndSwitches = true;
 	bool _devicesScanOnStartup = true;
 	bool devicesScanMenu = true;
 

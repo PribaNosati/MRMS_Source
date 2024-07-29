@@ -405,7 +405,7 @@ void Robot::actionSet() {
 
 	// If a button pressed, first execute its action
 	ActionBase* action8x8 = NULL;
-	if (mrm_8x8a->alive()) 
+	if (mrm_8x8a->alive() && _devicesScanBeforeMenuAndSwitches) // Disable message if CAN silence needed
 		action8x8 = mrm_8x8a->actionCheck(); 
 	ActionBase* actionSw = mrm_switch->actionCheck(); 
 	if (action8x8 != NULL)
@@ -681,8 +681,8 @@ void Robot::canIdChange() {
 }
 
 void Robot::canScanToggle(){
-	_devicesScanBeforeMenu = !_devicesScanBeforeMenu;
-	print(_devicesScanBeforeMenu ? "CAN scan on\n\r" : "CAN scan off\n\r");
+	_devicesScanBeforeMenuAndSwitches = !_devicesScanBeforeMenuAndSwitches;
+	print(_devicesScanBeforeMenuAndSwitches ? "CAN scan on\n\r" : "CAN scan off\n\r");
 	end();
 }
 
@@ -837,10 +837,10 @@ void Robot::deviceScan() {
 	print("%i\n\r", selectedDeviceIndex);
 
 	print("Scan %s\n\r", board[selectedBoardIndex]->name(selectedDeviceIndex));
+	board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
 	uint8_t canData[8];
 	canData[0] = COMMAND_REPORT_ALIVE;
 	board[selectedBoardIndex]->messageSend(canData, 1, selectedDeviceIndex);
-	print("Over.\n\r");
 
 	end();
 }
@@ -1136,7 +1136,7 @@ void Robot::lidarCalibrate() {
 */
 void Robot::menu() {
 	// Print menu
-	if (_devicesScanBeforeMenu){
+	if (_devicesScanBeforeMenuAndSwitches){
 		uint8_t cnt = devicesScan(false);
 		if (cnt > _devicesAtStartup)  // Late-booters
 			_devicesAtStartup = cnt;
