@@ -828,16 +828,19 @@ void Robot::deviceScan() {
 	//Board type
 	for (uint8_t i = 0; i < _boardNextFree; i++)
 		print("%i. %s\n\r", i, board[i]->name());
-	print("Enter board id");
 
-	uint8_t selectedBoardIndex = serialReadNumber(15000, 500, _boardNextFree <= 10, _boardNextFree - 1);
-	uint8_t selectedDeviceIndex;
-	uint8_t lastBoardAndDeviceIndex;
+	print("Enter board id.\n\r");
+	uint8_t selectedBoardIndex = serialReadNumber(60000, 500, _boardNextFree <= 10, _boardNextFree - 1);
 
-		print("Enter device id: ");
-		uint8_t newDeviceNumber = serialReadNumber(15000, 500, false, 100);
+	print("%i.\n\rEnter device id.\n\r", selectedBoardIndex);
+	uint8_t selectedDeviceIndex = serialReadNumber(60000, 500, false, 100);
+	print("%i\n\r", selectedDeviceIndex);
 
-		print("Scan %s\n\r", board[selectedBoardIndex]->name(selectedDeviceIndex));
+	print("Scan %s\n\r", board[selectedBoardIndex]->name(selectedDeviceIndex));
+	uint8_t canData[8];
+	canData[0] = COMMAND_REPORT_ALIVE;
+	board[selectedBoardIndex]->messageSend(canData, 1, selectedDeviceIndex);
+	print("Over.\n\r");
 
 	end();
 }
@@ -1455,8 +1458,11 @@ uint16_t Robot::serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween,
 #endif
 		if (Serial.available() || btAvailable) {
 			uint8_t character = 0;
-			if (Serial.available())
+			if (Serial.available()){
 				character = Serial.read();
+				if (character == 13) // Enter
+					break;
+			}
 #if RADIO == 1
 			else if (serialBT != NULL && serialBT->available())
 				character = serialBT->read();
