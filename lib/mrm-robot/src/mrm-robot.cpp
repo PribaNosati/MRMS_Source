@@ -126,6 +126,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	actionAdd(new ActionRobot(this, "led", "Test 8x8", 1, Board::BoardId::ID_MRM_8x8A, signTest, &Robot::led8x8Test));
 	actionAdd(new ActionRobot(this, "blt", "Test Bluetooth", 16, Board::BoardId::ID_ANY, signTest, &Robot::bluetoothTest));
 	actionAdd(new ActionRobot(this, "can", "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan));
+	actionAdd(new ActionRobot(this, "ca1", "Report device", 16, Board::BoardId::ID_ANY, signTest, &Robot::deviceScan));
 	actionAdd(new ActionRobot(this, "sni", "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle));
 	actionAdd(new ActionRobot(this, "10c", "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10));
 	actionAdd(new ActionRobot(this, "hsv", "Test HSV", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTestHSV));
