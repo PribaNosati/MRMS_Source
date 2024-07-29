@@ -8,11 +8,11 @@
 Robot *robot;
 
 void setup() {
-	robot = new RobotSoccer((char*)"Pluto"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
-	// print("Start.\n\r");
+	robot = new RobotMaze((char*)"Pluto"); // RobotLine, RobotMaze, RobotMin, RobotSoccer, or Your custom robot. "My robot" is Bluetooth name.
+	print("Start.\n\r");
 }
 
 void loop() {
-	// robot->refresh();
+	robot->refresh();
 }
  
