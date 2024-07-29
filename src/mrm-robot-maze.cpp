@@ -159,6 +159,16 @@ void RobotMaze::directionDisplay(Direction direction){
 	}
 }
 
+/** Distance measuring function. Sensors must have deviceId addresses exactly like here: 0 FR, 1 FL, 2 LF, 3 LB, 4 BL, 5 BR, 6 RB, 7 RF. F is front, B is back, L is left, R is right.
+In 2-letter designations first letter is a major direction, second minor. For example FL means Front-Left and first we choose major side (robot's front), then minor (left sensor on that side).
+In other words, first sensor is front-right and all the others must have increasing	addresses counter-clockwise (CCW).
+@direction - direction in maze's system. Therefore, LEFT is always left, as seen from outside of the maze, no matter what the robot's direction is. It is normally not robot's left side.
+@firstCCW - first when counting ounter-clockwise (CCW) on that side, looking from inside of the robot. For example FL is first CCW and FR is not.
+@return - distance in mm.
+*/
+uint16_t RobotMaze::distance(Direction direction, bool firstCCW) {
+	return mrm_lid_can_b->reading(2 * mToR(direction) + firstCCW); 
+}
 
 /** Increase encoder count
 */
@@ -234,8 +244,10 @@ if (setup())
 	delay(500);
 
 }
-void RobotMaze::loop1() {  }
-void RobotMaze::loop2() {  }
+void RobotMaze::loop1() {}
+void RobotMaze::loop2() {}
+void RobotMaze::loop3() {}
+void RobotMaze::loop4() {}
 
 /** Maps walls detected and other external readings in variables.
 */
