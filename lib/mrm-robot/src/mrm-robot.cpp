@@ -137,7 +137,8 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	actionAdd(new ActionRobot(this, "par", "Record patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecord));
 	actionAdd(new ActionRobot(this, "6co", "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6));
 	actionAdd(new ActionRobot(this, "hsv", "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV));
-	actionAdd(new ActionRobot(this, "idc", "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange));
+	actionAdd(new ActionRobot(this, "idc", "Dev. id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange));
+	actionAdd(new ActionRobot(this, "sof", "CAN scan toggl", 16, Board::BoardId::ID_ANY, signTest, &Robot::canScanToggle));
 	actionAdd(new ActionRobot(this, "fir", "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint));
 	actionAdd(new ActionRobot(this, "fps", "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint));
 	actionAdd(new ActionRobot(this, "ahe", "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead));
@@ -641,10 +642,7 @@ void Robot::bluetoothTest() {
 */
 void Robot::canBusSniffToggle() {
 	_sniff = !_sniff;
-	if (_sniff)
-		print("Sniff on\n\r");
-	else
-		print("Sniff off\n\r");
+	print(_sniff ? "Sniff on\n\r" : "Sniff off\n\r");
 	end();
 }
 
@@ -679,6 +677,11 @@ void Robot::canIdChange() {
 	}
 
 	end();
+}
+
+void Robot::canScanToggle(){
+	_devicesScanBeforeMenu = !_devicesScanBeforeMenu;
+	print(_devicesScanBeforeMenu ? "CAN scan on\n\r" : "CAN scan off\n\r");
 }
 
 /** mrm-color-can illumination off

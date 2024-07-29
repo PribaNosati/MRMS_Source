@@ -240,6 +240,8 @@ public:
 	*/
 	void canIdChange();
 
+	void canScanToggle();
+
 	/** mrm-color-can illumination off
 	*/
 	void colorIlluminationOff();
