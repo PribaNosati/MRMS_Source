@@ -290,6 +290,8 @@ public:
 	*/
 	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
 
+	void deviceScan();
+
 	/** Contacts all the CAN Bus devices and checks which one is alive.
 	@verbose - if true, print.
 	@boardType - sensor, motor, or all boards.

@@ -821,6 +821,27 @@ void Robot::devicesLEDCount(){
 	}
 }
 
+/** Scan single device
+*/
+void Robot::deviceScan() {
+	for (uint8_t i = 0; i < _boardNextFree; i++)
+		print("%i. %s\n\r", i, board[i]->name());
+
+	uint8_t selectedBoardIndex = serialReadNumber(15000, 500, _boardNextFree <= 10, _boardNextFree - 1);
+	uint8_t selectedDeviceIndex;
+	uint8_t maxInput;
+	uint8_t lastBoardAndDeviceIndex;
+	if (boardDisplayAndSelect(&selectedBoardIndex, &selectedDeviceIndex, &maxInput, &lastBoardAndDeviceIndex)) {
+		// Enter new id
+		print(". %s\n\rEnter board id [0..%i]: ", board[selectedBoardIndex]->name(), maxInput);
+		uint8_t newDeviceNumber = serialReadNumber(15000, 500, maxInput <= 9, maxInput);
+
+		print("Scan %s\n\r", board[selectedBoardIndex]->name(selectedDeviceIndex));
+	}
+
+	end();
+}
+
 /** Contacts all the CAN Bus devices and checks which one is alive.
 @verbose - if true, print.
 @boardType - sensor, motor, or all boards
