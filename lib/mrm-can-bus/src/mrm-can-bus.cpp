@@ -2,7 +2,7 @@
 #include <mrm-common.h>
 #include <mrm-robot.h>
 
-#include <driver/can.h>
+#include <driver/twai.h>
 #include <driver/gpio.h>
 #include <esp_system.h>
 #include <stdio.h>
@@ -48,23 +48,23 @@ void CANBusMessage::print() {
 */
 Mrm_can_bus::Mrm_can_bus(Robot* robot) {
 	robotContainer = robot;
-	can_general_config_t general_config = {
-	   .mode = CAN_MODE_NORMAL,
+	twai_general_config_t general_config = {
+	   .mode = TWAI_MODE_NORMAL,
 	   .tx_io = (gpio_num_t)GPIO_NUM_5,
 	   .rx_io = (gpio_num_t)GPIO_NUM_4,
-	   .clkout_io = (gpio_num_t)CAN_IO_UNUSED,
-	   .bus_off_io = (gpio_num_t)CAN_IO_UNUSED,
+	   .clkout_io = (gpio_num_t)TWAI_IO_UNUSED,
+	   .bus_off_io = (gpio_num_t)TWAI_IO_UNUSED,
 	   .tx_queue_len = 20,
 	   .rx_queue_len = 65,
-	   .alerts_enabled = CAN_ALERT_NONE,
+	   .alerts_enabled = TWAI_ALERT_NONE,
 	   .clkout_divider = 0 };
-	can_timing_config_t timing_config = CAN_TIMING_CONFIG_250KBITS();
-	can_filter_config_t filter_config = CAN_FILTER_CONFIG_ACCEPT_ALL();
+	twai_timing_config_t timing_config = TWAI_TIMING_CONFIG_250KBITS();
+	twai_filter_config_t filter_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
-	if (can_driver_install(&general_config, &timing_config, &filter_config) != ESP_OK)
+	if (twai_driver_install(&general_config, &timing_config, &filter_config) != ESP_OK)
 		strcpy(errorMessage, "Error init. CAN");
 
-	if (can_start() != ESP_OK)
+	if (twai_start() != ESP_OK)
 		strcpy(errorMessage, "Error start CAN");
 
 	receivedMessage = new CANBusMessage(robotContainer);
@@ -76,8 +76,8 @@ Mrm_can_bus::Mrm_can_bus(Robot* robot) {
 CANBusMessage* Mrm_can_bus::messageReceive() {
 	//Wait for message to be received
 	bool found = false;
-	can_message_t message;
-	esp_err_t status = can_receive(&message, pdMS_TO_TICKS(1)); // When 0, lost messages
+	twai_message_t message;
+	esp_err_t status = twai_receive(&message, pdMS_TO_TICKS(1)); // When 0, lost messages
 	switch(status){
 	case ESP_OK:
 		found = true;
@@ -160,7 +160,7 @@ void Mrm_can_bus::messagesReset() {
 @return - true if a message received
 */
 void Mrm_can_bus::messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]) {
-	can_message_t message;
+	twai_message_t message;
 	message.identifier = stdId;
 	message.flags = 0;
 	message.data_length_code = dlc;
@@ -178,7 +178,7 @@ void Mrm_can_bus::messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]) {
 	lastSentMicros = micros();
 
 	//Queue message for transmission
-	if (can_transmit(&message, pdMS_TO_TICKS(1000)) != ESP_OK)
+	if (twai_transmit(&message, pdMS_TO_TICKS(1000)) != ESP_OK)
 		strcpy(errorMessage, "Error sending");
 
 #if VERBOSE
