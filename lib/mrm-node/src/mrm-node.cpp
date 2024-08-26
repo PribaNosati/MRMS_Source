@@ -2,7 +2,7 @@
 #include <mrm-robot.h>
 
 std::vector<uint8_t>* commandIndexes_mrm_node =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<std::string>* commandNames_mrm_node =  new std::vector<std::string>();
+std::vector<String>* commandNames_mrm_node =  new std::vector<String>();
 
 /** Constructor
 @param robot - robot containing this board
