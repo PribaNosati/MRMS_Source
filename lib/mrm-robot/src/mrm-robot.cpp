@@ -1628,11 +1628,11 @@ void Robot::thermoTest() {
 }
 
 void Robot::us1Test(){
-	mrm_us_b->test();
+	mrm_us1->test();
 }
 
 void Robot::usBTest(){
-	mrm_us1->test();;
+	mrm_us_b->test();;
 }
 
 /** Checks if user tries to break the program
