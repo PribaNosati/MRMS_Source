@@ -6,7 +6,7 @@
 #define REQUEST_NOTIFICATION 0
 
 std::vector<uint8_t>* commandIndexes =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<std::string>* commandNames =  new std::vector<std::string>();
+std::vector<String>* commandNames =  new std::vector<String>();
 
 /** Board is a single instance for all boards of the same type, not a single board (if there are more than 1 of the same type)! */
 
@@ -40,7 +40,7 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, c
 
 	if (commandIndexes == NULL){
 		commandIndexes = new std::vector<uint8_t>();
-		commandNames = new std::vector<std::string>();
+		commandNames = new std::vector<String>();
 		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_CONTINUOUS);
 		commandNames->push_back("Measure cont");
 		commandIndexes->push_back((uint8_t)COMMAND_SENSORS_MEASURE_ONCE);
@@ -230,7 +230,7 @@ bool Board::canGap() {
 	return false;
 }
 
-std::string Board::commandName(uint8_t byte){
+String Board::commandName(uint8_t byte){
 	return "";
 }
 
