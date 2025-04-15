@@ -1386,6 +1386,12 @@ void Robot::pnpSet(bool enable){
 			mrm_ref_can->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_ref_can->name(i), enable ? "on" : "off");
 		}
+	count = mrm_col_can->deadOrAliveCount();
+	for (uint8_t i = 0; i < count; i++)
+		if (mrm_col_can->alive(i)){
+			mrm_col_can->pnpSet(enable, i);
+			print("%s PnP %s\n\r", mrm_ref_can->name(i), enable ? "on" : "off");
+		}
 	end();
 }
 
