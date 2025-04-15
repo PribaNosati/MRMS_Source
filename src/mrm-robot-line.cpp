@@ -487,14 +487,23 @@ void RobotLine::lineFollow() {
 /** Custom test. The function will be called many times during the test, till You issue "x" menu command.
 */
 void RobotLine::loop() {
-	if (frontLeft() < 100 or front() < 100)
-		stop();
-	else if (line(5))
-			go(10, 80);
-		else if (line(3))
-			go(80, 10);
-		else
-			go(60, 60);
+	uint32_t ms = millis();
+	int cnt = 0;
+	int empty = 0;
+	while (millis() < ms + 5000){
+		uint8_t data[] = {0xFF, 0, 0, 0, 0, 0, 0, 0};
+		mrm_can_bus->messageSend(0x200, 1, data);
+		while (true){
+			_msg = mrm_can_bus->messageReceive();
+			if (_msg != nullptr &&_msg->data[0] == 0xFF)
+				break;
+			else
+				empty++;
+		}
+		cnt++;
+	}
+	print("End %i, empty %i/n/r", cnt, empty);
+	end();
 }
 
 /** Generic actions, use them as templates
@@ -524,7 +533,16 @@ void RobotLine::loop6() {
 		else
 			go(60, 60);
 }
-void RobotLine::loop7() { }
+void RobotLine::loop7() { 
+	if (mrm_lid_can_b2->distance(1) > 100 && mrm_lid_can_b2->distance(6) > 100)
+		go(50, 50);
+	else if (mrm_lid_can_b2->distance(0) > 100)
+		go (50, -50);
+	else if (mrm_lid_can_b2->distance(7) > 100)
+		go (-50, 50);
+	else
+		go (-50, -50);
+}
 void RobotLine::loop8() { }
 void RobotLine::loop9() { }
 
