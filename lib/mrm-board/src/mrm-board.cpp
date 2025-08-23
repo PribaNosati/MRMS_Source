@@ -337,6 +337,16 @@ void Board::idChange(uint16_t newDeviceNumber, uint8_t deviceNumber) {
 	messageSend(canData, 2, deviceNumber);
 }
 
+uint16_t Board::idGet(uint8_t deviceNumber, bool isOut) {
+	if (deviceNumber >= nextFree){
+		print("Board index out of bounds.");
+		exit(22);
+	}
+	if (isOut)
+		return (*idOut)[deviceNumber];
+	else
+		return (*idIn)[deviceNumber];
+}
 
 /** Request information
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
@@ -426,6 +436,7 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 		print("Message from %s: %s\n\r", (*_name)[deviceNumber], _message);
 		break;
 	case COMMAND_NOTIFICATION:
+	case COMMAND_CAN_TEST:
 		break;
 	case COMMAND_REPORT_ALIVE:
 		if (!aliveGet(deviceNumber)) {

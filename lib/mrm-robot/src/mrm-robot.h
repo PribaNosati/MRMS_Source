@@ -416,7 +416,7 @@ public:
 
 	/** Receives CAN Bus messages.
 	*/
-	void messagesReceive(CANBusMessage message[5], int8_t last);
+	void messagesReceive(CANBusMessage message[5], int8_t& last);
 
 	/** Tests motors
 	*/

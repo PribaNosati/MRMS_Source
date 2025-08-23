@@ -66,6 +66,7 @@
 #define COMMAND_NOTIFICATION 0x41
 #define COMMAND_OSCILLATOR_TEST 0x43
 #define COMMAND_ERROR 0xEE
+#define COMMAND_CAN_TEST 0xFE
 #define COMMAND_REPORT_ALIVE 0xFF
 
 
@@ -257,6 +258,8 @@ public:
 	*/
 	void idChange(uint16_t newDeviceNumber, uint8_t deviceNumber = 0);
 
+	uint16_t idGet(uint8_t deviceNumber, bool isOut);
+	
 	/** Request information
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
 	*/

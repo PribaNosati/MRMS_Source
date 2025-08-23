@@ -703,61 +703,64 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 		print("Test CAN\n\r");
 
 	bool ok = true;
-
+	startS = (uint32_t)(millis() / 1000);
 	while (!userBreak() && (iterations < 0 || iterations-- > 0)) { // Infinite loop or limited by iterations
 
 		mrm_8x8a->messageSend(data, 8, 0);
+		delay(2);
 		uint32_t startMs = millis();
 		bool timeout = false;
 		CANBusMessage message[5];
-		int8_t last;;
-		while(true){
+		int8_t last;
+				int8_t found = -1;
+		while(found == -1){
 			messagesReceive(message, last);
-			if (last == -1)
-				break;
-			if (millis() - startMs > 500){
-				timeout = true;
-				break;
+			if (last >= 0){
+			for (uint8_t i = 0; i <= last; i++)
+				if (message[i].data[0] == COMMAND_CAN_TEST){
+					found = i;
+					break;
+				}
 			}
+			if (millis() - startMs > 500)
+				break;
 		}
-		if (returnId == 0x201){ // 8x8 LED. This check is no more needed as 8x8a is disabled above.
-			if (verbose)
-				print("Known message id: 0x%02X\n\r", (int)returnId);
-		}
+
+		bool ok = true;
+		if (found == -1)
+			ok = false;
 		else{
-			if (timeout)
-				ok = false;
 			for (uint8_t i = 0; i < 8; i++)
-				if (data[i] != returnData[i]){
+				if (data[i] != message[found].data[i]){
 					if (verbose)
-						print("Diff. in element %i: %i<>%i\n\r", (int)i, (int)data[i], (int)returnData[i]);
+						print("Diff. in element %i: %i<>%i\n\r", (int)i, (int)data[i], (int)message[found].data[i]);
 					ok = false;
 				}
-			if (returnDLC != 8){
+			if (message[found].dlc != 8){
 				if (verbose)
-					print("DLC: %i\n\r", (int)returnDLC);
+					print("DLC: %i\n\r", (int)message[found].dlc);
 				ok = false;
 			}
-			if (returnId != 0xFFFF){
+			if (message[found].messageId != mrm_8x8a->idGet(0, true)){
 				if (verbose)
-					print("Return id: 0xFF<>0x%02X\n\r", (int)returnId);
+					print("Return id: 0xFF<>0x%02X\n\r", (int)message[found].messageId);
 				ok = false;
 			}
 		}
-		if (ok){
-			if (++cnt % 100 == 0){
-				if (verbose)
-					print("Cnt: %i at %is, %i errors. \n\r", cnt, (int)(millis()/1000 - startS), errorCnt);
-			}
-		}
-		else{
+		if (!ok){
 			errorCnt++;
+			print("Error in step %i\n\r", cnt);
 		// 	mrm_8x8a->activeCheckIfStartedSet(true); // Enable 8x8 switches again.
 		// 	cnt = 0;
 		// 	end();
 		}
+
+		if (++cnt % 100 == 0){
+			if (verbose)
+				print("Cnt: %i at %is, %i errors. \n\r", cnt, (int)(millis()/1000 - startS), errorCnt);
+		}
 	}
-	return ok;
+	return errorCnt == 0;
 }
 
 /** mrm-color-can illumination off
@@ -1331,7 +1334,7 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, b
 
 /** Receives CAN Bus messages. 
 */
-void Robot::messagesReceive(CANBusMessage message[5], int8_t last) {
+void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
 	#define REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN false
 	int nextIndex = 0;
 	last = -1;
