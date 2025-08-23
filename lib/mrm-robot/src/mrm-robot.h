@@ -163,10 +163,12 @@ public:
 		uint32_t time;
 		uint16_t canId;
 		uint8_t errorCode;
-		Error(uint16_t canId, uint8_t errorCode){
+		bool peripheral;
+		Error(uint16_t canId, uint8_t errorCode, bool peripheral) {
 			this->time = millis();
 			this->canId = canId;
 			this->errorCode = errorCode;
+			this->peripheral = peripheral;
 		}
 	};
 

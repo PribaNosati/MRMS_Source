@@ -32,6 +32,8 @@
 // 0x0390 - 912 mrm-lid-d
 // 0x0400 - 1024 mrm-lid-d
 
+// Commands
+
 #define COMMAND_SENSORS_MEASURE_CONTINUOUS 0x10
 #define COMMAND_SENSORS_MEASURE_ONCE 0x11
 #define COMMAND_SENSORS_MEASURE_STOP 0x12
@@ -69,6 +71,8 @@
 #define COMMAND_CAN_TEST 0xFE
 #define COMMAND_REPORT_ALIVE 0xFF
 
+// Errors
+#define COMMAND_UNKONWN 0x00
 
 #define MRM_MOTORS_INACTIVITY_ALLOWED_MS 10000
 
@@ -110,7 +114,6 @@ protected:
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	//std::vector<bool>(maxNumberOfBoards * devicesOn1Board) deviceStarted; //todo - not to allow reading if the device not started.
 	uint8_t errorCode = 0;
-	uint8_t errorInDeviceNumber = 0;
 	std::vector<uint16_t>* fpsLast; // FPS local copy.
 	BoardId _id;
 	std::vector<uint32_t>* idIn;  // Inbound message id
@@ -222,11 +225,6 @@ public:
 	@return - last error code from all devices of this kind
 	*/
 	uint8_t errorCodeLast() { return errorCode; }
-
-	/** Device which caused last error
-	@return - device number
-	*/
-	uint8_t errorWasInDeviceNumber() { return errorInDeviceNumber; }
 
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.

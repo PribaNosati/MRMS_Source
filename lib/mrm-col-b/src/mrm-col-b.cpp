@@ -385,7 +385,7 @@ bool Mrm_col_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 204;
-					errorInDeviceNumber = deviceNumber;
+					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 			}
 			return true;

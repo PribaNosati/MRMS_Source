@@ -407,8 +407,7 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 		break;
 	case COMMAND_ERROR:
 		errorCode = data[1];
-		errorInDeviceNumber = deviceNumber;
-		robotContainer->errors->push_back(Robot::Error(canId, errorCode));
+		robotContainer->errors->push_back(Robot::Error(canId, errorCode, true));
 		print("Error %i in %s.\n\r", errorCode, (*_name)[deviceNumber]);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
@@ -495,7 +494,6 @@ bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbou
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
 	if (dlc > 8) {
 		errorCode = 127;
-		errorInDeviceNumber = deviceNumber;
 		return;
 	}
 	else {
@@ -701,7 +699,7 @@ bool MotorBoard::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) 
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 200;
-					errorInDeviceNumber = deviceNumber;
+					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 			}
 			return true;

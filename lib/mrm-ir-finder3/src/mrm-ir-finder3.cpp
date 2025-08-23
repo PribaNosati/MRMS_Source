@@ -168,7 +168,7 @@ bool Mrm_ir_finder3::messageDecode(uint32_t canId, uint8_t data[8], uint8_t leng
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
 					errorCode = 201;
-					errorInDeviceNumber = deviceNumber;
+					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 
 				if (any)

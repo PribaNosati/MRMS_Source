@@ -988,15 +988,8 @@ void Robot::devicesStop() {
 /** Displays errors and stops motors, if any.
 */
 void Robot::errorsDisplay() {
-	if (strcmp(errorMessage, "") != 0) {
-		print("Error! %s\n\r", errorMessage);
-		strcpy(errorMessage, "");
-		// stopAll(); // Stop all motors
-		//end();
-	}
-
 	for (const Error& error: *errors)
-		print("% ms, id: %i, periph. err. %i\n\r", error.time, error.canId, error.errorCode;
+		print("% ms, id: %i, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), error.errorCode);
 }
 
 /** Displays each CAN Bus device's firmware
@@ -1258,9 +1251,6 @@ void Robot::menu() {
 			print("\r\n");
 
 	// Display errors
-	for (uint8_t deviceNumber = 0; deviceNumber < _boardNextFree; deviceNumber++)
-		if (board[deviceNumber]->errorCodeLast() != 0)
-			print("Error %i in %s\n\r", board[deviceNumber]->errorCodeLast(), board[deviceNumber]->name(board[deviceNumber]->errorWasInDeviceNumber()));
 	errorsDisplay();
 
 	fpsPause(); // this function took too much time
@@ -1420,6 +1410,11 @@ void Robot::noLoopWithoutThis() {
 	messagesReceive(msg, last);
 	fpsUpdate(); // Measure FPS. Less than 30 - a bad thing.
 	verbosePrint(); // Print FPS and maybe some additional data
+	if (strcmp(errorMessage, "") != 0) {
+		print("Critical error! %s\n\r", errorMessage);
+		strcpy(errorMessage, "");
+		end();
+	}
 #if RADIO == 2
 	web();
 #endif
