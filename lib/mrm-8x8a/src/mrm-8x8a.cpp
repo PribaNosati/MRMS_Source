@@ -942,7 +942,7 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		strcpy(errorMessage, "mrm-8x8a dead.\n\r");
+		strcpy(errorMessage, "mrm-8x8a not responding.\n\r");
 		return false;
 	}
 	else
