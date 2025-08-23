@@ -867,6 +867,7 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 	for (uint8_t k = 0; k < 2; k++)
 		for (uint8_t i = 0; i < _boardNextFree; i++){
 			if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
+				delayMicroseconds(PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS);
 				board[i]->devicesScan(verbose);
 				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
 		}

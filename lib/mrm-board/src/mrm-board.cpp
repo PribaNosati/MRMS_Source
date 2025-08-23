@@ -268,7 +268,7 @@ void Board::devicesScan(bool verbose, uint16_t mask) {
 		if (((mask >> deviceNumber) & 1) && !aliveGet(deviceNumber)) { // If in the list requested to be scanned.
 			canData[0] = COMMAND_REPORT_ALIVE;
 			messageSend(canData, 1, deviceNumber);
-			robotContainer->delayMicros(500); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+			robotContainer->delayMicros(PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
 		}
 	}
 	//print("%s OVER\n\r", nameGroup);
@@ -428,9 +428,11 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_NOTIFICATION:
 		break;
 	case COMMAND_REPORT_ALIVE:
-		if (_aliveReport)
-			print("%s alive.\n\r", name(deviceNumber));
-		aliveSet(true, deviceNumber);
+		if (!aliveGet(deviceNumber)) {
+			if (_aliveReport)
+				print("%s alive.\n\r", name(deviceNumber));
+			aliveSet(true, deviceNumber);
+		}
 		break;
 	default:
 		found = false;
