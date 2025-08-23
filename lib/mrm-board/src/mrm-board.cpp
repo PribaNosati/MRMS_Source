@@ -408,6 +408,7 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_ERROR:
 		errorCode = data[1];
 		errorInDeviceNumber = deviceNumber;
+		robotContainer->errors->push_back(Robot::Error(canId, errorCode));
 		print("Error %i in %s.\n\r", errorCode, (*_name)[deviceNumber]);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {

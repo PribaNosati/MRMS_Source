@@ -1,4 +1,5 @@
 #pragma once
+#include "mrm-common.h"
 #include <Preferences.h>
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
@@ -158,7 +159,18 @@ protected:
 	void verbosePrint();
 
 public: 
+	struct Error {
+		uint32_t time;
+		uint16_t canId;
+		uint8_t errorCode;
+		Error(uint16_t canId, uint8_t errorCode){
+			this->time = millis();
+			this->canId = canId;
+			this->errorCode = errorCode;
+		}
+	};
 
+	std::vector<Error>* errors;
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;
 	Mrm_bldc2x50* mrm_bldc2x50;
@@ -319,7 +331,7 @@ public:
 
 	/** Displays errors and stops motors, if any.
 	*/
-	void errors();
+	void errorsDisplay();
 
 	/** Displays each CAN Bus device's firmware
 	*/
