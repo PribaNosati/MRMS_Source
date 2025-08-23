@@ -526,15 +526,29 @@ void Mrm_ref_can::refreshSet(uint16_t ms, uint8_t deviceNumber){
 */
 void Mrm_ref_can::test(bool analog)
 {
-	static uint32_t lastMs = 0;
+#define TEST_REF_CAN_FOR_0 1
+	static uint64_t lastMs = 0;
+#if TEST_REF_CAN_FOR_0
+	static uint32_t cnt;
+	if (robotContainer->setup())
+		cnt = 0;
+	cnt++;
+#endif
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (alive(deviceNumber)) {
 				if (pass++)
 					print("| ");
-				for (uint8_t i = 0; i < min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); i++)
+				for (uint8_t i = 0; i < std::min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); i++){
 					print(analog ? "%3i " : "%i", analog ? reading(i, deviceNumber) : dark(i, deviceNumber));
+#if TEST_REF_CAN_FOR_0
+					if (reading(i, deviceNumber) == 0 && cnt > 10){ // At startup some zero, that's ok
+
+						robotContainer->end();
+					}
+#endif
+				}
 				if (!analog)
 					print(" c:%i", center(deviceNumber, (*_mode)[deviceNumber] == DIGITAL_AND_DARK_CENTER));
 
