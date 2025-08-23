@@ -539,6 +539,7 @@ void Mrm_ref_can::test(bool analog)
 					print(" c:%i", center(deviceNumber, (*_mode)[deviceNumber] == DIGITAL_AND_DARK_CENTER));
 
 			}
+			delay(1);
 		}
 		lastMs = millis();
 		if (pass)

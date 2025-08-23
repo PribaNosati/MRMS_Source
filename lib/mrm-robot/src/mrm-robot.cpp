@@ -1205,6 +1205,7 @@ void Robot::menuLoop() {
 void Robot::menuMainAndIdle() {
 	stopAll();
 	menuLevel = 1;
+	_actionCurrent = NULL;
 }
 
 /** Reflectance menu

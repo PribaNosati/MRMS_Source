@@ -375,7 +375,7 @@ bool Board::isForMe(uint32_t canIdOut, uint8_t deviceNumber) {
 */
 bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s: next free too big: %i", name(), deviceNumber);
+		sprintf(errorMessage, "%s: board doesn't exist: %i", name(), deviceNumber);
 		return false;
 	}
 	return canIdOut == (*idIn)[deviceNumber];
