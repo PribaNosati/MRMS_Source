@@ -2,6 +2,8 @@
 #include "Arduino.h"
 #include <mrm-board.h>
 #include <mrm-common.h>
+#include <vector>
+#include <map>
 //#include <vector>
 
 /**
@@ -86,6 +88,8 @@ public:
 		LEDSignText(){type = 1;}
 	};
 
+	static std::map<int, std::string>* commandNamesSpecific; // C++ 17 enabled static variables without global initialization
+
 	enum LED8x8Rotation { LED_8X8_BY_0_DEGREES, LED_8X8_BY_90_DEGREES, LED_8X8_BY_270_DEGREES };
 
 	enum LED8x8Type{LED_8X8_CUSTOM, LED_8X8_STORED, LED_8X8_STORED_CUSTOM };
@@ -149,13 +153,15 @@ public:
 
 	void bitmapsSet(const std::vector<ledSign>& selectedImages);
 
+	std::string commandName(uint8_t byte);
+
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8);
+	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 0);
 
 	/** Displays 8-row progress bar. Useful for visual feedback of a long process.
 	@param period - total count (100%)

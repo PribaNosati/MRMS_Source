@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include <mrm-board.h>
+#include <map>
 
 /**
 Purpose: mrm-node interface to CANBus.
@@ -52,6 +53,7 @@ class Mrm_node : public SensorBoard
 	bool started(uint8_t deviceNumber);
 
 public:
+	static std::map<int, std::string>* commandNamesSpecific;
 
 	/** Constructor
 	@param robot - robot containing this board
@@ -68,6 +70,8 @@ public:
 	*/
 	void add(char * deviceName = (char*)"");
 
+	std::string commandName(uint8_t byte);
+	
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.

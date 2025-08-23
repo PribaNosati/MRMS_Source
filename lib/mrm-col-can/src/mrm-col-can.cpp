@@ -1,8 +1,7 @@
 #include "mrm-col-can.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_col_can =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_col_can =  new std::vector<String>();
+std::map<int, std::string>* Mrm_col_can::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -19,31 +18,21 @@ Mrm_col_can::Mrm_col_can(Robot* robot, uint8_t maxNumberOfBoards) :
 	_patternBy6Colors = new std::vector<uint8_t>(maxNumberOfBoards);
 	_patternRecognizedAtMs = new std::vector<uint32_t>(maxNumberOfBoards);
 
-	if (commandIndexes_mrm_col_can->empty()){
-		commandIndexes_mrm_col_can->push_back(CAN_COL_SENDING_COLORS_1_TO_3);
-		commandNames_mrm_col_can->push_back("Send 1-3");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_SENDING_COLORS_4_TO_6);
-		commandNames_mrm_col_can->push_back("Send 4-6");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_ILLUMINATION_CURRENT);
-		commandNames_mrm_col_can->push_back("Ill curre");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_SWITCH_TO_HSV);
-		commandNames_mrm_col_can->push_back("To HSV");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_SWITCH_TO_6_COLORS);
-		commandNames_mrm_col_can->push_back("To 6 colo");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_SENDING_HSV);
-		commandNames_mrm_col_can->push_back("Send HSV");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_INTEGRATION_TIME);
-		commandNames_mrm_col_can->push_back("Inte time");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_GAIN);
-		commandNames_mrm_col_can->push_back("Gain");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_RECORD);
-		commandNames_mrm_col_can->push_back("Patt reco");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_SENDING);
-		commandNames_mrm_col_can->push_back("Patt send");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_REQUEST);
-		commandNames_mrm_col_can->push_back("Patt requ");
-		commandIndexes_mrm_col_can->push_back(CAN_COL_PATTERN_ERASE);
-		commandNames_mrm_col_can->push_back("Patt eras");
+
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({CAN_COL_SENDING_COLORS_1_TO_3, "Send 1-3"});
+		commandNamesSpecific->insert({CAN_COL_SENDING_COLORS_4_TO_6, "Send 4-6"});
+		commandNamesSpecific->insert({CAN_COL_ILLUMINATION_CURRENT, 	"Ill curre"});
+		commandNamesSpecific->insert({CAN_COL_SWITCH_TO_HSV, 		"To HSV"});
+		commandNamesSpecific->insert({CAN_COL_SWITCH_TO_6_COLORS, 	"To 6 colo"});
+		commandNamesSpecific->insert({CAN_COL_SENDING_HSV, 			"Send HSV"});
+		commandNamesSpecific->insert({CAN_COL_INTEGRATION_TIME, 		"Inte time"});
+		commandNamesSpecific->insert({CAN_COL_GAIN, 					"Gain"});
+		commandNamesSpecific->insert({CAN_COL_PATTERN_RECORD, 		"Patt reco"});
+		commandNamesSpecific->insert({CAN_COL_PATTERN_SENDING, 		"Patt send"});
+		commandNamesSpecific->insert({CAN_COL_PATTERN_REQUEST, 		"Patt requ"});
+		commandNamesSpecific->insert({CAN_COL_PATTERN_ERASE, 		"Patt eras"});
 	}
 }
 
@@ -191,6 +180,15 @@ uint16_t Mrm_col_can::colorYellow(uint8_t deviceNumber) {
 		return(*readings)[deviceNumber][5];
 	else
 		return 0;
+}
+
+
+std::string Mrm_col_can::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Set gain

@@ -1,8 +1,7 @@
 #include "mrm-lid-can-b2.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_lid_can_b2 =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_lid_can_b2 =  new std::vector<String>();
+std::map<int, std::string>* Mrm_lid_can_b2::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -14,15 +13,12 @@ Mrm_lid_can_b2::Mrm_lid_can_b2(Robot* robot, uint8_t maxNumberOfBoards) :
 	SensorBoard(robot, 1, "Lid4m", maxNumberOfBoards, ID_MRM_LID_CAN_B2, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
 
-	if (commandIndexes_mrm_lid_can_b2->empty()){
-		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_DISTANCE_MODE);
-		commandNames_mrm_lid_can_b2->push_back("Dist mode");
-		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_TIMING_BUDGET);
-		commandNames_mrm_lid_can_b2->push_back("Tim budge");
-		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_MEASUREMENT_TIME);
-		commandNames_mrm_lid_can_b2->push_back("Meas time");
-		commandIndexes_mrm_lid_can_b2->push_back(COMMAND_LID_CAN_B2_ROI);
-		commandNames_mrm_lid_can_b2->push_back("ROI");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B2_DISTANCE_MODE, 	"Dist mode"});
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B2_TIMING_BUDGET, "Tim budge"});
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B2_MEASUREMENT_TIME, 	"Meas time"});
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B2_ROI, "ROI"});
 	}
 }
 
@@ -89,6 +85,13 @@ void Mrm_lid_can_b2::calibration(uint8_t deviceNumber){
 	}
 }
 
+std::string Mrm_lid_can_b2::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
+}
 
 /** Reset sensor's non-volatile memory to defaults (distance mode, timing budget, region of interest, and measurement time, but leaves CAN Bus id intact
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - resets all.

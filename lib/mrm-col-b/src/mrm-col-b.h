@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include <mrm-board.h>
+#include <map>
 
 /**
 Purpose: mrm-col-b interface to CANBus.
@@ -70,6 +71,7 @@ class Mrm_col_b : public SensorBoard
 	bool hsvStarted(uint8_t deviceNumber);
 	
 public:
+	static std::map<int, std::string>* commandNamesSpecific;
 
 	/** Constructor
 	@param robot - robot containing this board
@@ -143,6 +145,8 @@ public:
 	@return - color intensity
 	*/
 	uint16_t colorYellow(uint8_t deviceNumber);
+
+	std::string commandName(uint8_t byte);
 
 	/** Set gain
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.

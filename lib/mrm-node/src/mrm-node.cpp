@@ -1,8 +1,7 @@
 #include "mrm-node.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_node =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_node =  new std::vector<String>();
+std::map<int, std::string>* Mrm_node::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -16,17 +15,13 @@ Mrm_node::Mrm_node(Robot* robot, uint8_t maxNumberOfBoards) :
 	switches = new std::vector<bool[MRM_NODE_SWITCHES_COUNT]>(maxNumberOfBoards);
 	servoDegrees = new std::vector<uint16_t[MRM_NODE_SERVO_COUNT]>(maxNumberOfBoards);
 	
-	if (commandIndexes_mrm_node->empty()){
-		commandIndexes_mrm_node->push_back(COMMAND_NODE_SENDING_SENSORS_1_TO_3);
-		commandNames_mrm_node->push_back("Send 1-3");
-		commandIndexes_mrm_node->push_back(COMMAND_NODE_SENDING_SENSORS_4_TO_6);
-		commandNames_mrm_node->push_back("Send 4-6");
-		commandIndexes_mrm_node->push_back(COMMAND_NODE_SENDING_SENSORS_7_TO_9);
-		commandNames_mrm_node->push_back("Send 7-9");
-		commandIndexes_mrm_node->push_back(COMMAND_NODE_SWITCH_ON);
-		commandNames_mrm_node->push_back("Switch on");
-		commandIndexes_mrm_node->push_back(COMMAND_NODE_SERVO_SET);
-		commandNames_mrm_node->push_back("Servo set");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_NODE_SENDING_SENSORS_1_TO_3, 	"Send 1-3"});
+		commandNamesSpecific->insert({COMMAND_NODE_SENDING_SENSORS_4_TO_6, 	"Send 4-6"});
+		commandNamesSpecific->insert({COMMAND_NODE_SENDING_SENSORS_7_TO_9, 	"Send 7-9"});
+		commandNamesSpecific->insert({COMMAND_NODE_SWITCH_ON,				"Switch on"});
+		commandNamesSpecific->insert({COMMAND_NODE_SERVO_SET,				"Servo set"});
 	}
 }
 
@@ -85,6 +80,14 @@ void Mrm_node::add(char * deviceName)
 		(*servoDegrees)[nextFree][i] = 0xFFFF;
 
 	SensorBoard::add(deviceName, canIn, canOut);
+}
+
+std::string Mrm_node::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Read CAN Bus message into local variables

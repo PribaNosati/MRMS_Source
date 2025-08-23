@@ -1,8 +1,7 @@
 #include "mrm-8x8a.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_8x8a = new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_8x8a = new std::vector<String>();
+std::map<int, std::string>* Mrm_8x8a::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -20,43 +19,26 @@ Mrm_8x8a::Mrm_8x8a(Robot* robot, uint8_t maxNumberOfBoards) :
 	//mrm_can_bus = esp32CANBusSingleton;
 	nextFree = 0;
 
-	if (commandIndexes_mrm_8x8a->empty()){
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_DISPLAY);
-		commandNames_mrm_8x8a->push_back("Display");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_SWITCH_ON);
-		commandNames_mrm_8x8a->push_back("Switch on");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION);
-		commandNames_mrm_8x8a->push_back("Sw on req n");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8x8_TEST_CAN_BUS);
-		commandNames_mrm_8x8a->push_back("Test CAN b");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_DISPLAY_PART1);
-		commandNames_mrm_8x8a->push_back("Bitmap d.1");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_DISPLAY_PART2);
-		commandNames_mrm_8x8a->push_back("Bitmap d.2");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_DISPLAY_PART3);
-		commandNames_mrm_8x8a->push_back("Bitmap d.3");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORE_PART1);
-		commandNames_mrm_8x8a->push_back("Bitmap s.1");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORE_PART2);
-		commandNames_mrm_8x8a->push_back("Bitmap s.2");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORE_PART3);
-		commandNames_mrm_8x8a->push_back("Bitmap s.3");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORED_DISPLAY);
-		commandNames_mrm_8x8a->push_back("Bitm st di");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_ROTATION_SET);
-		commandNames_mrm_8x8a->push_back("Rotat. set");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_1);
-		commandNames_mrm_8x8a->push_back("Text 1");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_2);
-		commandNames_mrm_8x8a->push_back("Text 2");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_3);
-		commandNames_mrm_8x8a->push_back("Text 3");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_4);
-		commandNames_mrm_8x8a->push_back("Text 4");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_5);
-		commandNames_mrm_8x8a->push_back("Text 5");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_6);
-		commandNames_mrm_8x8a->push_back("Text 6");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_8X8_DISPLAY, 						"Display"});
+		commandNamesSpecific->insert({COMMAND_8X8_SWITCH_ON, 					"Switch on"});
+		commandNamesSpecific->insert({COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION, "Sw on req n"});
+		commandNamesSpecific->insert({COMMAND_8x8_TEST_CAN_BUS, 					"Test CAN b"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_DISPLAY_PART1, 			"Bitmap d.1"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_DISPLAY_PART2, 			"Bitmap d.2"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_DISPLAY_PART3, 			"Bitmap d.3"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORE_PART1, 			"Bitmap s.1"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORE_PART2, 			"Bitmap s.2"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORE_PART3, 			"Bitmap s.3"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORED_DISPLAY, 		"Bitm st di"});
+		commandNamesSpecific->insert({COMMAND_8X8_ROTATION_SET, 					"Rotat. set"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_1, 						"Text 1"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_2, 						"Text 2"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_3,  						"Text 3"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_4, 						"Text 4"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_5, 						"Text 5"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_6, 						"Text 6"});
 	}
 }
 
@@ -829,6 +811,14 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 }
 
 
+std::string Mrm_8x8a::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
+}
+
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
 @param data - 8 bytes from CAN Bus message.
@@ -844,8 +834,8 @@ bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
 					uint8_t switchNumber = data[1] >> 1;
 					if (switchNumber > 4) {
-						strcpy(errorMessage, "No 8x8a switch");
-						return false;
+						printf(errorMessage, "No %s: %i.", _boardsName, switchNumber);
+							return false;
 					}
 					(*on)[deviceNumber][switchNumber] = data[1] & 1;
 					if (data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {

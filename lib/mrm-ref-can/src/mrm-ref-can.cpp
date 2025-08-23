@@ -1,8 +1,7 @@
 #include "mrm-ref-can.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_ref_can =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_ref_can =  new std::vector<String>();
+std::map<int, std::string>* Mrm_ref_can::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -23,41 +22,25 @@ Mrm_ref_can::Mrm_ref_can(Robot* robot, uint8_t maxNumberOfBoards) :
 	for (uint8_t i = 0; i < maximumNumberOfBoards; i++)
 		(*_transistorCount)[i] = 9;
 		
-	if (commandIndexes_mrm_ref_can->empty()){
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_MEASURE_ONCE_CENTER);
-		commandNames_mrm_ref_can->push_back("Meas once");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_MEASURE_CONTINUOUS_CENTER);
-		commandNames_mrm_ref_can->push_back("Meas cont");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_SENDING_SENSORS_1_TO_3);
-		commandNames_mrm_ref_can->push_back("Send 1-3");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_SENDING_SENSORS_4_TO_6);
-		commandNames_mrm_ref_can->push_back("Send 4-6");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_SENDING_SENSORS_7_TO_9);
-		commandNames_mrm_ref_can->push_back("Send 7-9");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATE);
-		commandNames_mrm_ref_can->push_back("Calibrate");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_DARK_1_TO_3);
-		commandNames_mrm_ref_can->push_back("Ca dd 1-3");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_DARK_4_TO_6);
-		commandNames_mrm_ref_can->push_back("Ca dd 4-6");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_DARK_7_TO_9);
-		commandNames_mrm_ref_can->push_back("Ca dd 7-9");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_REQUEST);
-		commandNames_mrm_ref_can->push_back("Cal d req");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_SENDING_SENSORS_CENTER);
-		commandNames_mrm_ref_can->push_back("Send s ce");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_1_TO_3);
-		commandNames_mrm_ref_can->push_back("Ca db 1-3");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_4_TO_6);
-		commandNames_mrm_ref_can->push_back("Ca db 4-6");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_7_TO_9);
-		commandNames_mrm_ref_can->push_back("Ca db 7-9");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_REPORT_ALIVE_QUEUELESS);
-		commandNames_mrm_ref_can->push_back("Re ali ql");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_RECORD_PEAK);
-		commandNames_mrm_ref_can->push_back("Rec peak");
-		commandIndexes_mrm_ref_can->push_back(COMMAND_REF_CAN_REFRESH_MS);
-		commandNames_mrm_ref_can->push_back("Refres ms");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_REF_CAN_MEASURE_ONCE_CENTER, 	"Meas once"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_MEASURE_CONTINUOUS_CENTER, 	"Meas cont"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_SENDING_SENSORS_1_TO_3, 	"Send 1-3"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_SENDING_SENSORS_4_TO_6, 	"Send 4-6"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_SENDING_SENSORS_7_TO_9, 	"Send 7-9"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATE, 	"Calibrate"});		
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_DARK_1_TO_3, 	"Ca dd 1-3"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_DARK_4_TO_6, 	"Ca dd 4-6"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_DARK_7_TO_9, 	"Ca dd 7-9"});		
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_REQUEST, 	"Cal d req"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_SENDING_SENSORS_CENTER, 	"Send s ce"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_1_TO_3, 	"Ca db 1-3"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_4_TO_6, 	"Ca db 4-6"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_7_TO_9, 	"Ca db 7-9"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_REPORT_ALIVE_QUEUELESS, 	"Re ali ql"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_RECORD_PEAK, 	"Rec peak"});
+		commandNamesSpecific->insert({COMMAND_REF_CAN_REFRESH_MS, 	"Refres ms"});
 	}
 }
 
@@ -264,6 +247,15 @@ uint16_t Mrm_ref_can::center(uint8_t deviceNumber, bool ofDark) {
 		return (*centerOfMeasurements)[deviceNumber];
 	else
 		return false;
+}
+
+
+std::string Mrm_ref_can::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Dark?

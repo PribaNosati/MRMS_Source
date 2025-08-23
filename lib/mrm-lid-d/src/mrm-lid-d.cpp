@@ -1,8 +1,7 @@
 #include "mrm-lid-d.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_lid_d =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_lid_d =  new std::vector<String>();
+std::map<int, std::string>* Mrm_lid_d::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -15,11 +14,10 @@ Mrm_lid_d::Mrm_lid_d(Robot* robot, uint8_t maxNumberOfBoards) :
 	readings = new std::vector<std::vector<uint16_t>>(maxNumberOfBoards);
 	_resolution = new std::vector<uint8_t>(maxNumberOfBoards);
 
-	if (commandIndexes_mrm_lid_d->empty()){
-		commandIndexes_mrm_lid_d->push_back(COMMAND_LID_D_RESOLUTION);
-		commandNames_mrm_lid_d->push_back("Resolutio");
-		commandIndexes_mrm_lid_d->push_back(COMMAND_LID_D_FREQUENCY);
-		commandNames_mrm_lid_d->push_back("Frequency");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_LID_D_RESOLUTION, 	"Resolutio"});
+		commandNamesSpecific->insert({COMMAND_LID_D_FREQUENCY, 	"Frequency"});
 	}
 }
 
@@ -76,6 +74,13 @@ void Mrm_lid_d::add(char * deviceName, uint8_t resolution)
 	SensorBoard::add(deviceName, canIn, canOut);
 }
 
+std::string Mrm_lid_d::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
+}
 
 /** Reset sensor's non-volatile memory to defaults (distance mode, timing budget, region of interest, and measurement time, but leaves CAN Bus id intact
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - resets all.

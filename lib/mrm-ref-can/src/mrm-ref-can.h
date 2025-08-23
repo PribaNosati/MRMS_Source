@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include <mrm-board.h>
+#include <map>
 
 /**
 Purpose: mrm-ref-can interface to CANBus.
@@ -108,6 +109,8 @@ class Mrm_ref_can : public SensorBoard
 	bool digitalStarted(uint8_t deviceNumber, bool darkCenter, bool startIfNot = true);
 	
 public:
+	static std::map<int, std::string>* commandNamesSpecific;
+
 	enum RecordPeakType {NO_PEAK, MAX_PEAK, MIN_PEAK} recordPeak = NO_PEAK;
 
 	/** Constructor
@@ -163,6 +166,8 @@ public:
 	*/
 	uint16_t center(uint8_t deviceNumber = 0, bool ofDark = true);
 
+	std::string commandName(uint8_t byte);
+	
 	/** Dark?
 	@param receiverNumberInSensor - single IR transistor in mrm-ref-can
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

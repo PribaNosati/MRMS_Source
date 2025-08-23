@@ -1,8 +1,7 @@
 #include "mrm-lid-can-b.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_lid_can_b =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_lid_can_b =  new std::vector<String>();
+std::map<int, std::string>* Mrm_lid_can_b::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -14,11 +13,10 @@ Mrm_lid_can_b::Mrm_lid_can_b(Robot* robot, uint8_t maxNumberOfBoards) :
 	SensorBoard(robot, 1, "Lid2m", maxNumberOfBoards, ID_MRM_LID_CAN_B, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
 
-	if (commandIndexes_mrm_lid_can_b->empty()){
-		commandIndexes_mrm_lid_can_b->push_back(COMMAND_LID_CAN_B_CALIBRATE);
-		commandNames_mrm_lid_can_b->push_back("Calibrate");
-		commandIndexes_mrm_lid_can_b->push_back(COMMAND_LID_CAN_B_RANGING_TYPE);
-		commandNames_mrm_lid_can_b->push_back("Rang type");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B_CALIBRATE, 	"Calibrate"});
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B_RANGING_TYPE, "Rang type"});
 	}
 }
 
@@ -115,6 +113,14 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 		canData[0] = COMMAND_LID_CAN_B_CALIBRATE;
 		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 1, canData);
 	}
+}
+
+std::string Mrm_lid_can_b::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!

@@ -1,8 +1,7 @@
 #include "mrm-fet-can.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_fet_can =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_fet_can =  new std::vector<String>();
+std::map<int, std::string>* Mrm_fet_can::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -13,11 +12,10 @@ std::vector<String>* commandNames_mrm_fet_can =  new std::vector<String>();
 Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : 
 	MotorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
 
-	if (commandIndexes_mrm_fet_can->empty()){
-		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_ON);
-		commandNames_mrm_fet_can->push_back("Turn on");
-		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_OFF);
-		commandNames_mrm_fet_can->push_back("Turn off");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_TURN_ON, 	"Turn on"});
+		commandNamesSpecific->insert({COMMAND_TURN_OFF, 	"Turn off"});
 	}
 }
 
@@ -69,6 +67,14 @@ void Mrm_fet_can::add(char * deviceName)
 		return;
 	}
 	MotorBoard::add(deviceName, canIn, canOut);
+}
+
+std::string Mrm_fet_can::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Turn output on

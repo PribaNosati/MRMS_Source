@@ -230,7 +230,7 @@ bool Board::canGap() {
 	return false;
 }
 
-String Board::commandName(uint8_t byte){
+std::string Board::commandName(uint8_t byte){
 	return "";
 }
 

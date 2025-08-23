@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include <mrm-board.h>
+#include <map>
 
 /**
 Purpose: mrm-lid-can-b2 interface to CANBus.
@@ -63,6 +64,7 @@ class Mrm_lid_can_b2 : public SensorBoard
 	bool started(uint8_t deviceNumber);
 	
 public:
+	static std::map<int, std::string> *commandNamesSpecific;
 
 	/** Constructor
 	@param robot - robot containing this board
@@ -83,6 +85,8 @@ public:
 	*/
 	void calibration(uint8_t deviceNumber = 0);
 
+	std::string commandName(uint8_t byte);
+	
 	/** Reset sensor's non-volatile memory to defaults (distance mode, timing budget, region of interest, and measurement time, but leaves CAN Bus id intact
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - resets all.
 	*/

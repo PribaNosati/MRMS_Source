@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include "mrm-board.h"
+#include <map>
 
 /**
 Purpose: mrm-lid-can-b interface to CANBus.
@@ -61,6 +62,7 @@ class Mrm_lid_can_b : public SensorBoard
 	bool started(uint8_t deviceNumber);
 	
 public:
+	static std::map<int, std::string>* commandNamesSpecific;
 	
 	/** Constructor
 	@param robot - robot containing this board
@@ -82,6 +84,8 @@ public:
 	*/
 	void calibration(uint8_t deviceNumber = 0);
 
+	std::string commandName(uint8_t byte);
+	
 	/** Distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param sampleCount - Number or readings. 40% of the c, with extreme values, will be discarded and the

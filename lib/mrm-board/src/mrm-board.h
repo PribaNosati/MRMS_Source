@@ -185,7 +185,7 @@ public:
 	*/
 	bool canGap();
 
-	virtual String commandName(uint8_t byte);
+	virtual std::string commandName(uint8_t byte);
 
 	void commandNamePrint(uint8_t commandIndex);
 

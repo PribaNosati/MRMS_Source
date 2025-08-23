@@ -1,8 +1,7 @@
 #include "mrm-ir-finder3.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_ir_finder3 =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_ir_finder3 =  new std::vector<String>();
+std::map<int, std::string>* Mrm_ir_finder3::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -17,13 +16,11 @@ Mrm_ir_finder3::Mrm_ir_finder3(Robot* robot, uint8_t maxNumberOfBoards) :
 	readings = new std::vector<uint16_t[MRM_IR_FINDER3_SENSOR_COUNT]>(maxNumberOfBoards);
 	measuringModeLimit = 2;
 
-	if (commandIndexes_mrm_ir_finder3->empty()){
-		commandIndexes_mrm_ir_finder3->push_back(COMMAND_IR_FINDER3_SENDING_SENSORS_1_TO_7);
-		commandNames_mrm_ir_finder3->push_back("Send 1-7");
-		commandIndexes_mrm_ir_finder3->push_back(COMMAND_IR_FINDER3_SENDING_SENSORS_8_TO_12);
-		commandNames_mrm_ir_finder3->push_back("Send 8-12");
-		commandIndexes_mrm_ir_finder3->push_back(COMMAND_IR_FINDER3_SENDING_ANGLE_AND_DISTANCE);
-		commandNames_mrm_ir_finder3->push_back("Send angl");
+if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_IR_FINDER3_SENDING_SENSORS_1_TO_7, 	"Send 1-7"});
+		commandNamesSpecific->insert({COMMAND_IR_FINDER3_SENDING_SENSORS_8_TO_12, 	"Send 8-12"});
+		commandNamesSpecific->insert({COMMAND_IR_FINDER3_SENDING_ANGLE_AND_DISTANCE, "Send angl"});
 	}
 }
 
@@ -115,6 +112,14 @@ bool Mrm_ir_finder3::calculatedStarted(uint8_t deviceNumber) {
 	}
 	else
 		return true;
+}
+
+std::string Mrm_ir_finder3::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Ball's distance

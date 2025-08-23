@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include <mrm-board.h>
+#include <map>
 
 /**
 Purpose: mrm-ir-finder3 interface to CANBus.
@@ -56,6 +57,7 @@ class Mrm_ir_finder3 : public SensorBoard
 	bool singleStarted(uint8_t deviceNumber);
 	
 public:
+	static std::map<int, std::string>* commandNamesSpecific;
 	
 	/** Constructor
 	@param robot - robot containing this board
@@ -78,6 +80,8 @@ public:
 	*/
 	int16_t angle(uint8_t deviceNumber = 0);
 
+	std::string commandName(uint8_t byte);
+	
 	/** Ball's distance
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - this is analog value that represents infrared light intensity, so not directly distance, but the distance can be inferred. When ball is quite close, expect values up to about 3000.
