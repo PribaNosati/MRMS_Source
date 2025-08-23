@@ -34,6 +34,14 @@ CANBusMessage::CANBusMessage(Robot* robot){
 	robotContainer = robot;
 }
 
+CANBusMessage::CANBusMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc) : 
+	robotContainer(robot), messageId(id), dlc(dlc) {
+	for (uint8_t i = 0; i < 8; i++)
+		this->data[i] = payload[i];
+}
+
+CANBusMessage::CANBusMessage() : messageId(0), dlc(0), robotContainer(NULL) {}
+
 void CANBusMessage::print() {
 	if (robotContainer != NULL){
 		::print("Id: 0x%04X, data:", messageId);

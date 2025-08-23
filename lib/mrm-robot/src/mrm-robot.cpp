@@ -686,6 +686,80 @@ void Robot::canScanToggle(){
 	end();
 }
 
+void Robot::canTest(){
+	canTestParam(-1, true); // -1 means infinite iterations
+}
+
+bool Robot::canTestParam(int iterations, bool verbose) {
+	static uint32_t cnt = 0;
+	static uint8_t data[8] = {0xFF, 2, 3, 4, 5, 6, 7, 8};
+	static uint16_t returnId;
+	static uint8_t returnData[8];
+	static uint8_t returnDLC;
+	static uint32_t startS;
+	static uint32_t errorCnt = 0;
+	uint8_t errorCode;
+	if (verbose)
+		print("Test CAN\n\r");
+
+	bool ok = true;
+
+	while (!userBreak() && (iterations < 0 || iterations-- > 0)) { // Infinite loop or limited by iterations
+
+		mrm_8x8a->messageSend(data, 8, 0);
+		uint32_t startMs = millis();
+		bool timeout = false;
+		CANBusMessage message[5];
+		int8_t last;;
+		while(true){
+			messagesReceive(message, last);
+			if (last == -1)
+				break;
+			if (millis() - startMs > 500){
+				timeout = true;
+				break;
+			}
+		}
+		if (returnId == 0x201){ // 8x8 LED. This check is no more needed as 8x8a is disabled above.
+			if (verbose)
+				print("Known message id: 0x%02X\n\r", (int)returnId);
+		}
+		else{
+			if (timeout)
+				ok = false;
+			for (uint8_t i = 0; i < 8; i++)
+				if (data[i] != returnData[i]){
+					if (verbose)
+						print("Diff. in element %i: %i<>%i\n\r", (int)i, (int)data[i], (int)returnData[i]);
+					ok = false;
+				}
+			if (returnDLC != 8){
+				if (verbose)
+					print("DLC: %i\n\r", (int)returnDLC);
+				ok = false;
+			}
+			if (returnId != 0xFFFF){
+				if (verbose)
+					print("Return id: 0xFF<>0x%02X\n\r", (int)returnId);
+				ok = false;
+			}
+		}
+		if (ok){
+			if (++cnt % 100 == 0){
+				if (verbose)
+					print("Cnt: %i at %is, %i errors. \n\r", cnt, (int)(millis()/1000 - startS), errorCnt);
+			}
+		}
+		else{
+			errorCnt++;
+		// 	mrm_8x8a->activeCheckIfStartedSet(true); // Enable 8x8 switches again.
+		// 	cnt = 0;
+		// 	end();
+		}
+	}
+	return ok;
+}
+
 /** mrm-color-can illumination off
 */
 void Robot::colorIlluminationOff() {
@@ -1257,12 +1331,25 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, b
 
 /** Receives CAN Bus messages. 
 */
-void Robot::messagesReceive() {
+void Robot::messagesReceive(CANBusMessage message[5], int8_t last) {
 	#define REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN false
+	int nextIndex = 0;
+	last = -1;
 	while (true) {
 		_msg = mrm_can_bus->messageReceive();
 		if (_msg == NULL) // No more messages
 			break;
+
+		if (nextIndex < 5){
+			message[nextIndex].dlc = _msg->dlc;
+			message[nextIndex].messageId = _msg->messageId;
+			for (uint8_t i = 0; i < _msg->dlc; i++)
+				message[nextIndex].data[i] = _msg->data[i];
+			message[nextIndex].robotContainer = _msg->robotContainer;
+			last = nextIndex;
+			nextIndex++;
+		}
+
 		uint32_t id = _msg->messageId;
 		if (_sniff){
 			Board* boardFound;
@@ -1321,7 +1408,9 @@ void Robot::nodeTest() {
 */
 void Robot::noLoopWithoutThis() {
 	blink(); // Keep-alive LED. Solder jumper must be shorted in order to work in mrm-esp32.
-	messagesReceive();
+	CANBusMessage msg[5];
+	int8_t last;
+	messagesReceive(msg, last);
 	fpsUpdate(); // Measure FPS. Less than 30 - a bad thing.
 	verbosePrint(); // Print FPS and maybe some additional data
 	errors();

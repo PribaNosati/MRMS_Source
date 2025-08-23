@@ -236,6 +236,10 @@ public:
 	*/
 	bool canGap();
 
+	void canTest();
+
+	bool canTestParam(int iterations, bool verbose);
+
 	/** Change device's id
 	*/
 	void canIdChange();
@@ -412,7 +416,7 @@ public:
 
 	/** Receives CAN Bus messages.
 	*/
-	void messagesReceive();
+	void messagesReceive(CANBusMessage message[5], int8_t last);
 
 	/** Tests motors
 	*/

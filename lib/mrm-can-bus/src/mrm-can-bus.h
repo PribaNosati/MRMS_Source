@@ -12,6 +12,8 @@ struct CANBusMessage {
 	void print();
 
 	CANBusMessage(Robot* robot);
+	CANBusMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc);
+	CANBusMessage();
 };
 
 class Mrm_can_bus {
