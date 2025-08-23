@@ -819,7 +819,7 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 	bool encodersStarted[4] = { false, false, false, false };
 	uint32_t lastMs = 0;
 	while (goOn) {
-		for (uint8_t motorNumber = 0; motorNumber < nextFree; motorNumber++) {
+		for (uint8_t motorNumber = 0; motorNumber < nextFree && goOn; motorNumber++) {
 
 			if ((selectedMotor != 0xFFFF && motorNumber != selectedMotor) || !alive(motorNumber))
 				continue;
@@ -838,7 +838,7 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 				continue;
 			}
 
-			for (uint8_t group = 0; group < 3; group++)
+			for (uint8_t group = 0; group < 3 && goOn; group++)
 				for (int16_t speed = startSpeed[group];
 				((step[group] > 0 && speed <= endSpeed[group]) || (step[group] < 0 && speed >= endSpeed[group])) && goOn;
 					speed += step[group]) {
@@ -861,7 +861,7 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 
 	// Stop all motors
 	for (uint8_t motorNumber = 0; motorNumber < nextFree; motorNumber++) {
-		speedSet(motorNumber, 0);
+		// speedSet(motorNumber, 0);
 
 		if (encodersStarted[motorNumber]) {
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
