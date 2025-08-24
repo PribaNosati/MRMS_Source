@@ -303,6 +303,8 @@ public:
 	*/
 	void delayMicros(uint16_t pauseMicros);
 
+	Board* deviceFind(uint16_t msgId, uint8_t deviceNumber);
+	
 	/** Lists all the alive (responded to last ping) CAN Bus devices.
 	@boardType - sensor, motor, or all boards
 	@return count

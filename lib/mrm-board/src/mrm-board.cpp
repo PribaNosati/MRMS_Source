@@ -258,6 +258,14 @@ uint8_t Board::count() {
 */
 uint8_t Board::deadOrAliveCount() { return nextFree; }
 
+
+uint8_t Board::deviceNumber(uint16_t msgId){
+	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
+		if (isForMe(msgId, deviceNumber) || isFromMe(msgId, deviceNumber)) 
+			return deviceNumber;
+	return 0xFF;
+}
+
 /** Ping devices and refresh alive array
 @param verbose - prints statuses
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
@@ -458,16 +466,9 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 @param outbound - otherwise inbound
 @return - if true, found and printed
 */
-bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbound) {
-	uint8_t foundDeviceNumber = 0xFF;
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(msgId, deviceNumber) || isFromMe(msgId, deviceNumber)) {
-			foundDeviceNumber = deviceNumber;
-			break;
-		}
-	CANBusMessage message(robotContainer, msgId, data, dlc);
-	robotContainer->messagePrint(&message, this, foundDeviceNumber, outbound);
-	return foundDeviceNumber != 0xFF;
+void Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbound) {
+	CANBusMessage* message = new CANBusMessage(robotContainer, msgId, data, dlc);
+	robotContainer->messagePrint(message, this, 0xFF, outbound);
 }
 
 /** Send CAN Bus message

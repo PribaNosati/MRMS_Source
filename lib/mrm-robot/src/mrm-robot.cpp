@@ -866,6 +866,20 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 	} while (micros() < startMicros + pauseMicros);
 }
 
+
+Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
+	for (uint8_t boardIndex = 0; boardIndex < BOARDS_LIMIT && board[boardIndex] != NULL; boardIndex++){
+		uint8_t nr = board[boardIndex]->deviceNumber(msgId);
+		if (nr != 0xFF){
+			deviceNumber = nr;
+			return board[boardIndex];
+		}
+	}
+	deviceNumber = 0xFF;
+	return NULL;
+}
+
+
 /** Lists all the alive (responded to last ping) CAN Bus devices.
 @boardType - sensor, motor, or all boards
 @return count
@@ -1315,8 +1329,15 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t deviceNumber,
 		print("dlc too big: %i\n\r", (int)msg->dlc);
 		exit(12);
 	}
-	std::string boardName = board == NULL ? "Unknown board" : board->name();
-	std::string name = deviceNumber == 0xFF || board == NULL ? boardName : board->name(deviceNumber);
+	if (board == NULL)
+		board = deviceFind(msg->messageId, deviceNumber);
+	else if (deviceNumber == 0xFF)
+		deviceNumber = board->deviceNumber(msg->messageId);
+	std::string name;
+	if (board != NULL && deviceNumber != 0xFF)
+		name = board->name(deviceNumber);
+	else if (board != NULL)
+		name = board->name() || ",dev?";
 	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->messageId);
 
 	for (uint8_t i = 0; i < msg->dlc; i++) {

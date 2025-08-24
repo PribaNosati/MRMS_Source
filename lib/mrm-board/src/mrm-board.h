@@ -205,6 +205,8 @@ public:
 	*/
 	uint8_t deadOrAliveCount();
 
+	uint8_t deviceNumber(uint16_t msgId);
+
 	/** Number of devices in each group (board)
 	@return - number of devices
 	*/
@@ -293,7 +295,7 @@ public:
 	@param outbound - otherwise inbound
 	@return -if true, foundand printed
 	*/
-	bool messagePrint(uint32_t msgId, uint8_t dlc, uint8_t * data, bool outbound);
+	void messagePrint(uint32_t msgId, uint8_t dlc, uint8_t * data, bool outbound);
 
 	/** Send CAN Bus message
 	@param dlc - data length
