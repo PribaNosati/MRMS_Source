@@ -211,7 +211,7 @@ public:
 
 	/** End current action
 	*/
-	void actionEnd() { _actionCurrent = NULL; }
+	void actionEnd();
 
 	/** Is this current action's initialization
 	@param andFinish - finish initialization

@@ -215,7 +215,7 @@ public:
 	/** Maximum number of devices in all groups (boards)
 	@raturn - number of devices
 	*/
-	uint8_t devicesMaximumNumberInAllBoards() { return this->devicesOnABoard * this->maximumNumberOfBoards; }
+	uint8_t devicesMaximumNumberInAllBoards();
 
 	/** Ping devices and refresh alive array
 	@param verbose - prints statuses

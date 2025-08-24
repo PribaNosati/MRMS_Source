@@ -266,6 +266,10 @@ uint8_t Board::deviceNumber(uint16_t msgId){
 	return 0xFF;
 }
 
+uint8_t Board::devicesMaximumNumberInAllBoards() { 
+	return this->devicesOnABoard * this->maximumNumberOfBoards;
+}
+
 /** Ping devices and refresh alive array
 @param verbose - prints statuses
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.

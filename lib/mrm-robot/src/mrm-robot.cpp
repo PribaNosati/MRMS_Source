@@ -369,6 +369,10 @@ void Robot::actionAdd(ActionBase* action) {
 	_action[_actionNextFree++] = action;
 }
 
+void Robot::actionEnd() { 
+	_actionCurrent = NULL; 
+}
+
 /** Is this current action's initialization
 @param andFinish - finish initialization
 @return - it is.
@@ -498,7 +502,7 @@ void Robot::actionSet(ActionBase* newAction) {
 @param aBoard - the board.
 */
 void Robot::add(Board* aBoard) {
-	if (_boardNextFree > BOARDS_LIMIT - 1) {
+	if (_boardNextFree >= BOARDS_LIMIT - 1) {
 		strcpy(errorMessage, "Too many boards");
 		return;
 	}
@@ -857,7 +861,7 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 
 
 Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
-	for (uint8_t boardIndex = 0; boardIndex < BOARDS_LIMIT && board[boardIndex] != NULL; boardIndex++){
+	for (uint8_t boardIndex = 0; boardIndex < _boardNextFree; boardIndex++){
 		uint8_t nr = board[boardIndex]->deviceNumber(msgId);
 		if (nr != 0xFF){
 			deviceNumber = nr;
@@ -1388,11 +1392,6 @@ void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
 				#endif
 			}
 		}
-
-// #if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
-// 		if (!any)
-// 			print("Address device unknown: 0x%X\n\r", id);
-// #endif
 	}
 }
 
