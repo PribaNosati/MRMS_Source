@@ -53,6 +53,8 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	strcpy(_wiFiPassword, wiFiPassword);
 	boardInfo = new BoardInfo();
 
+	errors = new std::vector<Error>();
+
 	// EEPROM, data retained after system powered down
 	preferences = new Preferences();
 	preferences->begin("data", false);
