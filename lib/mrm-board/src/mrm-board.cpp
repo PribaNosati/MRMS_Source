@@ -406,9 +406,8 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		errorCode = data[1];
-		robotContainer->errors->push_back(Robot::Error(canId, errorCode, true));
-		print("Error %i in %s.\n\r", errorCode, (*_name)[deviceNumber]);
+		robotContainer->errors->push_back(Robot::Error(canId, data[1], true));
+		print("Error %i in %s.\n\r", data[1], (*_name)[deviceNumber]);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
 		uint16_t firmwareVersion = (data[2] << 8) | data[1];
@@ -492,25 +491,10 @@ bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbou
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
-	if (dlc > 8) {
-		errorCode = 127;
-		return;
-	}
-	else {
-		if (robotContainer->sniffing())
-			messagePrint((*idIn)[deviceNumber], dlc, data, true);
-		// if (maximumNumberOfBoards == 8) {
-		// 	static int cnt = 0;
-		// 	print("Device: %s %i,id: %i, cnt: %i\n\r", name(deviceNumber), deviceNumber,
-		// 		(*idIn)[deviceNumber], cnt);
-		// 	print("Over\n\r");
-		// 	++cnt;
-		// 	delay(500);
-		// 	if (++cnt > 18)
-		// 		return;
-		// }
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], dlc, data);
-	}
+	// if (robotContainer->sniffing())
+	// 	messagePrint((*idIn)[deviceNumber], dlc, data, true);
+
+	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], dlc, data);
 }
 
 /** Returns device's name
@@ -698,7 +682,6 @@ bool MotorBoard::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) 
 				default:
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
-					errorCode = 200;
 					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 			}

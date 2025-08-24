@@ -82,7 +82,6 @@ bool Mrm_us1::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 				default:
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
-					errorCode = 204;
 					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 			}

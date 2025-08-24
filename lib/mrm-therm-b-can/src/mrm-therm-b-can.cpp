@@ -82,7 +82,6 @@ bool Mrm_therm_b_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t len
 				default:
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
-					errorCode = 205;
 					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 			}

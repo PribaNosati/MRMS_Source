@@ -151,7 +151,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 				while ((*readings)[deviceNumber] == 0){
 					robotContainer->noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
-						errorCode = 73;
+						robotContainer->errors->push_back(Robot::Error(idGet(deviceNumber, false), 1, true));
 						break;
 					}
 				}
@@ -210,7 +210,6 @@ bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t lengt
 				default:
 					print("Unknown command. ");
 					messagePrint(canId, length, data, false);
-					errorCode = 206;
 					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 			}
