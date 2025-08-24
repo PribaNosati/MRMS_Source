@@ -29,7 +29,7 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	actionLineFollow = new ActionRobotLine(this, "lnf", "Line follow", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::lineFollow);
 	actionObstacleAvoid = new ActionRobotLine(this, "obs", "Obstacle avoid", 0, Board::BoardId::ID_ANY, NULL, &RobotLine::obstacleAvoid);
 	actionRCJLine = new ActionRobotLine(this, "lin", "RCJ line", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::rcjLine);
-	actionStop = new ActionRobotLine(this, "sto", "Stop", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop);
+	actionStop = new ActionRobotLine(this, "stp", "Stop motors", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop);
 	actionMotorShortTest = new ActionRobotLine(this, "msh", "Motor short test", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::motorShortTest);
 	// Generic actions
 	actionLoop5 = new ActionRobotLine(this, "lo5", "loop5", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop5);

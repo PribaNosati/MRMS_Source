@@ -240,8 +240,6 @@ public:
 	*/
 	void bluetoothTest();
 
-	bool boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index);
-
 	/** Display all the incomming and outcomming CAN Bus messages
 	*/
 	void canBusSniffToggle();

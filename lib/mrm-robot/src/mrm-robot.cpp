@@ -585,17 +585,6 @@ bool Robot::boardDisplayAndSelect(uint8_t *selectedBoardIndex, uint8_t* selected
 	return found;
 }
 
-bool Robot::boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index){
-	for (uint8_t i = 0; i < _boardNextFree; i++) {
-		for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++) 
-			if (out ? board[i]->isFromMe(canId, j) : board[i]->isForMe(canId, j)){
-				*boardFound = board[i];
-				index = j;
-				return true;
-			}
-	}
-	return false;
-}
 
 /** Finds board and device's index for a number received from boardsDisplayAll()
 @param selectedNumber - input
@@ -1382,14 +1371,8 @@ void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
 		}
 
 		uint32_t id = _msg->messageId;
-		if (_sniff){
-			Board* boardFound;
-			int index;
-			if (boardIdentify(_msg->messageId, true , &boardFound, index))
-				messagePrint(_msg, boardFound, index, true);
-			else
-				messagePrint(_msg, NULL, 0, true);
-		}
+		if (_sniff)
+			messagePrint(_msg, NULL, 0, true);
 		#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 		bool any = false;
 		#endif
