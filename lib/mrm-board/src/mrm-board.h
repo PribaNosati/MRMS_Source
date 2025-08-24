@@ -295,7 +295,7 @@ public:
 	@param outbound - otherwise inbound
 	@return -if true, foundand printed
 	*/
-	void messagePrint(uint32_t msgId, uint8_t dlc, uint8_t * data, bool outbound);
+	void messagePrint(uint16_t msgId, uint8_t dlc, uint8_t * data, bool outbound);
 
 	/** Send CAN Bus message
 	@param dlc - data length

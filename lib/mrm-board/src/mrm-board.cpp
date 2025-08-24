@@ -466,7 +466,7 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 @param outbound - otherwise inbound
 @return - if true, found and printed
 */
-void Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbound) {
+void Board::messagePrint(uint16_t msgId, uint8_t dlc, uint8_t* data, bool outbound) {
 	CANBusMessage* message = new CANBusMessage(robotContainer, msgId, data, dlc);
 	robotContainer->messagePrint(message, this, 0xFF, outbound);
 }

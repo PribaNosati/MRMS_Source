@@ -770,6 +770,7 @@ void RobotLine::sign(uint8_t number) {
 */
 void RobotLine::stop() {
 	motorGroup->stop();
+	end();
 }
 
 /** Store 8x8 image to 8x8 LED's internal memory
