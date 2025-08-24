@@ -127,8 +127,8 @@ bool Mrm_node::messageDecode(CANBusMessage message) {
 				break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, dlc, message.data, false);
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					messagePrint(message, false);
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 
 				if (any)

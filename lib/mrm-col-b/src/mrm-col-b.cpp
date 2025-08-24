@@ -383,7 +383,7 @@ bool Mrm_col_b::messageDecode(CANBusMessage message) {
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(message.messageId, message.dlc, message.data, false);
+					messagePrint(message, false);
 					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 			}

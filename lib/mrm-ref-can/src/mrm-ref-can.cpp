@@ -377,32 +377,32 @@ bool Mrm_ref_can::messageDecode(CANBusMessage message) {
 				case COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_1_TO_3:
 					startIndex = 0;
 					anyCalibrationDataBright = true;
-					(*message.dataFresh)[deviceNumber] |= 0b00010000;
+					(*dataFresh)[deviceNumber] |= 0b00010000;
 					break;
 				case COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_4_TO_6:
 					startIndex = 3;
 					anyCalibrationDataBright = true;
-					(*message.dataFresh)[deviceNumber] |= 0b00001000;
+					(*dataFresh)[deviceNumber] |= 0b00001000;
 					break;
 				case COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_7_TO_9:
 					startIndex = 6;
 					anyCalibrationDataBright = true;
-					(*message.dataFresh)[deviceNumber] |= 0b00000100;
+					(*dataFresh)[deviceNumber] |= 0b00000100;
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_1_TO_3:
 					startIndex = 0;
 					anyReading = true;
-					(*message.dataFresh)[deviceNumber] |= 0b10000000;
+					(*dataFresh)[deviceNumber] |= 0b10000000;
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_4_TO_6:
 					startIndex = 3;
 					anyReading = true;
-					(*message.dataFresh)[deviceNumber] |= 0b01000000;
+					(*dataFresh)[deviceNumber] |= 0b01000000;
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_7_TO_9:
 					startIndex = 6;
 					anyReading = true;
-					(*message.dataFresh)[deviceNumber] |= 0b00100000;
+					(*dataFresh)[deviceNumber] |= 0b00100000;
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_CENTER:
@@ -423,7 +423,7 @@ bool Mrm_ref_can::messageDecode(CANBusMessage message) {
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(message.messageId, message.dlc, message.data, false);
+					messagePrint(message, false);
 					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 

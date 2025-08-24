@@ -213,7 +213,7 @@ bool Mrm_lid_can_b2::messageDecode(CANBusMessage message) {
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(message.messageId, message.dlc, message.data, false);
+					messagePrint(message, false);
 					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 			}

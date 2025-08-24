@@ -161,7 +161,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(CANBusMessage
+	bool messageDecode(CANBusMessage message);
 
 	/** Displays 8-row progress bar. Useful for visual feedback of a long process.
 	@param period - total count (100%)

@@ -120,7 +120,7 @@ bool Mrm_fet_can::messageDecode(CANBusMessage message) {
 				switch (message.data[0]) {
 				default:
 					print("Unknown command. ");
-					messagePrint(message.messageId, message.dlc, message.data, false);
+					messagePrint(message, false);
 					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 			}
