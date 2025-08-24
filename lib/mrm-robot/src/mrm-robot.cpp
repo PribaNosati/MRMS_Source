@@ -989,7 +989,7 @@ void Robot::devicesStop() {
 */
 void Robot::errorsDisplay() {
 	for (const Error& error: *errors)
-		print("% ms, id: %i, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), error.errorCode);
+		print("% ms, id: 0x%02X, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), error.errorCode);
 }
 
 /** Displays each CAN Bus device's firmware

@@ -113,7 +113,6 @@ protected:
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	//std::vector<bool>(maxNumberOfBoards * devicesOn1Board) deviceStarted; //todo - not to allow reading if the device not started.
-	uint8_t errorCode = 0;
 	std::vector<uint16_t>* fpsLast; // FPS local copy.
 	BoardId _id;
 	std::vector<uint32_t>* idIn;  // Inbound message id
@@ -220,11 +219,6 @@ public:
 	@param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 	*/
 	void devicesScan(bool verbose = true, uint16_t mask = 0xFFFF);
-
-	/** Last error code
-	@return - last error code from all devices of this kind
-	*/
-	uint8_t errorCodeLast() { return errorCode; }
 
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
