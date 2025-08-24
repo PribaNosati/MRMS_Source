@@ -352,17 +352,17 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 @param length - number of data bytes
 @return - target device found
 */
-bool Mrm_ref_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
+bool Mrm_ref_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
+		if (isForMe(message.messageId, deviceNumber)) {
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
 				bool anyReading = false;
 				bool anyCalibrationDataDark = false;
 				bool anyCalibrationDataBright = false;
 				uint8_t startIndex = 0;
-				switch (data[0]) {
+				switch (message.data[0]) {
 				case COMMAND_REF_CAN_CALIBRATION_DATA_DARK_1_TO_3:
-					// todo - dataFresh only 8 bits so the first 3 messages do not work
+					// todo - message.dataFresh only 8 bits so the first 3 messages do not work
 					startIndex = 0;
 						anyCalibrationDataDark = true;
 						break;
@@ -377,67 +377,67 @@ bool Mrm_ref_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length)
 				case COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_1_TO_3:
 					startIndex = 0;
 					anyCalibrationDataBright = true;
-					(*dataFresh)[deviceNumber] |= 0b00010000;
+					(*message.dataFresh)[deviceNumber] |= 0b00010000;
 					break;
 				case COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_4_TO_6:
 					startIndex = 3;
 					anyCalibrationDataBright = true;
-					(*dataFresh)[deviceNumber] |= 0b00001000;
+					(*message.dataFresh)[deviceNumber] |= 0b00001000;
 					break;
 				case COMMAND_REF_CAN_CALIBRATION_DATA_BRIGHT_7_TO_9:
 					startIndex = 6;
 					anyCalibrationDataBright = true;
-					(*dataFresh)[deviceNumber] |= 0b00000100;
+					(*message.dataFresh)[deviceNumber] |= 0b00000100;
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_1_TO_3:
 					startIndex = 0;
 					anyReading = true;
-					(*dataFresh)[deviceNumber] |= 0b10000000;
+					(*message.dataFresh)[deviceNumber] |= 0b10000000;
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_4_TO_6:
 					startIndex = 3;
 					anyReading = true;
-					(*dataFresh)[deviceNumber] |= 0b01000000;
+					(*message.dataFresh)[deviceNumber] |= 0b01000000;
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_7_TO_9:
 					startIndex = 6;
 					anyReading = true;
-					(*dataFresh)[deviceNumber] |= 0b00100000;
+					(*message.dataFresh)[deviceNumber] |= 0b00100000;
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case COMMAND_REF_CAN_SENDING_SENSORS_CENTER:
-					(*centerOfMeasurements)[deviceNumber] = (uint16_t)((data[2] << 8) | data[1]);
+					(*centerOfMeasurements)[deviceNumber] = (uint16_t)((message.data[2] << 8) | message.data[1]);
 
-					(*_reading)[deviceNumber][0] = (data[3] & 0b10000000) >> 7;
-					(*_reading)[deviceNumber][1] = (data[3] & 0b01000000) >> 6;
-					(*_reading)[deviceNumber][2] = (data[3] & 0b00100000) >> 5;
-					(*_reading)[deviceNumber][3] = (data[3] & 0b00010000) >> 4;
-					(*_reading)[deviceNumber][4] = (data[3] & 0b00001000) >> 3;
-					(*_reading)[deviceNumber][5] = (data[3] & 0b00000100) >> 2;
-					(*_reading)[deviceNumber][6] = (data[3] & 0b00000010) >> 1;
-					(*_reading)[deviceNumber][7] = data[3] & 0b00000001;
-					(*_reading)[deviceNumber][8] = data[4];
+					(*_reading)[deviceNumber][0] = (message.data[3] & 0b10000000) >> 7;
+					(*_reading)[deviceNumber][1] = (message.data[3] & 0b01000000) >> 6;
+					(*_reading)[deviceNumber][2] = (message.data[3] & 0b00100000) >> 5;
+					(*_reading)[deviceNumber][3] = (message.data[3] & 0b00010000) >> 4;
+					(*_reading)[deviceNumber][4] = (message.data[3] & 0b00001000) >> 3;
+					(*_reading)[deviceNumber][5] = (message.data[3] & 0b00000100) >> 2;
+					(*_reading)[deviceNumber][6] = (message.data[3] & 0b00000010) >> 1;
+					(*_reading)[deviceNumber][7] = message.data[3] & 0b00000001;
+					(*_reading)[deviceNumber][8] = message.data[4];
 
 					(*dataFresh)[deviceNumber] |= 0b11100000;
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					messagePrint(message.messageId, message.dlc, message.data, false);
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 
 				if (anyReading)
 					for (uint8_t i = 0; i <= 2; i++)
-						(*_reading)[deviceNumber][startIndex + i] = (data[2 * i + 1] << 8) | data[2 * i + 2];
+						(*_reading)[deviceNumber][startIndex + i] = (message.data[2 * i + 1] << 8) | message.data[2 * i + 2];
 
 				if (anyCalibrationDataBright)
 					for (uint8_t i = 0; i <= 2; i++)
-						(*calibrationDataBright)[deviceNumber][startIndex + i] = (data[2 * i + 1] << 8) | data[2 * i + 2];
+						(*calibrationDataBright)[deviceNumber][startIndex + i] = (message.data[2 * i + 1] << 8) | message.data[2 * i + 2];
 
 				if (anyCalibrationDataDark)
 					for (uint8_t i = 0; i <= 2; i++)
-						(*calibrationDataDark)[deviceNumber][startIndex + i] = (data[2 * i + 1] << 8) | data[2 * i + 2];
+						(*calibrationDataDark)[deviceNumber][startIndex + i] = (message.data[2 * i + 1] << 8) | message.data[2 * i + 2];
 			}
 
 			return true;

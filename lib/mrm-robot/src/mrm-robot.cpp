@@ -1385,7 +1385,7 @@ void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
 			// 	print ("BRD: %s\n\r", board[boardId]->name());
 			// 	messagePrint(_msg, false);
 			// }
- 			if (board[boardId]->messageDecode(id, _msg->data, _msg->dlc)) {
+ 			if (board[boardId]->messageDecode(*_msg)) {
 				#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 				any = true;
 				break;

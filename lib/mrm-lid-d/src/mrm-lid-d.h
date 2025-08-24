@@ -126,7 +126,7 @@ public:
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8);
+	bool messageDecode(CANBusMessage message);
 
 	/** Enable plug and play
 	@param enable - enable or disable

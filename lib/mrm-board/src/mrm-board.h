@@ -286,7 +286,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8) = 0;
+	virtual bool messageDecode(CANBusMessage message)= 0;
 
 	/** Prints a frame
 	@param msgId - messageId
@@ -395,7 +395,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8);
+	bool messageDecode(CANBusMessage message);
 
 	/** Encoder readings
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -471,7 +471,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8){return false;}
+	virtual bool messageDecode(CANBusMessage message){return false;}
 
 	/** All readings
 	@param subsensorNumberInSensor - like a single IR transistor in mrm-ref-can

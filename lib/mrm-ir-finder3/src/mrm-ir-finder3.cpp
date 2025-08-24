@@ -139,40 +139,40 @@ uint16_t Mrm_ir_finder3::distance(uint8_t deviceNumber) {
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_ir_finder3::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
+bool Mrm_ir_finder3::messageDecode(CANBusMessage message) {
 	// Todo: a problem: one message can be for short range sensors, the other for long. A mixed data will be the result.
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
+		if (isForMe(message.messageId, deviceNumber)) {
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
 				uint8_t length = 7;
-				switch (data[0]) {
+				switch (message.data[0]) {
 				case COMMAND_IR_FINDER3_SENDING_SENSORS_1_TO_7:
 					any = true;
 					break;
 				case COMMAND_IR_FINDER3_SENDING_SENSORS_8_TO_12:
 					startIndex = 7;
 					length = 5;
-					(*_near)[deviceNumber] = data[6];
+					(*_near)[deviceNumber] = message.data[6];
 					(*_lastReadingMs)[deviceNumber] = millis();
 					any = true;
 					break;
 				case COMMAND_SENSORS_MEASURE_CALCULATED_SENDING:
-					(*_angle)[deviceNumber] = ((data[1] << 8) | data[2]) - 180;
-					(*_distance)[deviceNumber] = (data[3] << 8) | data[4];
-					(*_near)[deviceNumber] = data[5];
+					(*_angle)[deviceNumber] = ((message.data[1] << 8) | message.data[2]) - 180;
+					(*_distance)[deviceNumber] = (message.data[3] << 8) | message.data[4];
+					(*_near)[deviceNumber] = message.data[5];
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					messagePrint(message.messageId, message.dlc, length, false);
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 
 				if (any)
 					for (uint8_t i = 0; i < length; i++)
-						(*readings)[deviceNumber][startIndex + i] = data[i + 1];
+						(*readings)[deviceNumber][startIndex + i] = message.data[i + 1];
 			}
 			return true;
 		}

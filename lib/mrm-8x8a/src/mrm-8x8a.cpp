@@ -825,20 +825,20 @@ std::string Mrm_8x8a::commandName(uint8_t byte){
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
+bool Mrm_8x8a::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) { 
+		if (isForMe(message.messageId, deviceNumber)) {
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+				switch (message.data[0]) { 
 				case COMMAND_8X8_SWITCH_ON:
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
-					uint8_t switchNumber = data[1] >> 1;
+					uint8_t switchNumber = message.data[1] >> 1;
 					if (switchNumber > 4) {
 						printf(errorMessage, "No %s: %i.", _boardsName, switchNumber);
 							return false;
 					}
-					(*on)[deviceNumber][switchNumber] = data[1] & 1;
-					if (data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {
+					(*on)[deviceNumber][switchNumber] = message.data[1] & 1;
+					if (message.data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {
 						canData[0] = COMMAND_NOTIFICATION;
 						canData[1] = switchNumber; //todo - deviceNumber not taken into account
 						robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
@@ -847,13 +847,13 @@ bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
 				}
 					break;
 				case COMMAND_8x8_TEST_CAN_BUS:
-					print("Test: %i\n\r", data[1]);
+					print("Test: %i\n\r", message.data[1]);
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
+					messagePrint(message.messageId, message.dlc, message.data, false);
 					print("\n\r");
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				} 
 			}
 			return true;

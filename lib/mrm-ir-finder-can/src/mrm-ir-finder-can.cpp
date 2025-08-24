@@ -64,13 +64,13 @@ void Mrm_ir_finder_can::add(char * deviceName)
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_ir_finder_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
+bool Mrm_ir_finder_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
+		if (isForMe(message.messageId, deviceNumber)) {
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
-				switch (data[0]) {
+				switch (message.data[0]) {
 				case COMMAND_IR_FINDER_CAN_SENDING_SENSORS_1_TO_3:
 					startIndex = 0;
 					any = true;
@@ -88,18 +88,18 @@ bool Mrm_ir_finder_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t l
 					any = true;
 					break;
 				case COMMAND_SENSORS_MEASURE_CALCULATED_SENDING:
-					angle = (data[1] << 8 | data[2]) - 180;
-					distance = data[3] << 8 | data[4];
+					angle = (message.data[1] << 8 | message.data[2]) - 180;
+					distance = message.data[3] << 8 | message.data[4];
 					break;
 				default:
 					robotContainer->print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					messagePrint(message.messageId, message.dlc, message.data, false);
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 
 				if (any)
 					for (uint8_t i = 0; i <= 2; i++)
-						(*readings)[deviceNumber][startIndex + i] = (data[2 * i + 1] << 8) | data[2 * i + 2];
+						(*readings)[deviceNumber][startIndex + i] = (message.data[2 * i + 1] << 8) | message.data[2 * i + 2];
 			}
 			return true;
 		}

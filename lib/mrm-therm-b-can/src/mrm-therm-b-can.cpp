@@ -68,21 +68,21 @@ void Mrm_therm_b_can::add(char * deviceName)
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_therm_b_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length){
+bool Mrm_therm_b_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)){
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) {
+		if (isForMe(message.messageId, deviceNumber)){
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
-					int16_t temp = (data[2] << 8) | data[1];
+					int16_t temp = (message.data[2] << 8) | message.data[1];
 					(*readings)[deviceNumber] = temp;
 					(*_lastReadingMs)[deviceNumber] = millis();
 				}
 				break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					messagePrint(message.messageId, message.dlc, message.data, false);
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 			}
 			return true;

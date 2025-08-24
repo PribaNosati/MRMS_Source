@@ -196,25 +196,25 @@ void Mrm_lid_can_b2::measurementTime(uint8_t deviceNumber, uint16_t ms) {
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_lid_can_b2::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length){
+bool Mrm_lid_can_b2::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)){
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) {
+		if (isForMe(message.messageId, deviceNumber)){
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
-					uint16_t mm = (data[2] << 8) | data[1];
+					uint16_t mm = (message.data[2] << 8) | message.data[1];
 					(*readings)[deviceNumber] = mm;
 					(*_lastReadingMs)[deviceNumber] = millis();
 				}
 				break;
 				case COMMAND_INFO_SENDING_1:
-					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", name(deviceNumber), data[1] ? "short" : "long", data[2] | (data[3] << 8),
-						data[4] & 0xFF, data[5] & 0xFF, data[6] | (data[7] << 8));
+					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", name(deviceNumber), message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
+						message.data[4] & 0xFF, message.data[5] & 0xFF, message.data[6] | (message.data[7] << 8));
 					break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
+					messagePrint(message.messageId, message.dlc, message.data, false);
+					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 			}
 			return true;

@@ -63,7 +63,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t length);
+bool messageDecode(CANBusMessage message);
 	
 	/** Cumulative readings
 	@param receiverNumberInSensor - single IR receiver in mrm-ir-finder-can

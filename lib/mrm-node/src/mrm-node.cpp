@@ -94,14 +94,14 @@ std::string Mrm_node::commandName(uint8_t byte){
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc) {
+bool Mrm_node::messageDecode(CANBusMessage message) {
 
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
+		if (isForMe(message.messageId, deviceNumber)) {
+			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
-				switch (data[0]) {
+				switch (message.data[0]) {
 				case COMMAND_NODE_SENDING_SENSORS_1_TO_3:
 					startIndex = 0;
 					any = true;
@@ -116,24 +116,24 @@ bool Mrm_node::messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc) {
 					(*_lastReadingMs)[deviceNumber] = millis();
 					break;
 				case COMMAND_NODE_SWITCH_ON: {
-					uint8_t switchNumber = data[1] >> 1;
+					uint8_t switchNumber = message.data[1] >> 1;
 					if (switchNumber > 4) {
 						strcpy(errorMessage, "No mrm-switch");
 						return false;
 					}
-					(*switches)[deviceNumber][switchNumber] = data[1] & 1;
+					(*switches)[deviceNumber][switchNumber] = message.data[1] & 1;
 					(*_lastReadingMs)[deviceNumber] = millis();
 				}
 				break;
 				default:
 					print("Unknown command. ");
-					messagePrint(canId, dlc, data, false);
+					messagePrint(canId, dlc, message.data, false);
 					robotContainer->errors->push_back(Robot::Error(canId, COMMAND_UNKONWN, false));
 				}
 
 				if (any)
 					for (uint8_t i = 0; i <= 2; i++)
-						(*readings)[deviceNumber][startIndex + i] = (data[2 * i + 1] << 8) | data[2 * i + 2];
+						(*readings)[deviceNumber][startIndex + i] = (message.data[2 * i + 1] << 8) | message.data[2 * i + 2];
 			}
 			return true;
 		}
