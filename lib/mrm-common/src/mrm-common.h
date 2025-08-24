@@ -15,3 +15,16 @@ void print(const char* fmt, ...);
 /** Print to all serial ports, pointer to list
 */
 void vprint(const char* fmt, va_list argp);
+
+	struct Error {
+		uint32_t time;
+		uint16_t canId;
+		uint8_t errorCode;
+		bool peripheral;
+		Error(uint16_t canId, uint8_t errorCode, bool peripheral) {
+			this->time = millis();
+			this->canId = canId;
+			this->errorCode = errorCode;
+			this->peripheral = peripheral;
+		}
+	};

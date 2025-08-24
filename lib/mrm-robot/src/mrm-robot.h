@@ -160,19 +160,6 @@ protected:
 	void verbosePrint();
 
 public: 
-	struct Error {
-		uint32_t time;
-		uint16_t canId;
-		uint8_t errorCode;
-		bool peripheral;
-		Error(uint16_t canId, uint8_t errorCode, bool peripheral) {
-			this->time = millis();
-			this->canId = canId;
-			this->errorCode = errorCode;
-			this->peripheral = peripheral;
-		}
-	};
-
 	std::vector<Error>* errors;
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;

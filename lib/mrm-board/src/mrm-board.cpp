@@ -418,7 +418,7 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		robotContainer->errors->push_back(Robot::Error(canId, data[1], true));
+		robotContainer->errors->push_back(::Error(canId, data[1], true));
 		print("Error %i in %s.\n\r", data[1], (*_name)[deviceNumber]);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
@@ -671,7 +671,7 @@ bool MotorBoard::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->push_back(Robot::Error(message.messageId, COMMAND_UNKONWN, false));
+					robotContainer->errors->push_back(::Error(message.messageId, COMMAND_UNKONWN, false));
 				}
 			}
 			return true;
