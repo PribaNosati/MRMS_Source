@@ -459,30 +459,15 @@ bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceN
 @return - if true, found and printed
 */
 bool Board::messagePrint(uint32_t msgId, uint8_t dlc, uint8_t* data, bool outbound) {
-	bool found = false;
+	uint8_t foundDeviceNumber = 0xFF;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(msgId, deviceNumber) || isFromMe(msgId, deviceNumber)) {
-			print("%s id:%s (0x%02X)", outbound ? "To" : "From", (*_name)[deviceNumber], msgId);
-			for (uint8_t i = 0; i < dlc; i++) {
-				if (i == 0)
-					commandNamePrint(data[0]);
-				else
-					print(" %02X", data[i]);
-			}
-			print("\n\r");
-			found = true;
+			foundDeviceNumber = deviceNumber;
+			break;
 		}
-	if (!found) {
-		print("%s id:0x%02X", outbound ? "Out" : "In", msgId);
-		for (uint8_t i = 0; i < dlc; i++) {
-			if (i == 0)
-				commandNamePrint(data[0]);
-			else
-				print(" %02X", data[i]);
-		}
-		print("\n\r");
-	}
-	return found;
+	CANBusMessage message(robotContainer, msgId, data, dlc);
+	robotContainer->messagePrint(&message, this, foundDeviceNumber, outbound);
+	return foundDeviceNumber != 0xFF;
 }
 
 /** Send CAN Bus message

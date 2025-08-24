@@ -1308,13 +1308,14 @@ void Robot::menuSystem() {
 @param msg - message
 @param oubound - if not, inbound
 */
-void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t boardIndex, bool outbound) {
+void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t deviceNumber, bool outbound) {
 	if (msg->dlc > 8){
 		print("dlc too big: %i\n\r", (int)msg->dlc);
 		exit(12);
 	}
+	std::string name = deviceNumber == 0xFF ? "Unknown device" : board->name(deviceNumber);
 	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", 
-		board == NULL ? "Unknown" : board->name(boardIndex), msg->messageId);
+		board == NULL ? "Unknown" : name, msg->messageId);
 
 	for (uint8_t i = 0; i < msg->dlc; i++) {
 		if (i == 0){
