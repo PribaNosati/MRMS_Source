@@ -17,7 +17,7 @@
 
 class ActionBase;
 class Board;
-struct BoardInfo;
+struct Device;
 class Mrm_8x8a;
 class Mrm_bldc2x50;
 class Mrm_bldc4x2_5;
@@ -71,7 +71,7 @@ protected:
 	bool _actionTextDisplay = true;
 
 	Board* board[BOARDS_LIMIT]; // Collection of all the robot's boards
-	BoardInfo * boardInfo;
+	Device * boardInfo;
 	uint8_t _boardNextFree = 0;
 
 	uint8_t _devicesAtStartup = 0;
@@ -304,12 +304,12 @@ public:
 	void delayMicros(uint16_t pauseMicros);
 
 	Board* deviceFind(uint16_t msgId, uint8_t deviceNumber);
-	
+
 	/** Lists all the alive (responded to last ping) CAN Bus devices.
 	@boardType - sensor, motor, or all boards
 	@return count
 	*/
-	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
+	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, Device * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
 
 	void deviceScan();
 

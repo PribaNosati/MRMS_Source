@@ -89,7 +89,7 @@
 class Robot;
 
 class Board;
-struct BoardInfo{
+struct Device{
 	public:
 	Board * board;
 	uint8_t deviceNumber;
@@ -116,8 +116,8 @@ protected:
 	//std::vector<bool>(maxNumberOfBoards * devicesOn1Board) deviceStarted; //todo - not to allow reading if the device not started.
 	std::vector<uint16_t>* fpsLast; // FPS local copy.
 	BoardId _id;
-	std::vector<uint32_t>* idIn;  // Inbound message id
-	std::vector<uint32_t>* idOut; // Outbound message id
+	std::vector<uint16_t>* idIn;  // Inbound message id
+	std::vector<uint16_t>* idOut; // Outbound message id
 	std::vector<uint64_t>* lastMessageReceivedMs;
 	std::vector<uint64_t>* _lastReadingMs;
 	uint8_t maximumNumberOfBoards;

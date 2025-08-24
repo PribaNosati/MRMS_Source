@@ -37,7 +37,7 @@ public:
 	@param data - up to 8 data bytes
 	@return - true if a message received
 	*/
-	void messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]);
+	void messageSend(uint16_t stdId, uint8_t dlc, uint8_t data[8]);
 
 	/** Number of received CAN Bus messages per second
 	@return - number of messages

@@ -167,7 +167,7 @@ void Mrm_can_bus::messagesReset() {
 @param data - up to 8 data bytes
 @return - true if a message received
 */
-void Mrm_can_bus::messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]) {
+void Mrm_can_bus::messageSend(uint16_t stdId, uint8_t dlc, uint8_t data[8]) {
 	twai_message_t message;
 	message.identifier = stdId;
 	message.flags = 0;

@@ -51,7 +51,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	if (strlen(wiFiPassword) > 15)
 		strcpy(errorMessage, "WiFi pwd. overflow");
 	strcpy(_wiFiPassword, wiFiPassword);
-	boardInfo = new BoardInfo();
+	boardInfo = new Device();
 
 	errors = new std::vector<Error>();
 
@@ -884,7 +884,7 @@ Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
 @boardType - sensor, motor, or all boards
 @return count
 */
-void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, BoardInfo * deviceInfo, Board::BoardType boardType){
+void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, Board::BoardType boardType){
 	uint8_t count = 0;
 	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
 		if (boardType == Board::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types

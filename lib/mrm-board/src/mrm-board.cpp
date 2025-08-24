@@ -20,8 +20,8 @@ std::vector<String>* commandNames =  new std::vector<String>();
 */
 Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, const char boardName[], BoardType boardType, BoardId id) {
 	robotContainer = robot;
-	idIn = new std::vector<uint32_t>(maxNumberOfBoards * devicesOn1Board);
-	idOut = new std::vector<uint32_t>(maxNumberOfBoards * devicesOn1Board);
+	idIn = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
+	idOut = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
 	_name = new std::vector<char[10]>(maxNumberOfBoards * devicesOn1Board);
 	fpsLast = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
 	lastMessageReceivedMs = new std::vector<uint64_t>(maxNumberOfBoards * devicesOn1Board);
