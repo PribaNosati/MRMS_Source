@@ -82,7 +82,7 @@ bool Mrm_therm_b_can::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->push_back(::Error(message.messageId, COMMAND_UNKONWN, false));
+					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
 				}
 			}
 			return true;

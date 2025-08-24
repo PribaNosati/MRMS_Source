@@ -53,7 +53,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	strcpy(_wiFiPassword, wiFiPassword);
 	boardInfo = new Device();
 
-	errors = new std::vector<Error>();
+	errors = new Errors();
 
 	// EEPROM, data retained after system powered down
 	preferences = new Preferences();
@@ -999,16 +999,6 @@ void Robot::devicesStop() {
 	}
 }
 
-void Robot::errorsDelete() {
-	errors->clear();
-}
-
-/** Displays errors and stops motors, if any.
-*/
-void Robot::errorsDisplay() {
-	for (const Error& error: *errors)
-		print("% ms, id: 0x%02X, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), error.errorCode);
-}
 
 /** Displays each CAN Bus device's firmware
 */
@@ -1269,8 +1259,8 @@ void Robot::menu() {
 			print("\r\n");
 
 	// Display errors
-	errorsDisplay();
-	errorsDelete();
+	errors->display();
+	errors->deleteAll();
 
 	fpsPause(); // this function took too much time
 
@@ -1337,17 +1327,17 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t deviceNumber,
 		if (i == 0){
 			print(" command: ");
 			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] == 0xFF)
-				board->commandNamePrint(msg->data[0]);
+				print(Board::commandNames->at(msg->data[0]).c_str());
 			else{	
 				if (board != NULL && board->commandName(msg->data[0]) != "")
 					print((board->commandName(msg->data[0])).c_str());
 				else
 					print("Unknown");
 			}
-			print(" (%02X)", _msg->data[0]);
+			print(" (%02X)", msg->data[0]);
 		}
 		else
-			print(" %02X", _msg->data[i]);
+			print(" %02X", msg->data[i]);
 	}
 	print("\n\r");
 }

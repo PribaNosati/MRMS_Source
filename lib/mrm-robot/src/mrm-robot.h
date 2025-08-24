@@ -160,7 +160,7 @@ protected:
 	void verbosePrint();
 
 public: 
-	std::vector<Error>* errors;
+	Errors* errors;
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;
 	Mrm_bldc2x50* mrm_bldc2x50;

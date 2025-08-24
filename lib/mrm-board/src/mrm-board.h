@@ -5,6 +5,7 @@
 #include "mrm-common.h"
 #include "mrm-pid.h"
 #include <vector>
+#include <map>
 
 // Addresses:
 // 0x0110 - 272 mrm-bldc2x125
@@ -137,6 +138,7 @@ protected:
 	bool messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceNumber = 0);
 
 public:
+	static std::map<int, std::string>* commandNames;
 	bool _aliveReport = false;
 	
 	/**
@@ -190,8 +192,6 @@ public:
 	bool canGap();
 
 	virtual std::string commandName(uint8_t byte);
-
-	void commandNamePrint(uint8_t commandIndex);
 
 	/** Did any device respond to last ping?
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

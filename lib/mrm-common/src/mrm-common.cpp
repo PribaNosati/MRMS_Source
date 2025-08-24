@@ -39,3 +39,23 @@ void vprint(const char* fmt, va_list argp) {
 	if (serialBT != NULL)
 		serialBT->print(buffer);
 }
+
+void Errors::add(uint16_t canId, uint8_t errorCode, bool peripheral) {
+    try{
+	    errorList.push_back(::Error(canId, errorCode, peripheral));
+    } catch (const std::exception& e) {
+        snprintf(errorMessage, sizeof(errorMessage), "Error adding to error list: %s", e.what());
+        exit(77);
+    }
+}
+
+void Errors::deleteAll() {
+	errorList.clear();
+}
+
+/** Displays errors and stops motors, if any.
+*/
+void Errors::display() {
+	for (const ::Error& error: errorList)
+		print("% ms, id: 0x%02X, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), error.errorCode);
+}
