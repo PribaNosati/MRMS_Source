@@ -77,6 +77,7 @@
 #define MRM_MOTORS_INACTIVITY_ALLOWED_MS 10000
 
 #define MAX_MOTORS_IN_GROUP 4
+#define PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS 10000
 
 #ifndef toRad
 #define toRad(x) ((x) / 180.0 * PI) // Degrees to radians

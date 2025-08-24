@@ -268,7 +268,7 @@ void Board::devicesScan(bool verbose, uint16_t mask) {
 		if (((mask >> deviceNumber) & 1) && !aliveGet(deviceNumber)) { // If in the list requested to be scanned.
 			canData[0] = COMMAND_REPORT_ALIVE;
 			messageSend(canData, 1, deviceNumber);
-			robotContainer->delayMicros(PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+			robotContainer->delayMicros(id() == BoardId::ID_MRM_8x8A ? PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS * 3 :  PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
 		}
 	}
 	//print("%s OVER\n\r", nameGroup);

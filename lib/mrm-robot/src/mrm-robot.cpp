@@ -707,28 +707,33 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 	while (!userBreak() && (iterations < 0 || iterations-- > 0)) { // Infinite loop or limited by iterations
 
 		mrm_8x8a->messageSend(data, 8, 0);
-		delay(2);
+		delay(8);
 		uint32_t startMs = millis();
 		bool timeout = false;
 		CANBusMessage message[5];
-		int8_t last;
-				int8_t found = -1;
+		int8_t found = -1;
+		uint16_t numberReceived = 0;
 		while(found == -1){
+			int8_t last;
 			messagesReceive(message, last);
 			if (last >= 0){
-			for (uint8_t i = 0; i <= last; i++)
-				if (message[i].data[0] == COMMAND_CAN_TEST){
-					found = i;
-					break;
-				}
+				numberReceived += last + 1;
+				for (uint8_t i = 0; i <= last; i++)
+					if (message[i].data[0] == COMMAND_CAN_TEST){
+						found = i;
+						break;
+					}
 			}
 			if (millis() - startMs > 500)
 				break;
 		}
 
 		bool ok = true;
-		if (found == -1)
+		if (found == -1){
 			ok = false;
+			if (verbose)
+				print("No appropriate answer, %i received.\n\r", (int)numberReceived);
+		}
 		else{
 			for (uint8_t i = 0; i < 8; i++)
 				if (data[i] != message[found].data[i]){
@@ -983,6 +988,10 @@ void Robot::devicesStop() {
 		board[deviceNumber]->stop();
 		delayMs(1); // TODO
 	}
+}
+
+void Robot::errorsDelete() {
+	errors->clear();
 }
 
 /** Displays errors and stops motors, if any.
@@ -1252,6 +1261,7 @@ void Robot::menu() {
 
 	// Display errors
 	errorsDisplay();
+	errorsDelete();
 
 	fpsPause(); // this function took too much time
 

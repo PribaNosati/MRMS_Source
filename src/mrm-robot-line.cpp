@@ -756,7 +756,7 @@ uint8_t RobotLine::saturation(uint8_t deviceNumber) {
 @param servoNumber - Servo's ordinal number. Each call of function add() assigns a increasing number to the servo, starting with 0.
 */
 void RobotLine::servo(uint16_t degrees, uint8_t servoNumber){
-	return mrm_servo->write(degrees, servoNumber);
+	mrm_servo->write(degrees, servoNumber);
 }
 
 /** Display fixed sign stored in sensor

@@ -49,7 +49,8 @@ class Mrm_us1;
 /** Base class for all robots.
 */
 class Robot {
-
+private:
+	enum ErrorCodes {};
 protected:
 	ActionBase* _action[ACTIONS_LIMIT]; // Collection of all the robot's actions
 	uint8_t _actionNextFree = 0;
@@ -330,6 +331,8 @@ public:
 	/** End current action
 	*/
 	void end() { actionEnd(); }
+
+	void errorsDelete();
 
 	/** Displays errors and stops motors, if any.
 	*/
