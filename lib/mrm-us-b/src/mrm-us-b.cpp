@@ -70,7 +70,7 @@ void Mrm_us_b::add(char * deviceName)
 bool Mrm_us_b::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				switch (message.data[0]) {
 					case COMMAND_SENSORS_MEASURE_SENDING:
 					{

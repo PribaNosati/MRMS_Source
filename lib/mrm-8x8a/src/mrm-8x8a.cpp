@@ -828,7 +828,7 @@ std::string Mrm_8x8a::commandName(uint8_t byte){
 bool Mrm_8x8a::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				switch (message.data[0]) { 
 				case COMMAND_8X8_SWITCH_ON:
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {

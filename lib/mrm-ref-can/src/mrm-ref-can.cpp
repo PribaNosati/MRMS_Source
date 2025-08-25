@@ -355,7 +355,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 bool Mrm_ref_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool anyReading = false;
 				bool anyCalibrationDataDark = false;
 				bool anyCalibrationDataBright = false;

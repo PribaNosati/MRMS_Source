@@ -67,7 +67,7 @@ void Mrm_ir_finder_can::add(char * deviceName)
 bool Mrm_ir_finder_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
 				switch (message.data[0]) {

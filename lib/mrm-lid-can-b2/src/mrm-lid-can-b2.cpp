@@ -199,7 +199,7 @@ void Mrm_lid_can_b2::measurementTime(uint8_t deviceNumber, uint16_t ms) {
 bool Mrm_lid_can_b2::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)){
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint16_t mm = (message.data[2] << 8) | message.data[1];

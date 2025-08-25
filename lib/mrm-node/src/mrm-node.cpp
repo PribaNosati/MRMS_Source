@@ -98,7 +98,7 @@ bool Mrm_node::messageDecode(CANBusMessage message) {
 
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
 				switch (message.data[0]) {

@@ -143,7 +143,7 @@ bool Mrm_ir_finder3::messageDecode(CANBusMessage message) {
 	// Todo: a problem: one message can be for short range sensors, the other for long. A mixed data will be the result.
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
 				uint8_t length = 7;

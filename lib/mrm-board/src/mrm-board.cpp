@@ -369,41 +369,41 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - command found
 */
-bool Board::messageDecodeCommon(uint32_t canId, uint8_t data[8], uint8_t deviceNumber) {
+bool Board::messageDecodeCommon(CANBusMessage message, uint8_t deviceNumber) {
 	(*lastMessageReceivedMs)[deviceNumber] = millis();
 	bool found = true;
-	uint8_t command = data[0];
+	uint8_t command = message.data[0];
 	switch (command) {
 	case COMMAND_DUPLICATE_ID_ECHO:
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		robotContainer->errors->add(canId, data[1], true);
-		print("Error %i in %s.\n\r", data[1], (*_name)[deviceNumber]);
+		robotContainer->errors->add(message.messageId, message.data[1], true);
+		print("Error %i in %s.\n\r", message.data[1], (*_name)[deviceNumber]);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
-		uint16_t firmwareVersion = (data[2] << 8) | data[1];
+		uint16_t firmwareVersion = (message.data[2] << 8) | message.data[1];
 		print("%s: ver. %i \n\r", (*_name)[deviceNumber], firmwareVersion);
 	}
 		break;
 	case COMMAND_FPS_SENDING:
-		(*fpsLast)[deviceNumber] = (data[2] << 8) | data[1];
+		(*fpsLast)[deviceNumber] = (message.data[2] << 8) | message.data[1];
 		break;
 	case COMMAND_MESSAGE_SENDING_1:
 		for (uint8_t i = 0; i < 7; i++)
-			_message[i] = data[i + 1];
+			_message[i] = message.data[i + 1];
 		break;
 	case COMMAND_MESSAGE_SENDING_2:
 		for (uint8_t i = 0; i < 7; i++)
-			_message[7 + i] = data[i + 1];
+			_message[7 + i] = message.data[i + 1];
 		break;
 	case COMMAND_MESSAGE_SENDING_3:
 		for (uint8_t i = 0; i < 7; i++)
-			_message[14 + i] = data[i + 1];
+			_message[14 + i] = message.data[i + 1];
 		break;
 	case COMMAND_MESSAGE_SENDING_4:
 		for (uint8_t i = 0; i < 7; i++)
-			_message[21 + i] = data[i + 1];
+			_message[21 + i] = message.data[i + 1];
 		print("Message from %s: %s\n\r", (*_name)[deviceNumber], _message);
 		break;
 	case COMMAND_NOTIFICATION:
@@ -620,7 +620,7 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 bool MotorBoard::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.messageId, deviceNumber)) {
-			if (!messageDecodeCommon(message.messageId, message.data, deviceNumber)) {
+			if (!messageDecodeCommon(message, deviceNumber)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint32_t enc = (message.data[4] << 24) | (message.data[3] << 16) | (message.data[2] << 8) | message.data[1];
