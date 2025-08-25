@@ -741,9 +741,9 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 					print("DLC: %i\n\r", (int)message[found].dlc);
 				ok = false;
 			}
-			if (message[found].messageId != mrm_8x8a->idGet(0, true)){
+			if (message[found].id != mrm_8x8a->idGet(0, true)){
 				if (verbose)
-					print("Return id: 0xFF<>0x%02X\n\r", (int)message[found].messageId);
+					print("Return id: 0xFF<>0x%02X\n\r", (int)message[found].id);
 				ok = false;
 			}
 		}
@@ -1313,15 +1313,15 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t deviceNumber,
 		exit(12);
 	}
 	if (board == NULL)
-		board = deviceFind(msg->messageId, deviceNumber);
+		board = deviceFind(msg->id, deviceNumber);
 	else if (deviceNumber == 0xFF)
-		deviceNumber = board->deviceNumber(msg->messageId);
+		deviceNumber = board->deviceNumber(msg->id);
 	std::string name;
 	if (board != NULL && deviceNumber != 0xFF)
 		name = board->name(deviceNumber);
 	else if (board != NULL)
 		name = board->name() || ",dev?";
-	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->messageId);
+	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->id);
 
 	for (uint8_t i = 0; i < msg->dlc; i++) {
 		if (i == 0){
@@ -1356,7 +1356,7 @@ void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
 
 		if (nextIndex < 5){
 			message[nextIndex].dlc = _msg->dlc;
-			message[nextIndex].messageId = _msg->messageId;
+			message[nextIndex].id = _msg->id;
 			for (uint8_t i = 0; i < _msg->dlc; i++)
 				message[nextIndex].data[i] = _msg->data[i];
 			message[nextIndex].robotContainer = _msg->robotContainer;
@@ -1364,7 +1364,7 @@ void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
 			nextIndex++;
 		}
 
-		uint32_t id = _msg->messageId;
+		uint32_t id = _msg->id;
 		if (_sniff)
 			messagePrint(_msg, NULL, 0, true);
 		#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN

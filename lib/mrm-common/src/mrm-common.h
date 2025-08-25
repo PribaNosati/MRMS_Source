@@ -5,13 +5,30 @@
 
 extern char errorMessage[60];
 
-void startBT(const char* name);
+/** Filter out data outliers and return average of the rest
+@param sampleCount - count.
+@param sample - values.
+@param averageValue - average value.
+@param sigmaCount - number of sigmas to keep.
+@param standardDeviation - standard deviation.
+@return average value of the filtered set*/
+float outlierlessAverage(uint8_t sampleCount, uint16_t sample[], float averageValue, uint8_t sigmaCount,
+    float standardDeviation);
 
 /** Print to all serial ports
 @param fmt - C format string
 @param ... - variable arguments
 */
 void print(const char* fmt, ...);
+
+/** Standard deviation
+@param sampleCount - count.
+@param sample - values.
+@param averageValue - output parameter.
+@return - standard deviation.*/
+float stardardDeviation(uint8_t sampleCount, uint16_t sample[], float * averageValue);
+
+void startBT(const char* name);
 
 /** Print to all serial ports, pointer to list
 */

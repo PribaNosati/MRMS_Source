@@ -354,7 +354,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 */
 bool Mrm_ref_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.messageId, deviceNumber)) {
+		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool anyReading = false;
 				bool anyCalibrationDataDark = false;
@@ -424,7 +424,7 @@ bool Mrm_ref_can::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
 				}
 
 				if (anyReading)

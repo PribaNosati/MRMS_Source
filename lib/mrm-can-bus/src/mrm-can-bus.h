@@ -4,7 +4,7 @@
 class Robot;
 
 struct CANBusMessage {
-	uint32_t messageId;
+	uint32_t id;
 	uint8_t dlc;
 	uint8_t data[8];
 	Robot * robotContainer;

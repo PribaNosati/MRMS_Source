@@ -142,7 +142,7 @@ uint16_t Mrm_ir_finder3::distance(uint8_t deviceNumber) {
 bool Mrm_ir_finder3::messageDecode(CANBusMessage message) {
 	// Todo: a problem: one message can be for short range sensors, the other for long. A mixed data will be the result.
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.messageId, deviceNumber)) {
+		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
@@ -167,7 +167,7 @@ bool Mrm_ir_finder3::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
 				}
 
 				if (any)

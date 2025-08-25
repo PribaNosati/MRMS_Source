@@ -97,7 +97,7 @@ std::string Mrm_node::commandName(uint8_t byte){
 bool Mrm_node::messageDecode(CANBusMessage message) {
 
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.messageId, deviceNumber)) {
+		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
 				bool any = false;
 				uint8_t startIndex = 0;
@@ -128,7 +128,7 @@ bool Mrm_node::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
 				}
 
 				if (any)

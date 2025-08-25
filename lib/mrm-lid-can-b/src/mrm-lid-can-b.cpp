@@ -198,7 +198,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 */
 bool Mrm_lid_can_b::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if (isForMe(message.messageId, deviceNumber)) {
+		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
@@ -210,7 +210,7 @@ bool Mrm_lid_can_b::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
 				}
 			}
 			return true;

@@ -1,4 +1,5 @@
 #include <mrm-common.h>
+#include <math.h>
 #if RADIO == 1
 #include <BluetoothSerial.h>
 #endif
@@ -7,13 +8,25 @@ char errorMessage[60] = ""; // Global variable enables functions to set it altho
 BluetoothSerial *serialBT = NULL;
 #endif
 
-void startBT(const char* name){
-	#if RADIO == 1
-	if (serialBT == NULL) {
-		serialBT = new BluetoothSerial(); // Additional serial port
-		serialBT->begin(name); //Start Bluetooth. ESP32 - Bluetooth device name, choose one.
-	}
-#endif
+/** Filter out data outliers and return average of the rest
+@param sampleCount - count.
+@param sample - values.
+@param averageValue - average value.
+@param sigmaCount - number of sigmas to keep.
+@param standardDeviation - standard deviation.
+@return average value of the filtered set*/
+float outlierlessAverage(uint8_t sampleCount, uint16_t sample[], float averageValue, uint8_t sigmaCount,
+	float standardDeviation){
+	// Filter out all the values outside n-sigma boundaries and return average value of the rest
+	float sum = 0;
+	uint8_t cnt = 0;
+	for (uint8_t i = 0; i < sampleCount; i++)
+		if (averageValue - sigmaCount * standardDeviation < sample[i] && 
+				sample[i] < averageValue + sigmaCount * standardDeviation){
+			sum += sample[i];
+			cnt++;
+		}
+	return (uint16_t)(sum / cnt);
 }
 
 /** Print to all serial ports
@@ -25,6 +38,36 @@ void print(const char* fmt, ...) {
 	va_start(argp, fmt);
 	vprint(fmt, argp);
 	va_end(argp);
+}
+
+/** Standard deviation
+@param sampleCount - count.
+@param sample - values.
+@param averageValue - output parameter.
+@return - standard deviation.*/
+float stardardDeviation(uint8_t sampleCount, uint16_t sample[], float * averageValue){
+				// Average and standard deviation
+			float sum = 0.0;
+			for(uint8_t i = 0; i < sampleCount; i++)
+				sum += sample[i];
+			//print("Sum %i\n\r", (int)sum);
+			*averageValue = sum / sampleCount;
+			//print("Mean %i\n\r", (int)mean);
+			float sd = 0.0;
+			for(int i = 0; i < sampleCount; i++) 
+				sd += pow(sample[i] - *averageValue, 2);
+			sd = sqrt(sd / sampleCount);
+			//print("SD %i\n\r", (int)standardDeviation);
+			return sd;
+}
+
+void startBT(const char* name){
+	#if RADIO == 1
+	if (serialBT == NULL) {
+		serialBT = new BluetoothSerial(); // Additional serial port
+		serialBT->begin(name); //Start Bluetooth. ESP32 - Bluetooth device name, choose one.
+	}
+#endif
 }
 
 /** Print to all serial ports, pointer to list

@@ -284,7 +284,7 @@ void Mrm_col_can::integrationTime(uint8_t deviceNumber, uint8_t value) {
 */
 bool Mrm_col_can::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.messageId, deviceNumber)) {
+		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
 				// const uint8_t STEP = 1;
 				// bool any = false;
@@ -326,7 +326,7 @@ bool Mrm_col_can::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
 				}
 			}
 			return true;

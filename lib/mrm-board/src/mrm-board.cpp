@@ -378,7 +378,7 @@ bool Board::messageDecodeCommon(CANBusMessage message, uint8_t deviceNumber) {
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		robotContainer->errors->add(message.messageId, message.data[1], true);
+		robotContainer->errors->add(message.id, message.data[1], true);
 		print("Error %i in %s.\n\r", message.data[1], (*_name)[deviceNumber]);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
@@ -440,9 +440,6 @@ void Board::messagePrint(CANBusMessage message, bool outbound) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
-	// if (robotContainer->sniffing())
-	// 	messagePrint((*idIn)[deviceNumber], dlc, data, true);
-
 	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], dlc, data);
 }
 
@@ -619,7 +616,7 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 */
 bool MotorBoard::messageDecode(CANBusMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.messageId, deviceNumber)) {
+		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
@@ -631,7 +628,7 @@ bool MotorBoard::messageDecode(CANBusMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.messageId, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
 				}
 			}
 			return true;
@@ -853,48 +850,6 @@ void SensorBoard::continuousReadingCalculatedDataStart(uint8_t deviceNumber) {
 	}
 }
 
-/** Standard deviation
-@param sampleCount - count.
-@param sample - values.
-@param averageValue - output parameter.
-@return - standard deviation.*/
-float SensorBoard::stardardDeviation(uint8_t sampleCount, uint16_t sample[], float * averageValue){
-				// Average and standard deviation
-			float sum = 0.0;
-			for(uint8_t i = 0; i < sampleCount; i++)
-				sum += sample[i];
-			//print("Sum %i\n\r", (int)sum);
-			*averageValue = sum / sampleCount;
-			//print("Mean %i\n\r", (int)mean);
-			float sd = 0.0;
-			for(int i = 0; i < sampleCount; i++) 
-				sd += pow(sample[i] - *averageValue, 2);
-			sd = sqrt(sd / sampleCount);
-			//print("SD %i\n\r", (int)standardDeviation);
-			return sd;
-}
-
-
-/** Filter out data outliers and return average of the rest
-@param sampleCount - count.
-@param sample - values.
-@param averageValue - average value.
-@param sigmaCount - number of sigmas to keep.
-@param standardDeviation - standard deviation.
-@return average value of the filtered set*/
-float SensorBoard::outlierlessAverage(uint8_t sampleCount, uint16_t sample[], float averageValue, uint8_t sigmaCount,
-	float standardDeviation){
-	// Filter out all the values outside n-sigma boundaries and return average value of the rest
-	float sum = 0;
-	uint8_t cnt = 0;
-	for (uint8_t i = 0; i < sampleCount; i++)
-		if (averageValue - sigmaCount * standardDeviation < sample[i] && 
-				sample[i] < averageValue + sigmaCount * standardDeviation){
-			sum += sample[i];
-			cnt++;
-		}
-	return (uint16_t)(sum / cnt);
-}
 
 MotorGroup::MotorGroup(Robot* robot){
 	this->robotContainer = robot;
