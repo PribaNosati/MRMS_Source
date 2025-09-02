@@ -855,16 +855,6 @@ MotorGroup::MotorGroup(Robot* robot){
 	this->robotContainer = robot;
 }
 
-/** Angle between -180 and 180 degrees
-@return - angle
-*/
-float MotorGroup::angleNormalized(float angle) {
-	if (angle < -180)
-		angle += 360;
-	else if (angle > 180)
-		angle -= 360;
-	return angle;
-}
 
 /** Stop motors
 */

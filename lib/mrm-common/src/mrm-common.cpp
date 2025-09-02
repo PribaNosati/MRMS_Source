@@ -8,6 +8,17 @@ char errorMessage[60] = ""; // Global variable enables functions to set it altho
 BluetoothSerial *serialBT = NULL;
 #endif
 
+/** Angle between -180 and 180 degrees
+@return - angle
+*/
+float angleNormalized(float angle) {
+	if (angle < -180)
+		angle += 360;
+	else if (angle > 180)
+		angle -= 360;
+	return angle;
+}
+
 /** Filter out data outliers and return average of the rest
 @param sampleCount - count.
 @param sample - values.

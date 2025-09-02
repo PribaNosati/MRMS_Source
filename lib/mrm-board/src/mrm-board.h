@@ -472,10 +472,6 @@ protected:
 	uint8_t motorNumber[MAX_MOTORS_IN_GROUP];
 	Robot* robotContainer;
 
-	/** Angle between -180 and 180 degrees
-	@return - angle
-	*/
-	float angleNormalized(float angle);
 public:
 	MotorGroup(Robot* robot);
 
