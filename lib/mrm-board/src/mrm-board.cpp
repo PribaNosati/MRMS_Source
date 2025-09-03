@@ -39,6 +39,7 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, c
 
 if (Board::commandNames == NULL)
 	{
+		Board::commandNames = new std::map<int, std::string>();
 		Board::commandNames->insert({COMMAND_SENSORS_MEASURE_CONTINUOUS, "Measure cont"});
 		Board::commandNames->insert({COMMAND_SENSORS_MEASURE_ONCE, "Measure once"});
 		Board::commandNames->insert({COMMAND_SENSORS_MEASURE_STOP, "Measure stop"});
