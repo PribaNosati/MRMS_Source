@@ -628,7 +628,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;

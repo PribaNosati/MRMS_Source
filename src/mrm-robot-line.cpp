@@ -22,6 +22,8 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	// Therefore, You can connect motors freely, but have to adjust the parameters here. In this example output (connector) 0 is LB, etc.
 	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
 
+	distanceInterface = mrm_lid_can_b; // We will program using interface instead of implementation
+
 	Mrm_8x8a::LEDSignText* signTest = new Mrm_8x8a::LEDSignText();
 
 	// All the actions that sholuld be called from code will be defined here; the callable objects will be created.
@@ -266,7 +268,7 @@ void RobotLine::evacuationZone() {
 @return - distance in mm
 */
 uint16_t RobotLine::front(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(1, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(1, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Front side - left distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
@@ -278,7 +280,7 @@ uint16_t RobotLine::front(uint8_t sampleCount, uint8_t sigmaCount) {
 @return - distance in mm
 */
 uint16_t RobotLine::frontLeft(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(0, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(0, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Front side - left distance in cm, using ultrasonic sensor.
@@ -297,7 +299,7 @@ uint16_t RobotLine::frontLeftUS() {
 @return - distance in mm
 */
 uint16_t RobotLine::frontRight(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(2, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(2, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Start motors
@@ -342,7 +344,7 @@ void RobotLine::illumination(uint8_t current, uint8_t deviceNumber) {
 @return - in mm
 */
 uint16_t RobotLine::leftBack(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(4, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(4, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Left side - front sensor distance.
@@ -354,7 +356,7 @@ uint16_t RobotLine::leftBack(uint8_t sampleCount, uint8_t sigmaCount) {
 @return - in mm
 */
 uint16_t RobotLine::leftFront(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(0, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(0, sampleCount, sigmaCount); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Line found?
@@ -716,7 +718,7 @@ void RobotLine::rcjLine() {
 @return - distance in mm
 */
 uint16_t RobotLine::rightBack(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(3); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(3); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 /** Front distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
@@ -728,7 +730,7 @@ uint16_t RobotLine::rightBack(uint8_t sampleCount, uint8_t sigmaCount) {
 @return - distance in mm
 */
 uint16_t RobotLine::rightFront(uint8_t sampleCount, uint8_t sigmaCount) {
-	return mrm_lid_can_b->distance(2); // Correct all sensors so that they return the same value for the same physical distance.
+	return distanceInterface->distance(2); // Correct all sensors so that they return the same value for the same physical distance.
 }
 
 

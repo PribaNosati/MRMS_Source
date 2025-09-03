@@ -26,6 +26,8 @@ RobotMaze::RobotMaze(char name[]) : Robot(name) {
 	// Therefore, You can connect motors freely, but have to adjust the parameters here. In this example output (connector) 0 is LB, etc.
 	motorGroup = new MotorGroupDifferential(this, mrm_mot4x3_6can, 0, mrm_mot4x3_6can, 1, mrm_mot4x3_6can, 2, mrm_mot4x3_6can, 3);
 
+	distanceInteface = mrm_lid_can_b; // We will program using interface instead of implementation
+
 	// Depending on your wiring, it may be necessary to spin some motors in the other direction. In this example, no change needed,
 	// but uncommenting the following line will change the direction of the motor 2.
 	// mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
@@ -169,7 +171,7 @@ In other words, first sensor is front-right and all the others must have increas
 @return - distance in mm.
 */
 uint16_t RobotMaze::distance(Direction direction, bool firstCCW) {
-	return mrm_lid_can_b->reading(2 * mToR(direction) + firstCCW); 
+	return distanceInteface->reading(2 * mToR(direction) + firstCCW); 
 }
 
 /** Increase encoder count

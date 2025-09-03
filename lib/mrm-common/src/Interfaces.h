@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <map>
 #include <string>
@@ -5,7 +6,7 @@
 
 class CANMessage;
 
-class Distance
+class DistanceInterface
 {
 private:
 

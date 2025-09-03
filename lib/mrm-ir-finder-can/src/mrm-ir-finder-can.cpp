@@ -94,7 +94,7 @@ bool Mrm_ir_finder_can::messageDecode(CANMessage message) {
 				default:
 					robotContainer->print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 
 				if (any)

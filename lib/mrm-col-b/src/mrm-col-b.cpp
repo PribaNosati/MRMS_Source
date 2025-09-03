@@ -1,4 +1,5 @@
 #include "mrm-col-b.h"
+#include <mrm-common.h>
 #include <mrm-robot.h>
 
 std::map<int, std::string>* Mrm_col_b::commandNamesSpecific = NULL;
@@ -384,7 +385,7 @@ bool Mrm_col_b::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;

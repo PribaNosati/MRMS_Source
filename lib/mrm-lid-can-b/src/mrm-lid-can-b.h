@@ -52,7 +52,7 @@ Licence: You can use this code any way you like.
 #define MRM_LID_CAN_INACTIVITY_ALLOWED_MS 10000
 
 
-class Mrm_lid_can_b : public SensorBoard, Distance
+class Mrm_lid_can_b : public SensorBoard, public DistanceInterface
 {
 	std::vector<uint16_t>* readings; // Analog readings of all sensors
 

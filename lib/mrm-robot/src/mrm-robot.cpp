@@ -1171,7 +1171,7 @@ void Robot::lidar4mMultiTest() {
 void Robot::lidar4mTest() {
 	if (setup())
 		mrm_lid_can_b2->start();
-	mrm_lid_can_b2->test();
+	mrm_lid_can_b2->test(0);
 }
 
 /** Calibrates lidars
@@ -1317,7 +1317,8 @@ void Robot::menuSystem() {
 void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bool outbound) {
 	if (msg->dlc > 8){
 		print("dlc too big: %i\n\r", (int)msg->dlc);
-		exit(12);
+		errors->add(msg->id, ERROR_DLC_TOO_BIG, false);
+		msg->dlc = 8;
 	}
 	if (board == NULL)
 		board = deviceFind(msg->id, deviceNumber);

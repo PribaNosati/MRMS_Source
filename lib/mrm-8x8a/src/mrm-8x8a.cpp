@@ -853,7 +853,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 					print("Unknown command. ");
 					messagePrint(message, false);
 					print("\n\r");
-					robotContainer->errors->add(message.id, COMMAND_UNKONWN, false);
+					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
 				} 
 			}
 			return true;

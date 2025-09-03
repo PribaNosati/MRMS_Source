@@ -51,17 +51,6 @@ public:
 	void wallSet(Direction direction, WallStatus wallStatus) { _wall &= ~(0b11 << (direction * 2)); _wall |= (wallStatus << (direction * 2)); }
 };
 
-
-/* All the Action-classes have to be forward declared here (before RobotMaze) as RobotMaze declaration uses them. The other option would be
-not to declare them here, but in that case Action-objects in RobotMaze will have to be declared as ActionBase class, forcing downcast later in code, if
-derived functions are used.*/
-// class ActionDecide;
-// class ActionMap;
-// class ActionMove;
-// class ActionMoveAhead;
-// class ActionMoveTurn;
-// class ActionRescueMaze;
-
 /** Robot for RCJ Rescue Maze, a class derived from the base Robot class.
 */
 class RobotMaze : public Robot {
@@ -87,6 +76,8 @@ class RobotMaze : public Robot {
 	uint16_t stepCount; // Number of steps made.
 
 	Tile* tileCurrent; // Current tile (robot's position).
+
+	DistanceInterface* distanceInteface = NULL;
 
 public:
 	bool testMode; // If true, robot will stop after each action, instead of continuing the next action. Normally false.

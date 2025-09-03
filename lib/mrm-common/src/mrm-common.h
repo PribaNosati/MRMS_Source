@@ -1,6 +1,8 @@
 #pragma once
 #define RADIO 1 // 0 - no radio, 1 Bluetooth, 2 WiFi
 #include <Arduino.h>
+#include <map>
+#include <string>
 #include <vector>
 
 extern char errorMessage[60];
@@ -40,11 +42,17 @@ void startBT(const char* name);
 */
 void vprint(const char* fmt, va_list argp);
 
+// Errors
+#define ERROR_COMMAND_UNKNOWN 0x00
+#define ERROR_DLC_TOO_BIG 0x01
+#define ERROR_TIMEOUT 0x02
+
 struct Error {
     uint32_t time;
     uint16_t canId;
     uint8_t errorCode;
     bool peripheral;
+    static std::map<uint8_t, std::string> errorNames;
     Error(uint16_t canId, uint8_t errorCode, bool peripheral) {
         this->time = millis();
         this->canId = canId;

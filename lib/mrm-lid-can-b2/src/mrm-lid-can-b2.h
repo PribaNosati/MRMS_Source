@@ -1,5 +1,6 @@
 #pragma once
 #include "Arduino.h"
+#include <Interfaces.h>
 #include <mrm-board.h>
 #include <map>
 
@@ -53,7 +54,7 @@ Licence: You can use this code any way you like.
 
 #define MRM_LID_CAN_B2_INACTIVITY_ALLOWED_MS 10000
 
-class Mrm_lid_can_b2 : public SensorBoard
+class Mrm_lid_can_b2 : public SensorBoard, public DistanceInterface
 {
 	std::vector<uint16_t>* readings; // Analog readings of all sensors
 
@@ -130,6 +131,8 @@ public:
 	*/
 	void pnpSet(bool enable = true, uint8_t deviceNumber = 0);
 
+	void rangingType(uint8_t deviceNumber, uint8_t value = 0) {print("Not implemented");exit(1);};
+
 	/** Analog readings
 	@param receiverNumberInSensor - always 0
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -151,7 +154,7 @@ public:
 
 	/**Test
 	*/
-	void test();
+	void test(uint16_t betweenTestsMs = 0);
 
 	/** Timing budget (TB) in ms. TB improves the measurement reliability but increases power consumption. Stored in sensors non-volatile memory.
 			Set before measurement time as measurement time checks this value and returns error if not appropriate. Allow 50 ms for flash to be written.

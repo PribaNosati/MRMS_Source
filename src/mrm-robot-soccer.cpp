@@ -1,3 +1,4 @@
+#include <Interfaces.h>
 #include <mrm-8x8a.h>
 #include <mrm-bldc2x50.h>
 #include <mrm-imu.h>
@@ -74,7 +75,7 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	// Actions
 	pidXY = new Mrm_pid(0.5, 100, 0); // PID controller, regulates motors' speeds for linear motion in the x-y plane: 4, 100, 0 - ok.
 	pidRotation = new Mrm_pid(2.0, 100, 0); // PID controller, regulates rotation around z axis
-	
+
 	actions->insert({"soc", new ActionRobotSoccer(this, "Soccer play", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::play)});
 	actions->insert({"bou", new ActionRobotSoccer(this, "Soccer bounce", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::bounce)});
 	actions->insert({"clb", new ActionRobotSoccer(this, "Soccer calibrate", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::calibrate)});
