@@ -55,7 +55,7 @@ void Mrm_us1::add(char * deviceName)
 		canOut = CAN_ID_US1_7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 
@@ -75,7 +75,7 @@ bool Mrm_us1::messageDecode(CANMessage message) {
 					{
 						uint16_t mm = (message.data[2] << 8) | message.data[1];
 						(*readings)[deviceNumber] = mm;
-						(*_lastReadingMs)[deviceNumber] = millis();
+						devices[deviceNumber].lastReadingsMs = millis();
 					}
 					break;
 				// }
@@ -119,21 +119,21 @@ void Mrm_us1::readingsPrint() {
 @return - started or not
 */
 bool Mrm_us1::started(uint8_t deviceNumber) {
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_US1_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_US1_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Start mrm-us1%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("US confirmed\n\r");
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else

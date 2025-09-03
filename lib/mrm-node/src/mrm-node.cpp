@@ -69,7 +69,7 @@ void Mrm_node::add(char * deviceName)
 		canOut = CAN_ID_NODE7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 
@@ -113,7 +113,7 @@ bool Mrm_node::messageDecode(CANMessage message) {
 				case COMMAND_NODE_SENDING_SENSORS_7_TO_9:
 					startIndex = 6;
 					any = true;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				case COMMAND_NODE_SWITCH_ON: {
 					uint8_t switchNumber = message.data[1] >> 1;
@@ -122,7 +122,7 @@ bool Mrm_node::messageDecode(CANMessage message) {
 						return false;
 					}
 					(*switches)[deviceNumber][switchNumber] = message.data[1] & 1;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 				}
 				break;
 				default:
@@ -147,7 +147,7 @@ bool Mrm_node::messageDecode(CANMessage message) {
 */
 uint16_t Mrm_node::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_NODE_ANALOG_COUNT) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
 	if (started(deviceNumber))
@@ -213,21 +213,21 @@ void Mrm_node::servoWrite(uint8_t servoNumber, uint16_t degrees, uint8_t deviceN
 @return - started or not
 */
 bool Mrm_node::started(uint8_t deviceNumber) {
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_NODE_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_NODE_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Start mrm-node%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("Lidar confirmed\n\r"); 
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -241,7 +241,7 @@ bool Mrm_node::started(uint8_t deviceNumber) {
 */
 bool Mrm_node::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree || switchNumber >= MRM_NODE_SWITCHES_COUNT) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	return (*switches)[deviceNumber][switchNumber];

@@ -104,7 +104,7 @@ void Mrm_8x8a::add(char * deviceName)
 		canOut = CAN_ID_8x8A7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 	}
 
 	for (uint8_t i = 0; i < MRM_8x8A_SWITCHES_COUNT; i++) {
@@ -834,7 +834,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
 					uint8_t switchNumber = message.data[1] >> 1;
 					if (switchNumber > 4) {
-						printf(errorMessage, "No %s: %i.", _boardsName, switchNumber);
+						sprintf(errorMessage, "No %s: %i.", _boardsName.c_str(), switchNumber);
 							return false;
 					}
 					(*on)[deviceNumber][switchNumber] = message.data[1] & 1;
@@ -843,7 +843,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 						canData[1] = switchNumber; //todo - deviceNumber not taken into account
 						robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
 					}
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 				}
 					break;
 				case COMMAND_8x8_TEST_CAN_BUS:
@@ -928,13 +928,13 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_8x8a::started(uint8_t deviceNumber) {
-	if (_activeCheckIfStarted && (millis() - (*_lastReadingMs)[deviceNumber] > MRM_8X8A_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0)) {
+	if (_activeCheckIfStarted && (millis() - devices[deviceNumber].lastReadingsMs > MRM_8X8A_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0)) {
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("8x8 confirmed\n\r"); 
 					return true;
 				}

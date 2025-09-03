@@ -56,7 +56,7 @@ void Mrm_therm_b_can::add(char * deviceName)
 		canOut = CAN_ID_THERM_B_CAN7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -76,7 +76,7 @@ bool Mrm_therm_b_can::messageDecode(CANMessage message) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					int16_t temp = (message.data[2] << 8) | message.data[1];
 					(*readings)[deviceNumber] = temp;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 				}
 				break;
 				default:
@@ -97,7 +97,7 @@ bool Mrm_therm_b_can::messageDecode(CANMessage message) {
 */
 int16_t Mrm_therm_b_can::reading(uint8_t deviceNumber){
 	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
 	else
@@ -122,21 +122,21 @@ void Mrm_therm_b_can::readingsPrint() {
 @return - started or not
 */
 bool Mrm_therm_b_can::started(uint8_t deviceNumber) {
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_THERM_B_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_THERM_B_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		// print("Start mrm-therm-b-can-b%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					// print("Thermo confirmed\n\r"); 
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else

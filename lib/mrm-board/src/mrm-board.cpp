@@ -17,26 +17,21 @@ std::map<int, std::string>* Board::commandNames = NULL;
 @param boardName - board's name
 @param id - unique id
 */
-Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, const char boardName[], BoardType boardType, BoardId id) {
+Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boardName, BoardType boardType, BoardId id) {
 	robotContainer = robot;
 	idIn = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
 	idOut = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
-	_name = new std::vector<char[10]>(maxNumberOfBoards * devicesOn1Board);
 	fpsLast = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
-	_lastReadingMs = new std::vector<uint64_t>(maxNumberOfBoards * devicesOn1Board);
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
-	strcpy(this->_boardsName, boardName);
+	this->_boardsName = boardName;
 	_alive = 0;
 	nextFree = 0;
 	_boardType = boardType;
 	_message[28] = '\0';
 	_id = id;
 
-	for (uint8_t deviceNumber = 0; deviceNumber < maxNumberOfBoards; deviceNumber++)
-		(*_lastReadingMs)[deviceNumber] = 0;
-
-if (Board::commandNames == NULL)
+	if (Board::commandNames == NULL)
 	{
 		Board::commandNames = new std::map<int, std::string>();
 		Board::commandNames->insert({COMMAND_SENSORS_MEASURE_CONTINUOUS, "Measure cont"});
@@ -78,19 +73,16 @@ if (Board::commandNames == NULL)
 @param canIn
 @param canOut
 */
-void Board::add(char* deviceName, uint16_t canIn, uint16_t canOut) {
+void Board::add(std::string deviceName, uint16_t canIn, uint16_t canOut) {
 	if (nextFree >= devicesMaximumNumberInAllBoards()) {
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
-	if (deviceName != 0) {
-		if (strlen(deviceName) > 9) {
-			sprintf(errorMessage, "Name too long: %s", deviceName);
-			return;
-		}
-		strcpy((*_name)[nextFree], deviceName);
+	if (deviceName.length() > 9) {
+		sprintf(errorMessage, "Name too long: %s", deviceName.c_str());
+		return;
 	}
-	devices.push_back({this, nextFree, deviceName, canIn, canOut});
+	devices.push_back({this, (uint8_t)nextFree, deviceName, canIn, canOut});
 	(*idIn)[nextFree] = canIn;
 	(*idOut)[nextFree] = canOut;
 	(*fpsLast)[nextFree] = 0xFFFF;
@@ -112,7 +104,7 @@ bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAf
 	}
 	else {
 		if (deviceNumber > 31) {
-			sprintf(errorMessage, "Device number for %s too big: %i.", _boardsName, deviceNumber);
+			sprintf(errorMessage, "Device number for %s too big: %i.", _boardsName.c_str(), deviceNumber);
 			return false;
 		}
 		if ((_alive >> deviceNumber) & 1)
@@ -123,9 +115,9 @@ bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAf
 				return true;
 			else {
 				if (errorIfNotAfterCheckingAgain)
-					sprintf(errorMessage, "%s no. %i dead", name(), deviceNumber);
+					sprintf(errorMessage, "%s no. %i dead", name().c_str(), deviceNumber);
 				else
-					print("%s %i dead\n\r", name(), deviceNumber);
+					print("%s %i dead\n\r", name().c_str(), deviceNumber);
 				return false;
 			}
 		}
@@ -170,7 +162,7 @@ void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 		_alive = yesOrNo ? 0xFF : 0x00;
 	else{
 		if (deviceNumber > 31) {
-			sprintf(errorMessage, "%s: device number too big: %i", name(), deviceNumber);
+			sprintf(errorMessage, "%s: device number too big: %i", name().c_str(), deviceNumber);
 			return;
 		}
 		_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
@@ -276,9 +268,9 @@ void Board::fpsDisplay() {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (alive(deviceNumber)){
 			if ((*fpsLast)[deviceNumber] == 0xFFFF)
-				print("%s: no response\n\r", (*_name)[deviceNumber]);
+				print("%s: no response\n\r", devices[deviceNumber].name.c_str());
 			else
-				print("%s: %i FPS\n\r", (*_name)[deviceNumber], fps(deviceNumber));
+				print("%s: %i FPS\n\r", devices[deviceNumber].name.c_str(), fps(deviceNumber));
 		}
 	}
 }
@@ -344,7 +336,7 @@ void Board::info(uint8_t deviceNumber) {
 */
 bool Board::isForMe(uint32_t canIdOut, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s: board doesn't exist: %i", name(), deviceNumber);
+		sprintf(errorMessage, "%s: board doesn't exist: %i", name().c_str(), deviceNumber);
 		return false;
 	}
 	return canIdOut == (*idOut)[deviceNumber];
@@ -357,7 +349,7 @@ bool Board::isForMe(uint32_t canIdOut, uint8_t deviceNumber) {
 */
 bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s: board doesn't exist: %i", name(), deviceNumber);
+		sprintf(errorMessage, "%s: board doesn't exist: %i", name().c_str(), deviceNumber);
 		return false;
 	}
 	return canIdOut == (*idIn)[deviceNumber];
@@ -379,11 +371,11 @@ bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 		break;
 	case COMMAND_ERROR:
 		robotContainer->errors->add(message.id, message.data[1], true);
-		print("Error %i in %s.\n\r", message.data[1], (*_name)[deviceNumber]);
+		print("Error %i in %s.\n\r", message.data[1], devices[deviceNumber].name.c_str());
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
 		uint16_t firmwareVersion = (message.data[2] << 8) | message.data[1];
-		print("%s: ver. %i \n\r", (*_name)[deviceNumber], firmwareVersion);
+		print("%s: ver. %i \n\r", devices[deviceNumber].name.c_str(), firmwareVersion);
 	}
 		break;
 	case COMMAND_FPS_SENDING:
@@ -404,7 +396,7 @@ bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 	case COMMAND_MESSAGE_SENDING_4:
 		for (uint8_t i = 0; i < 7; i++)
 			_message[21 + i] = message.data[i + 1];
-		print("Message from %s: %s\n\r", (*_name)[deviceNumber], _message);
+		print("Message from %s: %s\n\r", devices[deviceNumber].name.c_str(), _message);
 		break;
 	case COMMAND_NOTIFICATION:
 	case COMMAND_CAN_TEST:
@@ -447,8 +439,8 @@ void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - name
 */
-char* Board::name(uint8_t deviceNumber) {
-	return (*_name)[deviceNumber];
+std::string Board::name(uint8_t deviceNumber) {
+	return devices[deviceNumber].name;
 }
 
 /** Request notification
@@ -555,7 +547,7 @@ void Board::stop(uint8_t deviceNumber) {
 		if (alive(deviceNumber)) {
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
 			messageSend(canData, 1, deviceNumber);
-			(*_lastReadingMs)[deviceNumber] = 0;
+			devices[deviceNumber].lastReadingsMs = 0;
 		}
 	}
 }
@@ -568,7 +560,7 @@ If we want to change the order so that now the device 1 is the one with the smal
 */
 void Board::swap(uint8_t deviceNumber1, uint8_t deviceNumber2) {
 	if (deviceNumber1 >= nextFree || deviceNumber2 >= nextFree)
-		sprintf(errorMessage, "%s: device overflow: %i or %i", name(), deviceNumber1, deviceNumber2);
+		sprintf(errorMessage, "%s: device overflow: %i or %i", name().c_str(), deviceNumber1, deviceNumber2);
 	else {
 		uint16_t idInTemp = (*idIn)[deviceNumber1];
 		uint16_t idOutTemp = (*idOut)[deviceNumber1];
@@ -587,7 +579,7 @@ void Board::swap(uint8_t deviceNumber1, uint8_t deviceNumber2) {
 @param maxNumberOfBoards - maximum number of boards
 @param id - unique id
 */
-MotorBoard::MotorBoard(Robot* robot, uint8_t devicesOnABoard, const char* boardName, uint8_t maxNumberOfBoards, BoardId id) :
+MotorBoard::MotorBoard(Robot* robot, uint8_t devicesOnABoard, std::string boardName, uint8_t maxNumberOfBoards, BoardId id) :
 	Board(robot, maxNumberOfBoards, devicesOnABoard, boardName, MOTOR_BOARD, id) {
 	encoderCount = new std::vector<uint32_t>(devicesOnABoard * maxNumberOfBoards);
 	reversed = new std::vector<bool>(devicesOnABoard * maxNumberOfBoards);
@@ -603,7 +595,7 @@ MotorBoard::~MotorBoard(){
 */
 void MotorBoard::directionChange(uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree)
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 	else
 		(*reversed)[deviceNumber] = !(*reversed)[deviceNumber];
 }
@@ -622,7 +614,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint32_t enc = (message.data[4] << 24) | (message.data[3] << 16) | (message.data[2] << 8) | message.data[1];
 					(*encoderCount)[deviceNumber] = enc;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				}
 				default:
@@ -643,7 +635,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 */
 uint16_t MotorBoard::reading(uint8_t deviceNumber) {
 	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber, true);
@@ -690,21 +682,21 @@ void MotorBoard::speedSet(uint8_t motorNumber, int8_t speed) {
 @return - started or not
 */
 bool MotorBoard::started(uint8_t deviceNumber) {
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_MOTORS_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_MOTORS_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		// print("Start mrm-bldc4x2.5%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					// print("BLDC confirmed\n\r");
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		printf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -736,7 +728,7 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 	const int8_t step[3] = { 1, -1, 1 };
 
 	// Select motor
-	print("%s - enter motor number [0-%i] or wait for all\n\r", name(), nextFree - 1);
+	print("%s - enter motor number [0-%i] or wait for all\n\r", name().c_str(), nextFree - 1);
 	uint16_t selectedMotor = robotContainer->serialReadNumber(3000, 500, nextFree - 1 > 9, nextFree - 1, false);
 	if (selectedMotor == 0xFFFF)
 		print("Test all\n\r");

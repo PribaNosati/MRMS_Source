@@ -68,7 +68,7 @@ void Mrm_ir_finder3::add(char * deviceName)
 		canOut = ID_IR_FINDER3_7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -91,15 +91,15 @@ int16_t Mrm_ir_finder3::angle(uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_ir_finder3::calculatedStarted(uint8_t deviceNumber) {
-	if (!(*_calculated)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_IR_FINDER3_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (!(*_calculated)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_IR_FINDER3_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		print("Start IR finder \n\r"); 
-		(*_lastReadingMs)[deviceNumber] = 0;
+		devices[deviceNumber].lastReadingsMs = 0;
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 1); // As calculated
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					print("IR3 confirmed\n\r"); 
 					(*_calculated)[deviceNumber] = true;
 					return true;
@@ -107,7 +107,7 @@ bool Mrm_ir_finder3::calculatedStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -155,14 +155,14 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 					startIndex = 7;
 					length = 5;
 					(*_near)[deviceNumber] = message.data[6];
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					any = true;
 					break;
 				case COMMAND_SENSORS_MEASURE_CALCULATED_SENDING:
 					(*_angle)[deviceNumber] = ((message.data[1] << 8) | message.data[2]) - 180;
 					(*_distance)[deviceNumber] = (message.data[3] << 8) | message.data[4];
 					(*_near)[deviceNumber] = message.data[5];
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				default:
 					print("Unknown command. ");
@@ -186,7 +186,7 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 */
 uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber){
 	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_IR_FINDER3_SENSOR_COUNT) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
 	if (singleStarted(deviceNumber))
@@ -242,15 +242,15 @@ void Mrm_ir_finder3::test()
 @return - started or not
 */
 bool Mrm_ir_finder3::singleStarted(uint8_t deviceNumber) {
-	if ((*_calculated)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_IR_FINDER3_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if ((*_calculated)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_IR_FINDER3_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		print("Start IR finder \n\r"); 
-		(*_lastReadingMs)[deviceNumber] = 0;
+		devices[deviceNumber].lastReadingsMs = 0;
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0); // As single
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					print("IR3 confirmed\n\r"); 
 					(*_calculated)[deviceNumber] = false;
 					return true;
@@ -258,7 +258,7 @@ bool Mrm_ir_finder3::singleStarted(uint8_t deviceNumber) {
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else

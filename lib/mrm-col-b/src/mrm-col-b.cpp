@@ -171,21 +171,21 @@ uint16_t Mrm_col_b::colorRed(uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_col_b::colorsStarted(uint8_t deviceNumber) {
-	if ((*_hsv)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_COL_B_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if ((*_hsv)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_COL_B_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Switch to 8 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last8ColorsMs)[deviceNumber]); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			switchTo8Colors(deviceNumber);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("6co confirmed\n\r");
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -264,7 +264,7 @@ void Mrm_col_b::gain(uint8_t deviceNumber, uint8_t gainValue) {
 @return - started or not
 */
 bool Mrm_col_b::hsvStarted(uint8_t deviceNumber) {
-	if (!(*_hsv)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_COL_B_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (!(*_hsv)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_COL_B_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Switch to HSV.\n\r"); 
 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
@@ -272,14 +272,14 @@ bool Mrm_col_b::hsvStarted(uint8_t deviceNumber) {
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("HSV confirmed\n\r"); 
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -349,14 +349,14 @@ bool Mrm_col_b::messageDecode(CANMessage message) {
 					// print("Data1: %i %i %i\n\r",(int)message.data[0], (int)message.data[1], (int)message.data[2]);
 					(*readings)[deviceNumber][1] = (message.data[3] << 8) | message.data[4]; // blue violetish
 					(*readings)[deviceNumber][2] = (message.data[5] << 8) | message.data[6]; // blue
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_4_TO_6:
 					(*readings)[deviceNumber][3] = (message.data[1] << 8) | message.data[2]; // blue greenish
 					// print("Data2: %i %i %i\n\r", (int)message.data[0], (int)message.data[1], (int)message.data[2]);
 					(*readings)[deviceNumber][4] = (message.data[3] << 8) | message.data[4]; // green
 					(*readings)[deviceNumber][5] = (message.data[5] << 8) | message.data[6]; // yellow
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_7_TO_9:
 					// print("Data3: %i %i %i\n\r", (int)message.data[0], (int)message.data[1], (int)message.data[2]);
@@ -365,12 +365,12 @@ bool Mrm_col_b::messageDecode(CANMessage message) {
 					(*readings)[deviceNumber][8] = (message.data[5] << 8) | message.data[6]; // near IR
 					(*_patternByHSV)[deviceNumber] = message.data[7] & 0xF; // pattern
 					(*_patternBy8Colors)[deviceNumber] = message.data[7] >> 4;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_10_TO_11:
 					(*readings)[deviceNumber][9] = (message.data[1] << 8) | message.data[2]; // clear (white)
 					// print("Data4: %i %i %i %i\n\r", (int)message.data[0], (int)message.data[1], (int)message.data[2], (int)(*readings)[deviceNumber][9]);
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_HSV:
 					(*_hue)[deviceNumber] = (message.data[1] << 8) | message.data[2]; 
@@ -379,7 +379,7 @@ bool Mrm_col_b::messageDecode(CANMessage message) {
 					(*_patternByHSV)[deviceNumber] = message.data[7] & 0xF;
 					(*_patternBy8Colors)[deviceNumber] = message.data[7] >> 4;
 					(*_patternRecognizedAtMs)[deviceNumber] = millis();
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					//print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]); 
 					break;
 				default:

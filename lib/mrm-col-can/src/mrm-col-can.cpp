@@ -80,7 +80,7 @@ void Mrm_col_can::add(char * deviceName)
 		canOut = CAN_ID_COL_CAN7_OUT;
 		break;
 	default:
-		printf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 
@@ -139,21 +139,21 @@ uint16_t Mrm_col_can::colorRed(uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_col_can::colorsStarted(uint8_t deviceNumber) {
-	if ((*_hsv)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if ((*_hsv)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			switchTo6Colors(deviceNumber);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("6co confirmed\n\r");
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -215,7 +215,7 @@ void Mrm_col_can::gain(uint8_t deviceNumber, uint8_t gainValue) {
 @return - started or not
 */
 bool Mrm_col_can::hsvStarted(uint8_t deviceNumber) {
-	if (!(*_hsv)[deviceNumber] || millis() - (*_lastReadingMs)[deviceNumber] > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (!(*_hsv)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Switch to HSV.\n\r"); 
 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
@@ -223,14 +223,14 @@ bool Mrm_col_can::hsvStarted(uint8_t deviceNumber) {
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("HSV confirmed\n\r"); 
 					return true;
 				}
 				robotContainer->delayMs(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		return false;
 	}
 	else
@@ -310,7 +310,7 @@ bool Mrm_col_can::messageDecode(CANMessage message) {
 					(*_patternByHSV)[deviceNumber] = message.data[7] & 0xF;
 					(*_patternBy6Colors)[deviceNumber] = message.data[7] >> 4;
 					// any = true;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					//print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]); 
 					break;
 				case CAN_COL_SENDING_HSV:
@@ -320,7 +320,7 @@ bool Mrm_col_can::messageDecode(CANMessage message) {
 					(*_patternByHSV)[deviceNumber] = message.data[7] & 0xF;
 					(*_patternBy6Colors)[deviceNumber] = message.data[7] >> 4;
 					(*_patternRecognizedAtMs)[deviceNumber] = millis();
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 					//print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]); 
 					break;
 				default:

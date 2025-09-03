@@ -63,7 +63,7 @@ void Mrm_fet_can::add(char * deviceName)
 		canOut = CAN_ID_FET7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	MotorBoard::add(deviceName, canIn, canOut);
@@ -83,7 +83,7 @@ std::string Mrm_fet_can::commandName(uint8_t byte){
 */
 void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 	if (outputNumber > 1) {
-		sprintf(errorMessage, "%s %i not found.", _boardsName, nextFree);
+		sprintf(errorMessage, "%s %i not found.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	canData[0] = COMMAND_TURN_ON;
@@ -98,7 +98,7 @@ void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 */
 void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 	if (outputNumber > 1) {
-		sprintf(errorMessage, "%s %i not found.", _boardsName, nextFree);
+		sprintf(errorMessage, "%s %i not found.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	canData[0] = COMMAND_TURN_OFF;

@@ -96,7 +96,7 @@ void Mrm_lid_can_b::add(char * deviceName)
 		canOut = CAN_ID_LID_CAN_B15_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -135,7 +135,7 @@ std::string Mrm_lid_can_b::commandName(uint8_t byte){
 uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t sigmaCount){
 	const uint16_t TIMEOUT = 3000;
 	if (deviceNumber > nextFree) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
 	alive(deviceNumber, true); // This command doesn't make sense
@@ -204,7 +204,7 @@ bool Mrm_lid_can_b::messageDecode(CANMessage message) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint16_t mm = (message.data[2] << 8) | message.data[1];
 					(*readings)[deviceNumber] = mm;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					devices[deviceNumber].lastReadingsMs = millis();
 				}
 				break;
 				default:
@@ -273,7 +273,7 @@ void Mrm_lid_can_b::readingsPrint() {
 @return - started or not
 */
 bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
+	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		// print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(deviceNumber, 0);
@@ -281,14 +281,14 @@ bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
 				//print("-try-");
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
+				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
 					//print("%s confirmed\n\r", (char*)name(deviceNumber));
 					return true;
 				}
 				robotContainer->delayMicros(1000);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
 		print(errorMessage);
 		return false;
 	}

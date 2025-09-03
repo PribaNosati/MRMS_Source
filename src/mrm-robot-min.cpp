@@ -424,13 +424,13 @@ void RobotMin::loop2(){
 	delayMs(5); // Read all the messages sent after stop.
 
 	// Set not alive
-print("Board: %s\n\r", board[14]->name());
+print("Board: %s\n\r", board[14]->name().c_str());
 			board[14]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
 
 	// Send alive ping
 	for (uint8_t k = 0; k < 2; k++)
 				board[14]->devicesScan(verbose);
-				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
+				// print("SC1 %s ", board[i]->name().c_str()),count += board[i]->devicesScan(verbose), print("SC2");
 
 
 	// Count alive

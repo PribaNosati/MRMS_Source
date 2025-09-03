@@ -55,7 +55,7 @@ void Mrm_us::add(char * deviceName)
 		canOut = CAN_ID_US7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 

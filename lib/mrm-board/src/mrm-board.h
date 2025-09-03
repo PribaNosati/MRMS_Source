@@ -4,6 +4,7 @@
 #include "mrm-can-bus.h"
 #include "mrm-common.h"
 #include "mrm-pid.h"
+#include <cstring>
 #include <vector>
 #include <map>
 
@@ -90,7 +91,7 @@ class Board;
 struct Device{
 	public:
 	Device(Board * board, uint8_t deviceNumber, const std::string& name, uint16_t canIdIn, uint16_t canIdOut)
-		: board(board), deviceNumber(deviceNumber), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0) {};
+		: board(board), deviceNumber(deviceNumber), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0) {};
 	Board * board;
 	uint8_t deviceNumber;
 	std::string name;
@@ -98,6 +99,7 @@ struct Device{
 	uint16_t canIdIn;
 	uint16_t canIdOut;
 	uint64_t lastMessageReceivedMs;
+	uint64_t lastReadingsMs;
 };
 
 /** Board is a class of all the boards of the same type, not a single board!
@@ -112,7 +114,7 @@ class Board{
 protected:
 	uint32_t _alive; // Responded to ping, maximum 32 devices of the same class, stored bitwise. If bit set, that device was alive after power-on.
 	uint32_t _aliveOnce; // The device was alive at least once after power-on.
-	char _boardsName[12];
+	std::string _boardsName;
 	BoardType _boardType; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
 	std::vector<Device> devices; // List of devices on this board
@@ -122,12 +124,10 @@ protected:
 	BoardId _id;
 	std::vector<uint16_t>* idIn;  // Inbound message id
 	std::vector<uint16_t>* idOut; // Outbound message id
-	std::vector<uint64_t>* _lastReadingMs;
 	uint8_t maximumNumberOfBoards;
 	uint8_t measuringMode = 0;
 	uint8_t measuringModeLimit = 0;
 	uint8_t _message[29]; // Message a device sent.
-	std::vector<char[10]>* _name;// Device's name
 	int nextFree = -1;
 	Robot* robotContainer;
 
@@ -150,14 +150,14 @@ public:
 	@param boardName - board's name
 	@param id - unique id
 	*/
-	Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOnABoard, const char * boardName, BoardType boardType, BoardId id);
+	Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOnABoard, std::string boardName, BoardType boardType, BoardId id);
 
 	/** Add a device. 
 	@param deviceName
 	@param canIn
 	@param canOut
 	*/
-	void add(char* deviceName, uint16_t canIn, uint16_t canOut);
+	void add(std::string deviceName, uint16_t canIn, uint16_t canOut);
 
 	/** Did it respond to last ping? If not, try another ping and see if it responds.
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - any alive.
@@ -310,12 +310,12 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - name
 	*/
-	char *name(uint8_t deviceNumber);
+	std::string name(uint8_t deviceNumber);
 
 	/** Returns device group's name
 	@return - name
 	*/
-	char* name() {return _boardsName;}
+	std::string name() {return _boardsName;}
 
 	/** Request notification
 	@param commandRequestingNotification
@@ -382,7 +382,7 @@ public:
 	@param maxNumberOfBoards - maximum number of boards
 	@param id - unique id
 	*/
-	MotorBoard(Robot* robot, uint8_t devicesOnABoard, const char * boardName, uint8_t maxNumberOfBoards, BoardId id);
+	MotorBoard(Robot* robot, uint8_t devicesOnABoard, std::string boardName, uint8_t maxNumberOfBoards, BoardId id);
 
 	~MotorBoard();
 

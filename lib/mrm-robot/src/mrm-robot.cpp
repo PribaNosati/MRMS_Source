@@ -923,7 +923,7 @@ void Robot::devicesLEDCount(){
 void Robot::deviceScan() {
 	//Board type
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		print("%i. %s\n\r", i, board[i]->name());
+		print("%i. %s\n\r", i, board[i]->name().c_str());
 
 	print("Enter board id.\n\r");
 	uint8_t selectedBoardIndex = serialReadNumber(60000, 500, _boardNextFree <= 10, _boardNextFree - 1);
@@ -965,7 +965,7 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 			if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
 				delayMicroseconds(PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS);
 				board[i]->devicesScan(verbose);
-				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
+				// print("SC1 %s ", board[i]->name().c_str()),count += board[i]->devicesScan(verbose), print("SC2");
 		}
 
 	// In the meantime, Board::messageDecodeCommon and derived count the alives
@@ -1141,7 +1141,7 @@ void Robot::lidar2mTest() {
 		//devicesScan(false, SENSOR_BOARD);
 		// Select lidar
 		uint8_t count = mrm_lid_can_b->deadOrAliveCount();
-		print("%s - enter lidar number [0-%i] or wait for all\n\r", mrm_lid_can_b->name(), count - 1);
+		print("%s - enter lidar number [0-%i] or wait for all\n\r", mrm_lid_can_b->name().c_str(), count - 1);
 		selected = serialReadNumber(2000, 1000, count - 1 < 9, count - 1, false);
 		if (selected == 0xFFFF) { // Test all
 			print("Test all\n\r");
@@ -1328,7 +1328,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 	if (board != NULL && deviceNumber != 0xFF)
 		name = board->name(deviceNumber);
 	else if (board != NULL)
-		name = board->name() || ",dev?";
+		name = board->name() + ",dev?";
 	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->id);
 
 	for (uint8_t i = 0; i < msg->dlc; i++) {
@@ -1380,7 +1380,7 @@ void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 		#endif
 		for (uint8_t boardId = 0; boardId < _boardNextFree; boardId++) {
 			// if (!strcmp(board[boardId]->name(), "US-B")){ 
-			// 	print ("BRD: %s\n\r", board[boardId]->name());
+			// 	print ("BRD: %s\n\r", board[boardId]->(name().c_str()));
 			// 	messagePrint(_msg, false);
 			// }
  			if (board[boardId]->messageDecode(*_msg)) {
@@ -1695,11 +1695,11 @@ void Robot::stressTest() {
 			digitalWrite(15, LOW);
 			if (cnt != count[i]) {
 				errors[i]++;
-				print("***** %s: found %i, not %i.\n\r", board[i]->name(), cnt, count[i]);
+				print("***** %s: found %i, not %i.\n\r", board[i]->name().c_str(), cnt, count[i]);
 				if (STOP_ON_ERROR) {
 					if (mrm_8x8a->alive()) {
 						char buffer[50];
-						sprintf(buffer, "%s: error.\n\r", board[i]->name());
+						sprintf(buffer, "%s: error.\n\r", board[i]->name().c_str());
 						mrm_8x8a->text(buffer);
 					}
 					pass = LOOP_COUNT - 1;
@@ -1714,7 +1714,7 @@ void Robot::stressTest() {
 		bool allOK = true;
 		for (uint8_t i = 0; i < _boardNextFree; i++)
 			if (count[i] > 0 && errors[i] > 0) {
-				print("%s: %i errors.\n\r", board[i]->name(), errors[i]);
+				print("%s: %i errors.\n\r", board[i]->name().c_str(), errors[i]);
 				allOK = false;
 				delay(5000); // To freeze oscilloscope
 			}
