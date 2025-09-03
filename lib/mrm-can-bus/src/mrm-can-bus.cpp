@@ -28,21 +28,21 @@ uint8_t lastBracketSend = 0;
 uint16_t _peakReceive = 0;
 uint16_t _peakSend = 0;
 
-CANBusMessage* receivedMessage = NULL;
+CANMessage* receivedMessage = NULL;
 
-CANBusMessage::CANBusMessage(Robot* robot){
+CANMessage::CANMessage(Robot* robot){
 	robotContainer = robot;
 }
 
-CANBusMessage::CANBusMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc) : 
+CANMessage::CANMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc) : 
 	robotContainer(robot), id(id), dlc(dlc) {
 	for (uint8_t i = 0; i < 8; i++)
 		this->data[i] = payload[i];
 }
 
-CANBusMessage::CANBusMessage() : id(0), dlc(0), robotContainer(NULL) {}
+CANMessage::CANMessage() : id(0), dlc(0), robotContainer(NULL) {}
 
-void CANBusMessage::print() {
+void CANMessage::print() {
 	if (robotContainer != NULL){
 		::print("Id: 0x%04X, data:", id);
 		for (uint8_t i = 0; i < dlc; i++)
@@ -75,13 +75,13 @@ Mrm_can_bus::Mrm_can_bus(Robot* robot) {
 	if (twai_start() != ESP_OK)
 		strcpy(errorMessage, "Error start CAN");
 
-	receivedMessage = new CANBusMessage(robotContainer);
+	receivedMessage = new CANMessage(robotContainer);
 }
 
 /**Receive a CANBus message
 @return non-NULL - a message received, NULL - none
 */
-CANBusMessage* Mrm_can_bus::messageReceive() {
+CANMessage* Mrm_can_bus::messageReceive() {
 	//Wait for message to be received
 	bool found = false;
 	twai_message_t message;

@@ -369,7 +369,7 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - command found
 */
-bool Board::messageDecodeCommon(CANBusMessage message, uint8_t deviceNumber) {
+bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 	(*lastMessageReceivedMs)[deviceNumber] = millis();
 	bool found = true;
 	uint8_t command = message.data[0];
@@ -430,7 +430,7 @@ bool Board::messageDecodeCommon(CANBusMessage message, uint8_t deviceNumber) {
 @param outbound - otherwise inbound
 @return - if true, found and printed
 */
-void Board::messagePrint(CANBusMessage message, bool outbound) {
+void Board::messagePrint(CANMessage message, bool outbound) {
 	robotContainer->messagePrint(&message, this, 0xFF, outbound);
 }
 
@@ -614,7 +614,7 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool MotorBoard::messageDecode(CANBusMessage message) {
+bool MotorBoard::messageDecode(CANMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {

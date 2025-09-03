@@ -135,7 +135,7 @@ protected:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - command found
 	*/
-	bool messageDecodeCommon(CANBusMessage message, uint8_t deviceNumber = 0);
+	bool messageDecodeCommon(CANMessage message, uint8_t deviceNumber = 0);
 
 public:
 	static std::map<int, std::string>* commandNames;
@@ -286,7 +286,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(CANBusMessage message)= 0;
+	virtual bool messageDecode(CANMessage message)= 0;
 
 	/** Prints a frame
 	@param msgId - messageId
@@ -295,7 +295,7 @@ public:
 	@param outbound - otherwise inbound
 	@return -if true, foundand printed
 	*/
-	void messagePrint(CANBusMessage message, bool outbound);
+	void messagePrint(CANMessage message, bool outbound);
 
 	/** Send CAN Bus message
 	@param dlc - data length
@@ -395,7 +395,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(CANBusMessage message);
+	bool messageDecode(CANMessage message);
 
 	/** Encoder readings
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -452,7 +452,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(CANBusMessage message){return false;}
+	virtual bool messageDecode(CANMessage message){return false;}
 
 	/** All readings
 	@param subsensorNumberInSensor - like a single IR transistor in mrm-ref-can

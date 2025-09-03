@@ -3,7 +3,7 @@
 
 class Robot;
 
-struct CANBusMessage {
+struct CANMessage {
 	uint32_t id;
 	uint8_t dlc;
 	uint8_t data[8];
@@ -11,9 +11,9 @@ struct CANBusMessage {
 
 	void print();
 
-	CANBusMessage(Robot* robot);
-	CANBusMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc);
-	CANBusMessage();
+	CANMessage(Robot* robot);
+	CANMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc);
+	CANMessage();
 };
 
 class Mrm_can_bus {
@@ -29,7 +29,7 @@ public:
 	/**Receive a CANBus message
 	@return true - a message received, false - none
 	*/
-	CANBusMessage* messageReceive();
+	CANMessage* messageReceive();
 
 	/**Send a CANBus message
 	@param stdId - CANBus message id

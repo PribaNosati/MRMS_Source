@@ -196,7 +196,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_lid_can_b::messageDecode(CANBusMessage message) {
+bool Mrm_lid_can_b::messageDecode(CANMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {
@@ -301,10 +301,10 @@ bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 @param betweenTestsMs - time in ms between 2 tests. 0 - default.
 */
-void Mrm_lid_can_b::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
+void Mrm_lid_can_b::test(uint16_t betweenTestsMs)
 {
 	static uint32_t lastMs = 0;
-
+	static uint16_t deviceNumber = 0xFF;
 	if (millis() - lastMs > (betweenTestsMs == 0 ? 300 : betweenTestsMs)) {
 		uint8_t pass = 0;
 		for (uint8_t i = 0; i < nextFree; i++) {

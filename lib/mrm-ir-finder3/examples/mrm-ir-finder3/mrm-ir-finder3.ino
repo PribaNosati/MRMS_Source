@@ -22,7 +22,7 @@ void setup() {
 void loop() {
   uint8_t startIndex = 0;
 
-  CANBusMessage* msg = can.messageReceive();            // Receive a message, if any arrived.
+  CANMessage* msg = can.messageReceive();            // Receive a message, if any arrived.
   if (msg != NULL){                                     // If not NULL, a message received.
     uint8_t length = 7;
     switch (msg->data[0]) {                             // Choose type of payload, for the receivers 1 to 7 or 8 to 12.

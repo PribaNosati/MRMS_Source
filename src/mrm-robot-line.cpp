@@ -25,17 +25,17 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	Mrm_8x8a::LEDSignText* signTest = new Mrm_8x8a::LEDSignText();
 
 	// All the actions that sholuld be called from code will be defined here; the callable objects will be created.
-	actions->insert(std::make_pair("eva", new ActionRobotLine(this, "Evacuation zone", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::evacuationZone)));
-	actions->insert(std::make_pair("lnf", new ActionRobotLine(this, "Line follow", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::lineFollow)));
-	actions->insert(std::make_pair("obs", new ActionRobotLine(this, "Obstacle avoid", 0, Board::BoardId::ID_ANY, NULL, &RobotLine::obstacleAvoid)));
-	actions->insert(std::make_pair("rcj", new ActionRobotLine(this, "RCJ line", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::rcjLine)));
-	actions->insert(std::make_pair("str", new ActionRobotLine(this, "Stop motors", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop)));
-	actions->insert(std::make_pair("msh", new ActionRobotLine(this, "Motor short test", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::motorShortTest)));
-	actions->insert(std::make_pair("lo5", new ActionRobotLine(this, "loop5", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop5)));
-	actions->insert(std::make_pair("lo6", new ActionRobotLine(this, "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop6)));
-	actions->insert(std::make_pair("lo7", new ActionRobotLine(this, "loop7", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop7)));
-	actions->insert(std::make_pair("lo8", new ActionRobotLine(this, "loop8", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop8)));
-	actions->insert(std::make_pair("lo9", new ActionRobotLine(this, "loop9", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop9)));
+actions->insert({"eva", new ActionRobotLine(this, "Evacuation zone", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::evacuationZone)});
+	actions->insert({"lnf", new ActionRobotLine(this, "Line follow", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::lineFollow)});
+	actions->insert({"obs", new ActionRobotLine(this, "Obstacle avoid", 0, Board::BoardId::ID_ANY, NULL, &RobotLine::obstacleAvoid)});
+	actions->insert({"rcj", new ActionRobotLine(this, "RCJ line", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::rcjLine)});
+	actions->insert({"str", new ActionRobotLine(this, "Stop motors", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop)});
+	actions->insert({"msh", new ActionRobotLine(this, "Motor short test", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::motorShortTest)});
+	actions->insert({"lo5", new ActionRobotLine(this, "loop5", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop5)});
+	actions->insert({"lo6", new ActionRobotLine(this, "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop6)});
+	actions->insert({"lo7", new ActionRobotLine(this, "loop7", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop7)});
+	actions->insert({"lo8", new ActionRobotLine(this, "loop8", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop8)});
+	actions->insert({"lo9", new ActionRobotLine(this, "loop9", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop9)});
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be

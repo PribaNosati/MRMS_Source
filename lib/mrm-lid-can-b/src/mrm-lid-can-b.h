@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include "mrm-board.h"
+#include <Interfaces.h>
 #include <map>
 
 /**
@@ -51,7 +52,7 @@ Licence: You can use this code any way you like.
 #define MRM_LID_CAN_INACTIVITY_ALLOWED_MS 10000
 
 
-class Mrm_lid_can_b : public SensorBoard
+class Mrm_lid_can_b : public SensorBoard, Distance
 {
 	std::vector<uint16_t>* readings; // Analog readings of all sensors
 
@@ -102,7 +103,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(CANBusMessage message);
+	bool messageDecode(CANMessage message);
 
 	/** Enable plug and play
 	@param enable - enable or disable
@@ -131,7 +132,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 	@param betweenTestsMs - time in ms between 2 tests. 0 - default.
 	*/
-	void test(uint8_t deviceNumber = 0xFF, uint16_t betweenTestsMs = 0);
+	void test(uint16_t betweenTestsMs = 0);
 
 };
 

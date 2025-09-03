@@ -352,7 +352,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 @param length - number of data bytes
 @return - target device found
 */
-bool Mrm_ref_can::messageDecode(CANBusMessage message) {
+bool Mrm_ref_can::messageDecode(CANMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {

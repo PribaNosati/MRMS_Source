@@ -61,7 +61,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-bool messageDecode(CANBusMessage message);
+bool messageDecode(CANMessage message);
 
 	/** Analog readings
 	@param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0.

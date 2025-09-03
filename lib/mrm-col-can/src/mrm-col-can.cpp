@@ -282,7 +282,7 @@ void Mrm_col_can::integrationTime(uint8_t deviceNumber, uint8_t value) {
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_col_can::messageDecode(CANBusMessage message) {
+bool Mrm_col_can::messageDecode(CANMessage message) {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (isForMe(message.id, deviceNumber)) {
 			if (!messageDecodeCommon(message, deviceNumber)) {

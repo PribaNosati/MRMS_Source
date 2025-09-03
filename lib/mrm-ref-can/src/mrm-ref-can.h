@@ -181,7 +181,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(CANBusMessage message);
+	bool messageDecode(CANMessage message);
 
 	/** Sets recording of peaks between refreshes
 	 * 

@@ -72,7 +72,7 @@ protected:
 	uint32_t fpsTopGap = 0;
 
 	uint8_t menuLevel = 1; // Submenus have bigger numbers
-	CANBusMessage* _msg;
+	CANMessage* _msg;
 	char _name[16];
 	Preferences* preferences; // EEPROM
 	bool _sniff = false;
@@ -407,11 +407,11 @@ public:
 	@param msg - message
 	@param oubound - if not, inbound
 	*/
-	void messagePrint(CANBusMessage* msg, Board* board, uint8_t boardIndex, bool outbound);
+	void messagePrint(CANMessage* msg, Board* board, uint8_t boardIndex, bool outbound);
 
 	/** Receives CAN Bus messages.
 	*/
-	void messagesReceive(CANBusMessage message[5], int8_t& last);
+	void messagesReceive(CANMessage message[5], int8_t& last);
 
 	/** Tests motors
 	*/

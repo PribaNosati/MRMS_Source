@@ -33,7 +33,7 @@ void loop() {
       setSpeed(motor, speed);                       // Set the motor's speed.
       uint32_t ms = millis();
       while (millis() - ms < 30){                   // During the next 30 ms...
-        CANBusMessage* msg = can.messageReceive();  // Receive a message, if available
+        CANMessage* msg = can.messageReceive();  // Receive a message, if available
         // If a message received (msg != NULL), and it is for the current motor, and its payload sends encoders...
         if (msg != NULL && msg->messageId == motorId[motor] + 1 && msg->data[0] ==  COMMAND_SENSORS_MEASURE_SENDING){
           // Reassemble the encoder's payload into an integer (enc).

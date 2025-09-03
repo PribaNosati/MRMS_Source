@@ -74,14 +74,14 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	// Actions
 	// pidXY = new Mrm_pid(0.5, 100, 0); // PID controller, regulates motors' speeds for linear motion in the x-y plane: 4, 100, 0 - ok.
 	// pidRotation = new Mrm_pid(2.0, 100, 0); // PID controller, regulates rotation around z axis
-	actions->insert(std::make_pair("soc", new ActionRobotSoccer(this, "Soccer play", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::play)));
-	actions->insert(std::make_pair("bou", new ActionRobotSoccer(this, "Soccer bounce", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::bounce)));
-	actions->insert(std::make_pair("clb", new ActionRobotSoccer(this, "Soccer calibrate", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::calibrate)));
-	actions->insert(std::make_pair("cat", new ActionRobotSoccer(this, "Soccer catch", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::catchBall)));
-	actions->insert(std::make_pair("apr", new ActionRobotSoccer(this, "Soccer approach", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::goalApproach)));
-	actions->insert(std::make_pair("idl", new ActionRobotSoccer(this, "Soccer idle", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::idle)));
-	actions->insert(std::make_pair("avo", new ActionRobotSoccer(this, "Soccer line avoid", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::lineAvoid)));
-	actions->insert(std::make_pair("bar", new ActionRobotSoccer(this, "Soccer barrier test", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::barrierTest)));
+	actions->insert({"soc", new ActionRobotSoccer(this, "Soccer play", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::play)});
+	actions->insert({"bou", new ActionRobotSoccer(this, "Soccer bounce", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::bounce)});
+	actions->insert({"clb", new ActionRobotSoccer(this, "Soccer calibrate", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::calibrate)});
+	actions->insert({"cat", new ActionRobotSoccer(this, "Soccer catch", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::catchBall)});
+	actions->insert({"apr", new ActionRobotSoccer(this, "Soccer approach", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::goalApproach)});
+	actions->insert({"idl", new ActionRobotSoccer(this, "Soccer idle", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::idle)});
+	actions->insert({"avo", new ActionRobotSoccer(this, "Soccer line avoid", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::lineAvoid)});
+	actions->insert({"bar", new ActionRobotSoccer(this, "Soccer barrier test", 1, Board::BoardId::ID_ANY, NULL, &RobotSoccer::barrierTest)});
 
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined

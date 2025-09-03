@@ -122,7 +122,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(CANBusMessage message);
+	bool messageDecode(CANMessage message);
 
 	/** Enable plug and play
 	@param enable - enable or disable

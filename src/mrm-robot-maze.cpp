@@ -34,12 +34,18 @@ RobotMaze::RobotMaze(char name[]) : Robot(name) {
 	// mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
 
 	// All the actions will be defined here; the objects will be created.
-	actions->insert(std::make_pair("mde", new ActionDecide(this)));
-	actions->insert(std::make_pair("mma", new ActionMoveAhead(this)));
-	actions->insert(std::make_pair("mmp", new ActionMap(this)));
-	actions->insert(std::make_pair("mmo", new ActionMove(this)));
-	actions->insert(std::make_pair("mmt", new ActionMoveTurn(this)));
-	actions->insert(std::make_pair("mrm", new ActionRescueMaze(this)));
+/** Action that decides what to do next, using Tremaux algorithm. If a not-visited direction exists, go there. If not, return to the tile robot came from.*/
+	actions->insert({"mde", new ActionRobotMaze(this, "Decide", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::decide)});
+	/** Go straight ahead.*/
+	actions->insert({"mma", new ActionRobotMaze(this, "Move  ahead", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::moveAhead)});
+	/** Maps walls detected and other external readings in variables.*/
+	actions->insert({"mmp", new ActionRobotMaze(this, "Map", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::map)});
+	/** Base class for movement actions.	*/
+	actions->insert({"mmo", new ActionMove(this)});
+	actions->insert({"mmt", new ActionMoveTurn(this)});
+	actions->insert({"omn", new ActionRobotMaze(this, "Omni wheel test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::omniWheelsTest)});
+	actions->insert({"wlt", new ActionRobotMaze(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)});
+	actions->insert({"rmz", new ActionRobotMaze(this, "Rescue Maze", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::rescueMaze)});
 	// actions->insert(std::make_pair("omn", new ActionRescueMaze(this, "Omni wheel test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::omniWheelsTest)));
 	// actions->insert(std::make_pair("wlt", new ActionRescueMaze(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)));
 
@@ -54,7 +60,7 @@ RobotMaze::RobotMaze(char name[]) : Robot(name) {
 
 	// Set buttons' actions
 	// mrm_8x8a->actionSet(actionRescueMaze, 0); // Button 0 starts RCJ Maze.
-	mrm_8x8a->actionSet(actionFind("mrm"), 2); // Button 2 starts RCJ Maze.
+	mrm_8x8a->actionSet(actionFind("rmz"), 2); // Button 2 starts RCJ Maze.
 	mrm_8x8a->actionSet(actionFind("sto"), 3);
 
 	// Upload custom bitmaps into mrm-8x8a.
@@ -338,7 +344,7 @@ void RobotMaze::move() {
 	ActionMove* actionMove = (ActionMove*)actionFind("mmo");
 	if (actionMove->direction == directionCurrent) { // The robot is already in position where the next free way is right in front of it. Just go ahead.
 		print("Ahead\n\r");
-		ActionMoveAhead* actionMoveAhead = (ActionMoveAhead*)actionFind("mma");
+		ActionMove* actionMoveAhead = (ActionMove*)actionFind("mma");
 		actionSet(actionMoveAhead); // Set the next action: go straight ahead.
 		//actionMoveAhead->startMs = millis(); // Mark the start time.
 	}
@@ -370,7 +376,7 @@ void RobotMaze::moveAhead() {
 	static uint32_t startedAtMs;
 	if (setup())
 		startedAtMs = millis();
-	ActionMoveAhead* actionMoveAhead = (ActionMoveAhead*)actionFind("mma");
+	ActionMove* actionMoveAhead = (ActionMove*)actionFind("mma");
 	bool timeOver = millis() - startedAtMs > MOVE_AHEAD_TIMEOUT_MS;
 
 	// If any of the 3 conditions satisfied, break the movement: encoder, timeout, or a wall to close ahead.

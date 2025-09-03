@@ -109,61 +109,61 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	// Also, if an action is to be assigned to a button, it will have to be defined here.
 if (actions == NULL) {
 		actions = new std::map<std::string, ActionBase*>();
-		actions->insert(std::make_pair("noa", new ActionRobot(this, "No action", 0, Board::BoardId::ID_ANY, NULL, NULL)));
-		actions->insert(std::make_pair("loop", new ActionRobot(this, "Loop", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop)));
-		actions->insert(std::make_pair("lo0", new ActionRobot(this, "Loop 0", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop0)));
-		actions->insert(std::make_pair("lo1", new ActionRobot(this, "Loop 1", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop1)));
-		actions->insert(std::make_pair("lo2", new ActionRobot(this, "Loop 2", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop2)));
-		actions->insert(std::make_pair("lo3", new ActionRobot(this, "Loop 3", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop3)));
-		actions->insert(std::make_pair("lo4", new ActionRobot(this, "Loop 4", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop4)));
-		actions->insert(std::make_pair("sto", new ActionRobot(this, "Stop", 1, Board::BoardId::ID_ANY, signTest, &Robot::stopAll)));
-		actions->insert(std::make_pair("all", new ActionRobot(this, "CAN Bus stress", 16, Board::BoardId::ID_ANY, signTest, &Robot::stressTest)));
-		actions->insert(std::make_pair("led", new ActionRobot(this, "Test 8x8", 1, Board::BoardId::ID_MRM_8x8A, signTest, &Robot::led8x8Test)));
-		actions->insert(std::make_pair("can", new ActionRobot(this, "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan)));
-		actions->insert(std::make_pair("sni", new ActionRobot(this, "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle)));
-		actions->insert(std::make_pair("10c", new ActionRobot(this, "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10)));
-		actions->insert(std::make_pair("hsv", new ActionRobot(this, "Test HSV", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTestHSV)));
-		actions->insert(std::make_pair("lof", new ActionRobot(this, "Light off", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOff)));
-		actions->insert(std::make_pair("lon", new ActionRobot(this, "Light on", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOn)));
-		actions->insert(std::make_pair("per", new ActionRobot(this, "Erase patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternErase)));
-		actions->insert(std::make_pair("ppr", new ActionRobot(this, "Print patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternPrint)));
-		actions->insert(std::make_pair("pre", new ActionRobot(this, "Recognize patern", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecognize)));
-		actions->insert(std::make_pair("par", new ActionRobot(this, "Record patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecord)));
-		actions->insert(std::make_pair("6co", new ActionRobot(this, "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6)));
-		actions->insert(std::make_pair("hsv", new ActionRobot(this, "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV)));
-		actions->insert(std::make_pair("idc", new ActionRobot(this, "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange)));
-		actions->insert(std::make_pair("fir", new ActionRobot(this, "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint)));
-		actions->insert(std::make_pair("fps", new ActionRobot(this, "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint)));
-		actions->insert(std::make_pair("ahe", new ActionRobot(this, "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead)));
-		actions->insert(std::make_pair("imu", new ActionRobot(this, "Test IMU", 1, Board::BoardId::ID_ANY, signTest, &Robot::imuTest)));
-		actions->insert(std::make_pair("inf", new ActionRobot(this, "Info", 8, Board::BoardId::ID_ANY, signTest, &Robot::info)));
-		actions->insert(std::make_pair("irf", new ActionRobot(this, "Test ball analog", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTest)));
-		actions->insert(std::make_pair("irc", new ActionRobot(this, "Test bal calcul.", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTestCalculated)));
-		actions->insert(std::make_pair("li2", new ActionRobot(this, "Test li. 2m", 1, Board::BoardId::ID_MRM_LID_CAN_B, signTest, &Robot::lidar2mTest)));
-		actions->insert(std::make_pair("li4", new ActionRobot(this, "Test li 4m", 1, Board::BoardId::ID_MRM_LID_CAN_B2, signTest, &Robot::lidar4mTest)));
-		actions->insert(std::make_pair("lim", new ActionRobot(this, "Test li. mul.", 1, Board::BoardId::ID_MRM_LID_D, signTest, &Robot::lidar4mMultiTest)));
-		actions->insert(std::make_pair("lic", new ActionRobot(this, "Calibrate lidar", 1, Board::BoardId::ID_ANY, signTest, &Robot::lidarCalibrate)));
-		actions->insert(std::make_pair("col", new ActionRobot(this, "Color (menu)", 1, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::menuColor)));
-		actions->insert(std::make_pair("col", new ActionRobot(this, "Color (menu)", 1, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::menuColor)));
-		actions->insert(std::make_pair("x", new ActionRobot(this, "Escape", 1 | 2 | 4 | 8 | 16, Board::BoardId::ID_ANY, signTest, &Robot::menuMainAndIdle)));
-		actions->insert(std::make_pair("ref", new ActionRobot(this, "Reflectance (menu)", 1, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::menuReflectance)));
-		actions->insert(std::make_pair("sys", new ActionRobot(this, "System (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuSystem)));
-		actions->insert(std::make_pair("mot", new ActionRobot(this, "Test motors", 1, Board::BoardId::ID_ANY, signTest, &Robot::motorTest)));
-		actions->insert(std::make_pair("nod", new ActionRobot(this, "Test node", 1, Board::BoardId::ID_ANY, signTest, &Robot::nodeTest)));
-		actions->insert(std::make_pair("nos", new ActionRobot(this, "Test node servo", 1, Board::BoardId::ID_MRM_NODE, signTest, &Robot::nodeServoTest)));
-		actions->insert(std::make_pair("pof", new ActionRobot(this, "PnP off", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOff)));
-		actions->insert(std::make_pair("pon", new ActionRobot(this, "PnP on", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOn)));
-		actions->insert(std::make_pair("cal", new ActionRobot(this, "Calibrate ref.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrate)));
-		actions->insert(std::make_pair("pri", new ActionRobot(this, "Calibration printrint", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrationPrint)));
-		actions->insert(std::make_pair("anr", new ActionRobot(this, "Test refl. anal.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestAnalog)));
-		actions->insert(std::make_pair("dgr", new ActionRobot(this, "Test refl. dig.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestDigital)));
-		actions->insert(std::make_pair("ses", new ActionRobot(this, "Set servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoInteractive)));
-		actions->insert(std::make_pair("ser", new ActionRobot(this, "Test servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoTest)));
-		actions->insert(std::make_pair("the", new ActionRobot(this, "Test thermo", 1, Board::BoardId::ID_MRM_THERM_B_CAN, signTest, &Robot::thermoTest)));
-		actions->insert(std::make_pair("uls", new ActionRobot(this, "Test ultras.", 1, Board::BoardId::ID_MRM_US_B, signTest, &Robot::usBTest)));
-		actions->insert(std::make_pair("ult", new ActionRobot(this, "Test ultras.", 1, Board::BoardId::ID_MRM_US1, signTest, &Robot::us1Test)));
-		actions->insert(std::make_pair("lme", new ActionRobot(this, "Loop (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuLoop)));
-		actions->insert(std::make_pair("cts", new ActionRobot(this, "CAN test", 16, Board::BoardId::ID_ANY, signTest, &Robot::canTest)));
+	actions->insert({"noa", new ActionRobot(this, "No action", 0, Board::BoardId::ID_ANY, NULL, NULL)});
+		actions->insert({"loop", new ActionRobot(this, "Loop", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop)});
+		actions->insert({"lo0", new ActionRobot(this, "Loop 0", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop0)});
+		actions->insert({"lo1", new ActionRobot(this, "Loop 1", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop1)});
+		actions->insert({"lo2", new ActionRobot(this, "Loop 2", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop2)});
+		actions->insert({"lo3", new ActionRobot(this, "Loop 3", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop3)});
+		actions->insert({"lo4", new ActionRobot(this, "Loop 4", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop4)});
+		actions->insert({"sto", new ActionRobot(this, "Stop", 1, Board::BoardId::ID_ANY, signTest, &Robot::stopAll)});
+		actions->insert({"all", new ActionRobot(this, "CAN Bus stress", 16, Board::BoardId::ID_ANY, signTest, &Robot::stressTest)});
+		actions->insert({"led", new ActionRobot(this, "Test 8x8", 1, Board::BoardId::ID_MRM_8x8A, signTest, &Robot::led8x8Test)});
+		actions->insert({"can", new ActionRobot(this, "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan)});
+		actions->insert({"sni", new ActionRobot(this, "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle)});
+		actions->insert({"10c", new ActionRobot(this, "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10)});
+		actions->insert({"hsv", new ActionRobot(this, "Test HSV", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTestHSV)});
+		actions->insert({"lof", new ActionRobot(this, "Light off", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOff)});
+		actions->insert({"lon", new ActionRobot(this, "Light on", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOn)});
+		actions->insert({"per", new ActionRobot(this, "Erase patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternErase)});
+		actions->insert({"ppr", new ActionRobot(this, "Print patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternPrint)});
+		actions->insert({"pre", new ActionRobot(this, "Recognize patern", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecognize)});
+		actions->insert({"par", new ActionRobot(this, "Record patterns", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorPatternRecord)});
+		actions->insert({"6co", new ActionRobot(this, "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6)});
+		actions->insert({"hsv", new ActionRobot(this, "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV)});
+		actions->insert({"idc", new ActionRobot(this, "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange)});
+		actions->insert({"fir", new ActionRobot(this, "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint)});
+		actions->insert({"fps", new ActionRobot(this, "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint)});
+		actions->insert({"ahe", new ActionRobot(this, "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead)});
+		actions->insert({"imu", new ActionRobot(this, "Test IMU", 1, Board::BoardId::ID_ANY, signTest, &Robot::imuTest)});
+		actions->insert({"inf", new ActionRobot(this, "Info", 8, Board::BoardId::ID_ANY, signTest, &Robot::info)});
+		actions->insert({"irf", new ActionRobot(this, "Test ball analog", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTest)});
+		actions->insert({"irc", new ActionRobot(this, "Test bal calcul.", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTestCalculated)});
+		actions->insert({"li2", new ActionRobot(this, "Test li. 2m", 1, Board::BoardId::ID_MRM_LID_CAN_B, signTest, &Robot::lidar2mTest)});
+		actions->insert({"li4", new ActionRobot(this, "Test li 4m", 1, Board::BoardId::ID_MRM_LID_CAN_B2, signTest, &Robot::lidar4mTest)});
+		actions->insert({"lim", new ActionRobot(this, "Test li. mul.", 1, Board::BoardId::ID_MRM_LID_D, signTest, &Robot::lidar4mMultiTest)});
+		actions->insert({"lic", new ActionRobot(this, "Calibrate lidar", 1, Board::BoardId::ID_ANY, signTest, &Robot::lidarCalibrate)});
+		actions->insert({"col", new ActionRobot(this, "Color (menu)", 1, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::menuColor)});
+		actions->insert({"col", new ActionRobot(this, "Color (menu)", 1, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::menuColor)});
+		actions->insert({"x", new ActionRobot(this, "Escape", 1 | 2 | 4 | 8 | 16, Board::BoardId::ID_ANY, signTest, &Robot::menuMainAndIdle)});
+		actions->insert({"ref", new ActionRobot(this, "Reflectance (menu)", 1, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::menuReflectance)});
+		actions->insert({"sys", new ActionRobot(this, "System (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuSystem)});
+		actions->insert({"mot", new ActionRobot(this, "Test motors", 1, Board::BoardId::ID_ANY, signTest, &Robot::motorTest)});
+		actions->insert({"nod", new ActionRobot(this, "Test node", 1, Board::BoardId::ID_ANY, signTest, &Robot::nodeTest)});
+		actions->insert({"nos", new ActionRobot(this, "Test node servo", 1, Board::BoardId::ID_MRM_NODE, signTest, &Robot::nodeServoTest)});
+		actions->insert({"pof", new ActionRobot(this, "PnP off", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOff)});
+		actions->insert({"pon", new ActionRobot(this, "PnP on", 16, Board::BoardId::ID_ANY, signTest, &Robot::pnpOn)});
+		actions->insert({"cal", new ActionRobot(this, "Calibrate ref.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrate)});
+		actions->insert({"pri", new ActionRobot(this, "Calibration printrint", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayCalibrationPrint)});
+		actions->insert({"anr", new ActionRobot(this, "Test refl. anal.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestAnalog)});
+		actions->insert({"dgr", new ActionRobot(this, "Test refl. dig.", 2, Board::BoardId::ID_MRM_REF_CAN, signTest, &Robot::reflectanceArrayTestDigital)});
+		actions->insert({"ses", new ActionRobot(this, "Set servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoInteractive)});
+		actions->insert({"ser", new ActionRobot(this, "Test servo", 1, Board::BoardId::ID_ANY, signTest, &Robot::servoTest)});
+		actions->insert({"the", new ActionRobot(this, "Test thermo", 1, Board::BoardId::ID_MRM_THERM_B_CAN, signTest, &Robot::thermoTest)});
+		actions->insert({"uls", new ActionRobot(this, "Test ultras.", 1, Board::BoardId::ID_MRM_US_B, signTest, &Robot::usBTest)});
+		actions->insert({"ult", new ActionRobot(this, "Test ultras.", 1, Board::BoardId::ID_MRM_US1, signTest, &Robot::us1Test)});
+		actions->insert({"lme", new ActionRobot(this, "Loop (menu)", 1, Board::BoardId::ID_ANY, signTest, &Robot::menuLoop)});
+		actions->insert({"cts", new ActionRobot(this, "CAN test", 16, Board::BoardId::ID_ANY, signTest, &Robot::canTest)});
 }
 
 	mrm_8x8a = new Mrm_8x8a(this);
@@ -353,7 +353,7 @@ if (actions == NULL) {
 @param action - the new action.
 */
 void Robot::actionAdd(std::string shortCut, ActionBase* action) {
-	actions->insert(std::make_pair(shortCut, action));
+	actions->insert({shortCut, action});
 }
 
 ActionBase* Robot::actionFind(std::string action){
@@ -708,7 +708,7 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 		delay(8);
 		uint32_t startMs = millis();
 		bool timeout = false;
-		CANBusMessage message[5];
+		CANMessage message[5];
 		int8_t found = -1;
 		uint16_t numberReceived = 0;
 		while(found == -1){
@@ -1155,7 +1155,7 @@ void Robot::lidar2mTest() {
 		}
 		//mrm_lid_can_b->start(selected);
 	}
-	mrm_lid_can_b->test(selected);
+	mrm_lid_can_b->test(); // todo, selected not tranferred
 }
 
 /** Tests mrm-lid-can-d
@@ -1312,7 +1312,7 @@ void Robot::menuSystem() {
 @param msg - message
 @param oubound - if not, inbound
 */
-void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t deviceNumber, bool outbound) {
+void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bool outbound) {
 	if (msg->dlc > 8){
 		print("dlc too big: %i\n\r", (int)msg->dlc);
 		exit(12);
@@ -1350,7 +1350,7 @@ void Robot::messagePrint(CANBusMessage *msg, Board* board, uint8_t deviceNumber,
 
 /** Receives CAN Bus messages. 
 */
-void Robot::messagesReceive(CANBusMessage message[5], int8_t& last) {
+void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 	#define REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN false
 	int nextIndex = 0;
 	last = -1;
@@ -1416,7 +1416,7 @@ void Robot::nodeTest() {
 */
 void Robot::noLoopWithoutThis() {
 	blink(); // Keep-alive LED. Solder jumper must be shorted in order to work in mrm-esp32.
-	CANBusMessage msg[5];
+	CANMessage msg[5];
 	int8_t last;
 	messagesReceive(msg, last);
 	fpsUpdate(); // Measure FPS. Less than 30 - a bad thing.

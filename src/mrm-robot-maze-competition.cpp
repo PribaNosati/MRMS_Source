@@ -46,15 +46,18 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 	// actionAdd(new ActionMove1TileTestCompetition(this));
 	// actionAdd(new ActionMoveTurnTestCompetition(this));
 
-	actions->insert(std::make_pair("mde", new ActionDecide(this)));
-	actions->insert(std::make_pair("mma", new ActionMoveAhead(this)));
-	actions->insert(std::make_pair("mmp", new ActionMap(this)));
-	actions->insert(std::make_pair("mmo", new ActionMove(this)));
-	actions->insert(std::make_pair("mmt", new ActionMoveTurn(this)));
-	actions->insert(std::make_pair("mrm", new ActionRescueMaze(this)));
-	// actions->insert(std::make_pair("omn", new ActionRescueMazeCompetition(this, "Omni wheel test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::omniWheelsTest)));
-	// actions->insert(std::make_pair("wlt", new ActionRescueMazeCompetition(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)));
-
+		/** Action that decides what to do next, using Tremaux algorithm. If a not-visited direction exists, go there. If not, return to the tile robot came from.*/
+	actions->insert({"mde", new ActionRobotMaze(this, "Decide", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::decide)});
+	/** Go straight ahead.*/
+	actions->insert({"mma", new ActionRobotMaze(this, "Move  ahead", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::moveAhead)});
+	/** Maps walls detected and other external readings in variables.*/
+	actions->insert({"mmp", new ActionRobotMaze(this, "Map", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::map)});
+	/** Base class for movement actions.	*/
+	actions->insert({"mmo", new ActionMove(this)});
+	actions->insert({"mmt", new ActionMoveTurn(this)});
+	actions->insert({"omn", new ActionRobotMaze(this, "Omni wheel test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::omniWheelsTest)});
+	actions->insert({"wlt", new ActionRobotMaze(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)});
+	actions->insert({"rmz", new ActionRobotMaze(this, "Rescue Maze", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::rescueMaze)});
 
 	// Set buttons' actions
 	// mrm_8x8a->actionSet(actionRescueMaze, 0); // Button 0 starts RCJ Maze.
