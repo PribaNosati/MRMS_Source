@@ -76,6 +76,7 @@ void RobotMin::loop() {
 	#if LIST_ALL
 	uint8_t cnt = 0;
     uint8_t i = 0;
+	Device * boardInfo;
     do{
         deviceInfo(i, boardInfo, SENSOR_BOARD);
         if (strcmp(boardInfo->name, "") != 0){

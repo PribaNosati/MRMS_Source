@@ -85,14 +85,19 @@
 #endif
 
 class Robot;
-
 class Board;
+
 struct Device{
 	public:
+	Device(Board * board, uint8_t deviceNumber, const std::string& name, uint16_t canIdIn, uint16_t canIdOut)
+		: board(board), deviceNumber(deviceNumber), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0) {};
 	Board * board;
 	uint8_t deviceNumber;
-	char name[12];
+	std::string name;
 	uint8_t readingsCount;
+	uint16_t canIdIn;
+	uint16_t canIdOut;
+	uint64_t lastMessageReceivedMs;
 };
 
 /** Board is a class of all the boards of the same type, not a single board!
@@ -110,13 +115,13 @@ protected:
 	char _boardsName[12];
 	BoardType _boardType; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
+	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	//std::vector<bool>(maxNumberOfBoards * devicesOn1Board) deviceStarted; //todo - not to allow reading if the device not started.
 	std::vector<uint16_t>* fpsLast; // FPS local copy.
 	BoardId _id;
 	std::vector<uint16_t>* idIn;  // Inbound message id
 	std::vector<uint16_t>* idOut; // Outbound message id
-	std::vector<uint64_t>* lastMessageReceivedMs;
 	std::vector<uint64_t>* _lastReadingMs;
 	uint8_t maximumNumberOfBoards;
 	uint8_t measuringMode = 0;
@@ -275,7 +280,7 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - milliseconds
 	*/
-	uint32_t lastMessageMs(uint8_t deviceNumber = 0) { return (*lastMessageReceivedMs)[deviceNumber]; }
+	uint32_t lastMessageMs(uint8_t deviceNumber = 0) { return devices[deviceNumber].lastMessageReceivedMs; }
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id

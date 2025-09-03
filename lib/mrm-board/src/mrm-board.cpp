@@ -23,7 +23,6 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, c
 	idOut = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
 	_name = new std::vector<char[10]>(maxNumberOfBoards * devicesOn1Board);
 	fpsLast = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
-	lastMessageReceivedMs = new std::vector<uint64_t>(maxNumberOfBoards * devicesOn1Board);
 	_lastReadingMs = new std::vector<uint64_t>(maxNumberOfBoards * devicesOn1Board);
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
@@ -91,9 +90,9 @@ void Board::add(char* deviceName, uint16_t canIn, uint16_t canOut) {
 		}
 		strcpy((*_name)[nextFree], deviceName);
 	}
+	devices.push_back({this, nextFree, deviceName, canIn, canOut});
 	(*idIn)[nextFree] = canIn;
 	(*idOut)[nextFree] = canOut;
-	(*lastMessageReceivedMs)[nextFree] = 0;
 	(*fpsLast)[nextFree] = 0xFFFF;
 	nextFree++;
 }
@@ -371,7 +370,7 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @return - command found
 */
 bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
-	(*lastMessageReceivedMs)[deviceNumber] = millis();
+	devices[deviceNumber].lastMessageReceivedMs = millis();
 	bool found = true;
 	uint8_t command = message.data[0];
 	switch (command) {

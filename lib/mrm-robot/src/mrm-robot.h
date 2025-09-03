@@ -58,7 +58,7 @@ protected:
 	bool _actionTextDisplay = true;
 
 	Board* board[BOARDS_LIMIT]; // Collection of all the robot's boards
-	Device * boardInfo;
+	// Device * boardInfo;
 	uint8_t _boardNextFree = 0;
 
 	uint8_t _devicesAtStartup = 0;

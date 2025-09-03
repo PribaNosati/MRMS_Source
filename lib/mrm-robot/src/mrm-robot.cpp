@@ -53,7 +53,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	if (strlen(wiFiPassword) > 15)
 		strcpy(errorMessage, "WiFi pwd. overflow");
 	strcpy(_wiFiPassword, wiFiPassword);
-	boardInfo = new Device();
+	// boardInfo = new Device();
 
 	errors = new Errors();
 
@@ -890,7 +890,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 				if (board[boardKind]->alive(deviceNumber)){
 					if (count == deviceGlobalOrdinalNumber)
 					{
-						strcpy(deviceInfo->name, board[boardKind]->name(deviceNumber));
+						deviceInfo->name = board[boardKind]->name(deviceNumber);
 						deviceInfo->board = board[boardKind];
 						deviceInfo->deviceNumber = deviceNumber;
 						//print("In func: %s %i", deviceInfo->name, deviceNumber);
@@ -904,7 +904,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 			}
 		}
 	}
-	strcpy(deviceInfo->name, "");
+	deviceInfo->name = "";
 	deviceInfo->readingsCount = 0;
 }
 
