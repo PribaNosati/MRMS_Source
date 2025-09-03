@@ -117,5 +117,5 @@ void Errors::deleteAll() {
 */
 void Errors::display() {
 	for (const ::Error& error: errorList)
-		print("% ms, id: 0x%02X, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), error.errorCode);
+		print("% ms, id: 0x%02X, %s. err. %i\n\r", error.time, error.canId,  (error.peripheral ? ", periph." : ", local"), (int)error.errorCode);
 }

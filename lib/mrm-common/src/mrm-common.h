@@ -67,4 +67,11 @@ public:
 	void add(uint16_t canId, uint8_t errorCode, bool peripheral);
 	void deleteAll();
 	void display();
+    static std::string find(uint8_t code){
+		auto it = Error::errorNames.find(code);
+		if (it == Error::errorNames.end())
+			return "Unknown error code " + std::to_string(code);
+		else
+			return it->second;
+	}
 };
