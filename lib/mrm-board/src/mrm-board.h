@@ -90,16 +90,16 @@ class Board;
 
 struct Device{
 	public:
-	Device(Board * board, uint8_t deviceNumber, const std::string& name, uint16_t canIdIn, uint16_t canIdOut)
-		: board(board), deviceNumber(deviceNumber), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0) {};
+		Device(Board * board, const std::string& name, uint16_t canIdIn, uint16_t canIdOut)
+		: board(board), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0), fpsLast(0xFFFF) {};
 	Board * board;
-	uint8_t deviceNumber;
 	std::string name;
 	uint8_t readingsCount;
 	uint16_t canIdIn;
 	uint16_t canIdOut;
 	uint64_t lastMessageReceivedMs;
 	uint64_t lastReadingsMs;
+	uint16_t fpsLast; //FPS local copy
 };
 
 /** Board is a class of all the boards of the same type, not a single board!
@@ -119,11 +119,7 @@ protected:
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
 	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
-	//std::vector<bool>(maxNumberOfBoards * devicesOn1Board) deviceStarted; //todo - not to allow reading if the device not started.
-	std::vector<uint16_t>* fpsLast; // FPS local copy.
 	BoardId _id;
-	std::vector<uint16_t>* idIn;  // Inbound message id
-	std::vector<uint16_t>* idOut; // Outbound message id
 	uint8_t maximumNumberOfBoards;
 	uint8_t measuringMode = 0;
 	uint8_t measuringModeLimit = 0;
@@ -207,17 +203,14 @@ public:
 	*/
 	uint8_t deadOrAliveCount();
 
+	Device* deviceGet(uint8_t deviceNumber);
+
 	uint8_t deviceNumber(uint16_t msgId);
 
 	/** Number of devices in each group (board)
 	@return - number of devices
 	*/
 	uint8_t devicesOnASingleBoard() { return this->devicesOnABoard; }
-
-	/** Maximum number of devices in all groups (boards)
-	@raturn - number of devices
-	*/
-	uint8_t devicesMaximumNumberInAllBoards();
 
 	/** Ping devices and refresh alive array
 	@param verbose - prints statuses

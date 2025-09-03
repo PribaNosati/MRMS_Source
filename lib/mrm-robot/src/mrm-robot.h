@@ -413,6 +413,8 @@ public:
 	*/
 	void messagesReceive(CANMessage message[5], int8_t& last);
 
+	bool messageSend(CANMessage message); 
+
 	/** Tests motors
 	*/
 	void motorTest();

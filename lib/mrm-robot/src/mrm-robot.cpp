@@ -558,7 +558,7 @@ uint8_t Robot::boardsDisplayAll() {
 					print("%i.", ++last);
 				else
 					print(",");
-				print(" %s", board[boardNumber]->name(deviceNumber));
+				print(" %s", board[boardNumber]->name(deviceNumber).c_str());
 				if (++currentCount == board[boardNumber]->devicesOnASingleBoard()) {
 					currentCount = 0;
 					print("\n\r");
@@ -885,16 +885,17 @@ Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
 void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, Board::BoardType boardType){
 	uint8_t count = 0;
 	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
-		if (boardType == Board::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
-			for (uint8_t deviceNumber = 0; deviceNumber < board[boardKind]->count(); deviceNumber++){// Devices for the current board type
+		if (boardType == Board::BoardType::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
+			for (uint8_t deviceNumber = 0; deviceNumber < board[boardKind]->deadOrAliveCount(); deviceNumber++){// Devices for the current board type
 				if (board[boardKind]->alive(deviceNumber)){
 					if (count == deviceGlobalOrdinalNumber)
 					{
-						deviceInfo->name = board[boardKind]->name(deviceNumber);
-						deviceInfo->board = board[boardKind];
-						deviceInfo->deviceNumber = deviceNumber;
+						deviceInfo = board[boardKind]->deviceGet(deviceNumber);
+						// deviceInfo->name = board[boardKind]->name(deviceNumber);
+						// deviceInfo->board = board[boardKind];
+
 						//print("In func: %s %i", deviceInfo->name, deviceNumber);
-						if (boardType == Board::SENSOR_BOARD)
+						if (boardType ==  Board::BoardType::SENSOR_BOARD)
 							deviceInfo->readingsCount = ((SensorBoard*)(board[boardKind]))->readingsCount();
 						return;
 					}
@@ -1392,6 +1393,22 @@ void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 		}
 	}
 }
+
+/** Send CAN Bus message
+@param stdId - standard id
+@param dlc - data length
+@param data - payload
+@return - true if CAN Bus return message received
+*/
+bool Robot::messageSend(CANMessage message) {
+	mrm_can_bus->messageSend(message.id, message.dlc, message.data);
+
+	if (_sniff)
+		messagePrint(&message, NULL, 0xFF, true);
+
+	return false;
+}
+
 
 /** Tests motors
 */

@@ -19,9 +19,6 @@ std::map<int, std::string>* Board::commandNames = NULL;
 */
 Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boardName, BoardType boardType, BoardId id) {
 	robotContainer = robot;
-	idIn = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
-	idOut = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
-	fpsLast = new std::vector<uint16_t>(maxNumberOfBoards * devicesOn1Board);
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
 	this->_boardsName = boardName;
@@ -74,18 +71,11 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, s
 @param canOut
 */
 void Board::add(std::string deviceName, uint16_t canIn, uint16_t canOut) {
-	if (nextFree >= devicesMaximumNumberInAllBoards()) {
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
-		return;
-	}
-	if (deviceName.length() > 9) {
+if (deviceName.length() > 9) {
 		sprintf(errorMessage, "Name too long: %s", deviceName.c_str());
 		return;
 	}
-	devices.push_back({this, (uint8_t)nextFree, deviceName, canIn, canOut});
-	(*idIn)[nextFree] = canIn;
-	(*idOut)[nextFree] = canOut;
-	(*fpsLast)[nextFree] = 0xFFFF;
+	devices.push_back({this, deviceName, canIn, canOut});
 	nextFree++;
 }
 
@@ -208,7 +198,14 @@ uint8_t Board::count() {
 /** Count all the devices, alive or not
 @return - count
 */
-uint8_t Board::deadOrAliveCount() { return nextFree; }
+uint8_t Board::deadOrAliveCount() { return devices.size(); }
+
+Device* Board::deviceGet(uint8_t deviceNumber){
+	if (deviceNumber < devices.size())
+		return &devices[deviceNumber];
+	else
+		return nullptr;
+}
 
 
 uint8_t Board::deviceNumber(uint16_t msgId){
@@ -216,10 +213,6 @@ uint8_t Board::deviceNumber(uint16_t msgId){
 		if (isForMe(msgId, deviceNumber) || isFromMe(msgId, deviceNumber)) 
 			return deviceNumber;
 	return 0xFF;
-}
-
-uint8_t Board::devicesMaximumNumberInAllBoards() { 
-	return this->devicesOnABoard * this->maximumNumberOfBoards;
 }
 
 /** Ping devices and refresh alive array
@@ -259,7 +252,7 @@ void Board::firmwareRequest(uint8_t deviceNumber) {
 @return - FPS
 */
 uint16_t Board::fps(uint8_t deviceNumber) {
-	return (*fpsLast)[deviceNumber];
+	return devices[deviceNumber].fpsLast;
 }
 
 /** Display FPS for all devices
@@ -267,7 +260,7 @@ uint16_t Board::fps(uint8_t deviceNumber) {
 void Board::fpsDisplay() {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (alive(deviceNumber)){
-			if ((*fpsLast)[deviceNumber] == 0xFFFF)
+			if (devices[deviceNumber].fpsLast == 0xFFFF)
 				print("%s: no response\n\r", devices[deviceNumber].name.c_str());
 			else
 				print("%s: %i FPS\n\r", devices[deviceNumber].name.c_str(), fps(deviceNumber));
@@ -286,7 +279,7 @@ void Board::fpsRequest(uint8_t deviceNumber) {
 		if (alive(deviceNumber)) {
 			canData[0] = COMMAND_FPS_REQUEST;
 			messageSend(canData, 1, deviceNumber);
-			(*fpsLast)[deviceNumber] = 0xFFFF;
+			devices[deviceNumber].fpsLast = 0xFFFF;
 		}
 	}
 }
@@ -307,9 +300,9 @@ uint16_t Board::idGet(uint8_t deviceNumber, bool isOut) {
 		exit(22);
 	}
 	if (isOut)
-		return (*idOut)[deviceNumber];
+		return devices[deviceNumber].canIdOut;
 	else
-		return (*idIn)[deviceNumber];
+		return devices[deviceNumber].canIdIn;
 }
 
 /** Request information
@@ -339,7 +332,7 @@ bool Board::isForMe(uint32_t canIdOut, uint8_t deviceNumber) {
 		sprintf(errorMessage, "%s: board doesn't exist: %i", name().c_str(), deviceNumber);
 		return false;
 	}
-	return canIdOut == (*idOut)[deviceNumber];
+	return canIdOut == devices[deviceNumber].canIdOut;
 }
 
 /** Does the frame originate from this device's Arduino object?
@@ -352,7 +345,7 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 		sprintf(errorMessage, "%s: board doesn't exist: %i", name().c_str(), deviceNumber);
 		return false;
 	}
-	return canIdOut == (*idIn)[deviceNumber];
+	return canIdOut == devices[deviceNumber].canIdIn;
 }
 
 /** Common part of message decoding
@@ -379,7 +372,7 @@ bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 	}
 		break;
 	case COMMAND_FPS_SENDING:
-		(*fpsLast)[deviceNumber] = (message.data[2] << 8) | message.data[1];
+		devices[deviceNumber].fpsLast = (message.data[2] << 8) | message.data[1];
 		break;
 	case COMMAND_MESSAGE_SENDING_1:
 		for (uint8_t i = 0; i < 7; i++)
@@ -432,7 +425,7 @@ void Board::messagePrint(CANMessage message, bool outbound) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], dlc, data);
+	robotContainer->messageSend(CANMessage(robotContainer, devices[deviceNumber].canIdIn, data, dlc));
 }
 
 /** Returns device's name
@@ -562,12 +555,12 @@ void Board::swap(uint8_t deviceNumber1, uint8_t deviceNumber2) {
 	if (deviceNumber1 >= nextFree || deviceNumber2 >= nextFree)
 		sprintf(errorMessage, "%s: device overflow: %i or %i", name().c_str(), deviceNumber1, deviceNumber2);
 	else {
-		uint16_t idInTemp = (*idIn)[deviceNumber1];
-		uint16_t idOutTemp = (*idOut)[deviceNumber1];
-		(*idIn)[deviceNumber1] = (*idIn)[deviceNumber2];
-		(*idOut)[deviceNumber1] = (*idOut)[deviceNumber2];
-		(*idIn)[deviceNumber2] = idInTemp;
-		(*idOut)[deviceNumber2] = idOutTemp;
+		uint16_t idInTemp = devices[deviceNumber1].canIdIn;
+		uint16_t idOutTemp = devices[deviceNumber1].canIdOut;
+		devices[deviceNumber1].canIdIn = devices[deviceNumber2].canIdIn;
+		devices[deviceNumber1].canIdOut = devices[deviceNumber2].canIdOut;
+		devices[deviceNumber2].canIdIn = idInTemp;
+		devices[deviceNumber2].canIdOut = idOutTemp;
 	}
 }
 
@@ -835,8 +828,8 @@ void SensorBoard::continuousReadingCalculatedDataStart(uint8_t deviceNumber) {
 #else
 			canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS_AND_RETURN_CALCULATED_DATA;
 			messageSend(canData, 1, deviceNumber);
-			//robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 1, canData);
-			//print("Sent to 0x%x\n\r, ", (*idIn)[deviceNumber]);
+			//robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
+			//print("Sent to 0x%x\n\r, ", devices[deviceNumber].canIdIn);
 #endif
 		}
 	}

@@ -162,7 +162,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 		aliveSet(false, deviceNumber);
 		print("Calibrating %s...", name(deviceNumber));
 		canData[0] = COMMAND_REF_CAN_CALIBRATE;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 1, canData);
+		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
 		uint32_t startMs = millis();
 		bool ok = false;
 		while (millis() - startMs < 10000) {
@@ -207,7 +207,7 @@ void Mrm_ref_can::calibrationDataRequest(uint8_t deviceNumber, bool waitForResul
 		if (waitForResult)
 			dataFreshCalibrationSet(false, deviceNumber);
 		canData[0] = COMMAND_REF_CAN_CALIBRATION_DATA_REQUEST;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 1, canData);
+		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
 		if (waitForResult) {
 			uint32_t ms = millis();
 			while (!dataCalibrationFreshAsk(deviceNumber)) {

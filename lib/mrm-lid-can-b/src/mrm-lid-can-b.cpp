@@ -111,7 +111,7 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 			calibration(i);
 	else if (alive(deviceNumber)){
 		canData[0] = COMMAND_LID_CAN_B_CALIBRATE;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 1, canData);
+		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
 	}
 }
 
@@ -246,7 +246,7 @@ void Mrm_lid_can_b::rangingType(uint8_t deviceNumber, uint8_t value) {
 	else {
 		canData[0] = COMMAND_LID_CAN_B_RANGING_TYPE;
 		canData[1] = value;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
 	}
 }
 
