@@ -117,6 +117,7 @@ protected:
 	std::string _boardsName;
 	BoardType _boardType; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
+	static std::map<int, std::string>* commandNames;
 	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	BoardId _id;
@@ -136,7 +137,7 @@ protected:
 	bool messageDecodeCommon(CANMessage message, uint8_t deviceNumber = 0);
 
 public:
-	static std::map<int, std::string>* commandNames;
+
 	bool _aliveReport = false;
 	
 	/**
@@ -184,6 +185,8 @@ public:
 	*/
 	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0xFF);
 
+	BoardType boardType(){ return _boardType; }
+	
 	/** Detects if there is a gap in CAN Bus addresses' sequence, like 0, 2, 3 (missing 1).
 	@return - is there a gap.
 	*/
@@ -191,12 +194,12 @@ public:
 
 	virtual std::string commandName(uint8_t byte);
 
+	static std::string commandNameCommon(uint8_t byte);
+
 	/** Did any device respond to last ping?
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
 	uint8_t count();
-
-	BoardType boardType(){ return _boardType; }
 
 	/** Count all the devices, alive or not
 	@return - count

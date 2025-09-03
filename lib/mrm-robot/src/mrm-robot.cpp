@@ -1336,7 +1336,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 		if (i == 0){
 			print(" command: ");
 			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] == 0xFF)
-				print(Board::commandNames->at(msg->data[0]).c_str());
+				print(Board::commandNameCommon(msg->data[0]).c_str());
 			else{	
 				if (board != NULL && board->commandName(msg->data[0]) != "")
 					print((board->commandName(msg->data[0])).c_str());

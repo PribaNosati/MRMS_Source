@@ -183,6 +183,14 @@ std::string Board::commandName(uint8_t byte){
 	return "";
 }
 
+std::string Board::commandNameCommon(uint8_t byte){
+	auto it = commandNames->find(byte);
+	if (it == commandNames->end())
+		return "Warning: no common command found for key " + (int)byte;
+	else
+		return it->second;
+}
+
 
 /** Did any device respond to last ping?
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
