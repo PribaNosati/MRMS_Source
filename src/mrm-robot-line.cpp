@@ -25,32 +25,21 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	Mrm_8x8a::LEDSignText* signTest = new Mrm_8x8a::LEDSignText();
 
 	// All the actions that sholuld be called from code will be defined here; the callable objects will be created.
-	actionEvacuationZone = new ActionRobotLine(this, "eva", "Evacuation zone", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::evacuationZone);
-	actionLineFollow = new ActionRobotLine(this, "lnf", "Line follow", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::lineFollow);
-	actionObstacleAvoid = new ActionRobotLine(this, "obs", "Obstacle avoid", 0, Board::BoardId::ID_ANY, NULL, &RobotLine::obstacleAvoid);
-	actionRCJLine = new ActionRobotLine(this, "lin", "RCJ line", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::rcjLine);
-	actionStop = new ActionRobotLine(this, "stp", "Stop motors", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop);
-	actionMotorShortTest = new ActionRobotLine(this, "msh", "Motor short test", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::motorShortTest);
-	// Generic actions
-	actionLoop5 = new ActionRobotLine(this, "lo5", "loop5", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop5);
-	actionLoop6 = new ActionRobotLine(this, "lo6", "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop6);
-	actionLoop7 = new ActionRobotLine(this, "lo7", "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop7);
-	actionLoop8 = new ActionRobotLine(this, "lo8", "loop8", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop8);
-	actionLoop9 = new ActionRobotLine(this, "lo9", "loop9", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop9);
+	actions->insert(std::make_pair("eva", new ActionRobotLine(this, "Evacuation zone", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::evacuationZone)));
+	actions->insert(std::make_pair("lnf", new ActionRobotLine(this, "Line follow", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::lineFollow)));
+	actions->insert(std::make_pair("obs", new ActionRobotLine(this, "Obstacle avoid", 0, Board::BoardId::ID_ANY, NULL, &RobotLine::obstacleAvoid)));
+	actions->insert(std::make_pair("rcj", new ActionRobotLine(this, "RCJ line", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::rcjLine)));
+	actions->insert(std::make_pair("str", new ActionRobotLine(this, "Stop motors", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::stop)));
+	actions->insert(std::make_pair("msh", new ActionRobotLine(this, "Motor short test", 1, Board::BoardId::ID_ANY, NULL, &RobotLine::motorShortTest)));
+	actions->insert(std::make_pair("lo5", new ActionRobotLine(this, "loop5", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop5)));
+	actions->insert(std::make_pair("lo6", new ActionRobotLine(this, "loop6", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop6)));
+	actions->insert(std::make_pair("lo7", new ActionRobotLine(this, "loop7", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop7)));
+	actions->insert(std::make_pair("lo8", new ActionRobotLine(this, "loop8", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop8)));
+	actions->insert(std::make_pair("lo9", new ActionRobotLine(this, "loop9", 8, Board::BoardId::ID_ANY, signTest, &RobotLine::loop9)));
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
 	// called in the code, but only through menus.
-	actionAdd(actionEvacuationZone);
-	actionAdd(actionLineFollow);
-	actionAdd(actionObstacleAvoid);
-	actionAdd(actionRCJLine);
-	actionAdd(actionMotorShortTest);
-	actionAdd(actionLoop5);
-	actionAdd(actionLoop6);
-	actionAdd(actionLoop7);
-	actionAdd(actionLoop8);
-	actionAdd(actionLoop9);
 
 #define CUSTOMIZE_SERVO 0
 #if CUSTOMIZE_SERVO
@@ -70,8 +59,8 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	// Set buttons' actions.
 	// mrm_8x8a->actionSet(actionRCJLine, 0); // Button 1 starts RCJ Line.
 	// mrm_8x8a->actionSet(actionEvacuationZone, 1); // Button 2 starts robot in evacution zone.
-	mrm_8x8a->actionSet(_actionLoop, 2); // Button 3 starts user defined loop() function
-	mrm_8x8a->actionSet(actionStop, 3); // Stop the robot
+	mrm_8x8a->actionSet(actionFind("loo"), 2); // Button 3 starts user defined loop() function
+	mrm_8x8a->actionSet(actionFind("sto"), 3); // Stop the robot
 
 	// Put Your buttons' actions here.
 
@@ -715,7 +704,7 @@ void RobotLine::rcjLine() {
 	display(LED_PLAY); // Show "play" sign.
 	mrm_col_can->illumination(0xFF, 1); // Turn mrm-col-can's surface illumination on.
 	//armClose(); // Arm will go to its idle (up) position.
-	actionSet(actionLineFollow); // The next action is line following.
+	actionSet("lnf"); // The next action is line following.
 }
 
 /** Front distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!

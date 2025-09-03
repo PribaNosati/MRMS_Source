@@ -46,9 +46,9 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 	// This test is not supposed to be called in code.
 
 	// Set buttons' actions
-	mrm_8x8a->actionSet(_actionLoop0, 1); // Starts stress test.
-	mrm_8x8a->actionSet(_actionLoop, 2); // Free-defined action.
-	mrm_8x8a->actionSet(_actionMenuMain, 3); // Stop and display menu
+	// mrm_8x8a->actionSet(_actionLoop0, 1); // Starts stress test.
+	mrm_8x8a->actionSet(actionFind("loo"), 2); // Free-defined action.
+	mrm_8x8a->actionSet(actionFind("x"), 3); // Stop and display menu
 	// Put Your buttons' actions here.
 
 	// Upload custom bitmaps into mrm-8x8a.
@@ -371,7 +371,7 @@ void RobotMin::loop0(){
 	}
 	if (ok){
 		uint8_t count = devicesScan(true);
-		actionSet(_actionLoop0);
+		actionSet("lo0");
 		if (count == DEVICE_COUNT_LED + DEVICE_COUNT_LIDARS + DEVICE_COUNT_MOTORS + 
 			DEVICE_COUNT_REFLECTIVE + DEVICE_COUNT_COLOR + DEVICE_COUNT_IR_FINDER){
 			print("Pass %i OK\n\r", ++i);

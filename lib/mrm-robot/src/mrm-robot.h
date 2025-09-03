@@ -5,7 +5,6 @@
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
 
-#define ACTIONS_LIMIT 82 // Increase if more actions are needed.
 #define BOARDS_LIMIT 30 // Maximum number of different board types.
 #define EEPROM_SIZE 12 // EEPROM size
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
@@ -52,21 +51,9 @@ class Robot {
 private:
 	enum ErrorCodes {};
 protected:
-	ActionBase* _action[ACTIONS_LIMIT]; // Collection of all the robot's actions
-	uint8_t _actionNextFree = 0;
-
-	// Robot's actions that can be callect directly, not just by iterating _action collection
-	ActionBase* _actionCurrent;
-	ActionBase* _actionDoNothing;
-    ActionBase* _actionLoop;
-	ActionBase* _actionLoop0;
-	ActionBase* _actionLoop1;
-	ActionBase* _actionLoop2;
-	ActionBase* _actionLoop3;
-	ActionBase* _actionLoop4;
-	ActionBase* _actionMenuMain;
-    ActionBase* _actionPrevious;
-	ActionBase* _actionStop;
+	static std::map<std::string, ActionBase*>* actions;
+	ActionBase* _actionCurrent = NULL; // Current action
+	ActionBase* _actionPrevious = NULL; // Previous action
 
 	bool _actionTextDisplay = true;
 
@@ -105,6 +92,8 @@ protected:
 	/** User sets a new action, using keyboard or Bluetooth
 	*/
 	void actionSet();
+
+	void actionSet(std::string newAction);//ActionBase* newAction);
 
 	/** New action is set in the program
 	@param newAction - the new action.
@@ -194,11 +183,13 @@ public:
 	/** Add a new action to the collection of robot's possible actions.
 	@param action - the new action.
 	*/
-	void actionAdd(ActionBase* action);
+	void actionAdd(std::string, ActionBase* action);
 
 	/** End current action
 	*/
 	void actionEnd();
+
+	ActionBase* actionFind(std::string action);
 
 	/** Is this current action's initialization
 	@param andFinish - finish initialization

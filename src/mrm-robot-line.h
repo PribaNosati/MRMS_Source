@@ -43,21 +43,6 @@ class RobotLine : public Robot {
 	const uint16_t AHEAD_IN_CROSSING = 210; // 7.4V : 300
 	const uint8_t LAST_TRANSISTOR = 7; // mrm-ref-can: 8, mrm-ref-can8: 7
 
-	// Actions' declarations
-	ActionRobotLine* actionEvacuationZone;
-	ActionRobotLine* actionObstacleAvoid;
-	ActionRobotLine* actionLineFollow;
-	ActionRobotLine* actionRCJLine;
-	ActionRobotLine* actionStop; // Robot function
-	ActionRobotLine* actionMotorShortTest;
-
-	// Generic actions
-	ActionRobotLine* actionLoop5;
-	ActionRobotLine* actionLoop6;
-	ActionRobotLine* actionLoop7;
-	ActionRobotLine* actionLoop8;
-	ActionRobotLine* actionLoop9;
-
 	uint16_t barrierBrightest = 2000; // Default value, it should be calibrated.
 
 	MotorGroupDifferential* motorGroup = NULL; // Class that conveys commands to motors.
@@ -421,7 +406,7 @@ The fourth pareameter is menu level. When omitted, the action will not be a part
 class ActionRobotLine : public ActionBase {
 	void perform(){(((RobotLine*)_robot)->*_actionPerform)(); };
 public:
-	ActionRobotLine(Robot* robot, const char shortcut[4], const char text[20], uint8_t menuLevel = 1, Board::BoardId boardsId = Board::BoardId::ID_ANY,
+	ActionRobotLine(Robot* robot, const char text[20], uint8_t menuLevel = 1, Board::BoardId boardsId = Board::BoardId::ID_ANY,
 		Mrm_8x8a::LEDSign* ledSign8x8 = NULL,  void (RobotLine::*actionPerform)() = NULL) : 
-		ActionBase(robot, shortcut, text, menuLevel, boardsId, ledSign8x8, (void (Robot::*)())actionPerform) {}
+		ActionBase(robot, text, menuLevel, boardsId, ledSign8x8, (void (Robot::*)())actionPerform) {}
 };

@@ -78,15 +78,6 @@ class RobotMaze : public Robot {
 	const uint8_t LEFT_ENCODER_PIN = 16;
 	const uint8_t RIGHT_ENCODER_PIN = 17;
 
-	// Actions' declarations
-	ActionDecide* actionDecide;
-	ActionBase* actionGoStraightAhead;
-	ActionMap* actionMap;
-	ActionMove* actionMove;
-	ActionMoveAhead* actionMoveAhead;
-	ActionMoveTurn* actionMoveTurn;
-	ActionRescueMaze* actionRescueMaze;
-
 	Direction directionCurrent; // Current robot's direction.
 
 	float imuLastValid = 9999; // Last measured compass value. Important for moving ahead when no wall available.
@@ -294,7 +285,7 @@ The fourth pareameter is menu level. When omitted, the action will not be a part
 class ActionDecide : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->decide(); }
 public:
-	ActionDecide(Robot* robot) : ActionBase(robot, "", "") {}
+	ActionDecide(Robot* robot) : ActionBase(robot, "") {}
 };
 
 /** Maps walls detected and other external readings in variables.
@@ -302,7 +293,7 @@ public:
 class ActionMap : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->map(); }
 public:
-	ActionMap(Robot* robot) : ActionBase(robot, "", "") {}
+	ActionMap(Robot* robot) : ActionBase(robot, "") {}
 };
 
 /** Base class for movement actions.
@@ -311,7 +302,7 @@ class ActionMove : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->move(); }
 public:
 	Direction direction; // Initial direction is stored to be recalled when using the action.
-	ActionMove(Robot* robot) : ActionBase(robot, "", "") {}
+	ActionMove(Robot* robot) : ActionBase(robot, "") {}
 };
 
 /** Test - move 1 tile ahead.
@@ -319,7 +310,7 @@ public:
 class ActionMove1TileTest : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->moveAhead1TileTest();}
 public:
-	ActionMove1TileTest(Robot* robot) : ActionBase(robot, "1ti", "Go 1 tile", 1) {}
+	ActionMove1TileTest(Robot* robot) : ActionBase(robot, "Go 1 tile", 1) {}
 };
 
 /** Go straight ahead.
@@ -345,7 +336,7 @@ public:
 class ActionMoveTurnTest : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->moveTurnTest(); }
 public:
-	ActionMoveTurnTest(Robot* robot) : ActionBase(robot, "tte", "Turn test", 1) {}
+	ActionMoveTurnTest(Robot* robot) : ActionBase(robot, "Turn test", 1) {}
 };
 
 
@@ -354,7 +345,7 @@ public:
 class ActionRescueMaze : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->rescueMaze(); }
 public:
-	ActionRescueMaze(Robot* robot) : ActionBase(robot, "maz", "Rescue Maze", 1) {}
+	ActionRescueMaze(Robot* robot) : ActionBase(robot, "Rescue Maze", 1) {}
 };
 
 /** Test for Mecanum wheels. Used only when the robot is rigged with mecanum wheels.
@@ -362,7 +353,7 @@ public:
 class ActionOmniWheelsTest : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->omniWheelsTest(); }
 public:
-	ActionOmniWheelsTest(Robot* robot) : ActionBase(robot, "omn", "Test omni wh.", 1) {}
+	ActionOmniWheelsTest(Robot* robot) : ActionBase(robot, "Test omni wh.", 1) {}
 };
 
 /** Test, checking and displaying all walls.
@@ -370,5 +361,5 @@ public:
 class ActionWallsTest : public ActionBase {
 	void perform() { ((RobotMaze*)_robot)->wallsTest(); }
 public:
-	ActionWallsTest(Robot* robot) : ActionBase(robot, "wlt", "Walls test", 1) {}
+	ActionWallsTest(Robot* robot) : ActionBase(robot, "Walls test", 1) {}
 };
