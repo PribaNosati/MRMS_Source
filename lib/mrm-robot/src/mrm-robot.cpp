@@ -119,6 +119,7 @@ if (actions == NULL) {
 		actions->insert({"sto", new ActionRobot(this, "Stop", 1, Board::BoardId::ID_ANY, signTest, &Robot::stopAll)});
 		actions->insert({"all", new ActionRobot(this, "CAN Bus stress", 16, Board::BoardId::ID_ANY, signTest, &Robot::stressTest)});
 		actions->insert({"led", new ActionRobot(this, "Test 8x8", 1, Board::BoardId::ID_MRM_8x8A, signTest, &Robot::led8x8Test)});
+		actions->insert({"blt", new ActionRobot(this, "Test Bluetooh", 16, Board::BoardId::ID_ANY, signTest, &Robot::bluetoothTest)});
 		actions->insert({"can", new ActionRobot(this, "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan)});
 		actions->insert({"sni", new ActionRobot(this, "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle)});
 		actions->insert({"10c", new ActionRobot(this, "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10)});
@@ -136,6 +137,7 @@ if (actions == NULL) {
 		actions->insert({"fps", new ActionRobot(this, "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint)});
 		actions->insert({"ahe", new ActionRobot(this, "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead)});
 		actions->insert({"imu", new ActionRobot(this, "Test IMU", 1, Board::BoardId::ID_ANY, signTest, &Robot::imuTest)});
+		actions->insert({"i2c", new ActionRobot(this, "Test I2C", 8, Board::BoardId::ID_ANY, signTest, &Robot::i2cTest)});
 		actions->insert({"inf", new ActionRobot(this, "Info", 8, Board::BoardId::ID_ANY, signTest, &Robot::info)});
 		actions->insert({"irf", new ActionRobot(this, "Test ball analog", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTest)});
 		actions->insert({"irc", new ActionRobot(this, "Test bal calcul.", 1, Board::BoardId::ID_MRM_IR_FINDER3, signTest, &Robot::irFinderTestCalculated)});

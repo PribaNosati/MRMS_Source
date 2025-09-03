@@ -50,16 +50,7 @@ class Tile;
 // };
 
 
-/* All the Action-classes have to be forward declared here (before RobotMazeCompetition) as RobotMazeCompetition declaration uses them. The other option would be
-not to declare them here, but in that case Action-objects in RobotMazeCompetition will have to be declared as ActionBase class, forcing downcast later in code, if
-derived functions are used.*/
-// class ActionDecideCompetition;
-// class ActionMapCompetition;
-// class ActionMoveCompetition;
-// class ActionMoveAheadCompetition;
-// class ActionMoveTurnCompetition;
-// class ActionRescueMazeCompetition;
-// class ActionWallsTestCompetition;
+
 
 /** Robot for RCJ Rescue Maze, a class derived from the base Robot class.
 */
@@ -74,16 +65,6 @@ class RobotMazeCompetition : public Robot {
 	const uint16_t WALL_FOLLOW_ERROR_ALLOWED = 40; // In mm. If 2 sensors measure distances that diverge in values more than this number, the robot will not follow that wall.
 	const uint16_t WALL_FOLLOW_DISTANCE_ADJUSTMENT_STRENGTH = 1.1; // A bigger value will force the robot to correct distance to a wall more vigorously.
 	const uint16_t WALL_FOLLOW_ROTATION_STRENGTH = 1.1; // A bigger value will force the robot to correct its alignment to a wall more vigorously.
-
-	// Actions' declarations
-	// ActionDecideCompetition* actionDecide;
-	// ActionBase* actionGoStraightAhead;
-	// ActionMapCompetition* actionMap;
-	// ActionMoveCompetition* actionMove;
-	// ActionMoveAheadCompetition* actionMoveAhead;
-	// ActionMoveTurnCompetition* actionMoveTurn;
-	// ActionRescueMazeCompetition* actionRescueMaze;
-	// ActionWallsTestCompetition* actionWallsTest;
 
 	Direction directionCurrent; // Current robot's (in maze's perspective) direction.
 
@@ -264,22 +245,6 @@ for no-menu actions.
 The fourth pareameter is menu level. When omitted, the action will not be a part of the menu. Use 1 otherwise. Higher level numbers will display the action in submenues, not used here.
 */
 
-/** Action that decides what to do next, using Tremaux algorithm. If a not-visited direction exists, go there. If not, return to the tile robot came from.
-*/
-// class ActionDecideCompetition : public ActionBase {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->decide(); }
-// public:
-// 	ActionDecideCompetition(Robot* robot) : ActionBase(robot, "") {}
-// };
-
-// /** Maps walls detected and other external readings in variables.
-// */
-// class ActionMapCompetition : public ActionBase {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->map(); }
-// public:
-// 	ActionMapCompetition(Robot* robot) : ActionBase(robot, "") {}
-// };
-
 /** Base class for movement actions.
 */
 class ActionMoveCompetition : public ActionBase {
@@ -289,21 +254,7 @@ public:
 	ActionMoveCompetition(Robot* robot) : ActionBase(robot, "") {}
 };
 
-// /** Test - move 1 tile ahead.
-// */
-// class ActionMove1TileTestCompetition : public ActionBase {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->moveAhead1TileTest();}
-// public:
-// 	ActionMove1TileTestCompetition(Robot* robot) : ActionBase(robot, "Go 1 tile", 1) {}
-// };
 
-// /** Go straight ahead.
-// */
-// class ActionMoveAheadCompetition : public ActionMove {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->moveAhead(); }
-// public:
-// 	ActionMoveAheadCompetition(Robot* robot) : ActionMove(robot) {}
-// };
 
 /** Turn.
 */
@@ -314,36 +265,3 @@ public:
 	float turnByCCW; // Number of degrees to turn CCW (counter-clockwise).
 	ActionMoveTurnCompetition(Robot* robot) : ActionMove(robot) {}
 };
-
-// /** Turn.
-// */
-// class ActionMoveTurnTestCompetition : public ActionBase {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->moveTurnTest(); }
-// public:
-// 	ActionMoveTurnTestCompetition(Robot* robot) : ActionBase(robot, "Turn test", 1) {}
-// };
-
-
-/** Start RCJ Rescue Maze run.
-*/
-class ActionRescueMazeCompetition : public ActionBase {
-	void perform() { ((RobotMazeCompetition*)_robot)->rescueMaze(); }
-public:
-	ActionRescueMazeCompetition(Robot* robot) : ActionBase(robot, "Rescue Maze", 1) {}
-};
-
-// /** Test for Mecanum wheels. Used only when the robot is rigged with mecanum wheels.
-// */
-// class ActionOmniWheelsTestCompetition : public ActionBase {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->omniWheelsTest(); }
-// public:
-// 	ActionOmniWheelsTestCompetition(Robot* robot) : ActionBase(robot, "Test omni wh.", 1) {}
-// };
-
-// /** Test, checking and displaying all walls.
-// */
-// class ActionWallsTestCompetition : public ActionBase {
-// 	void perform() { ((RobotMazeCompetition*)_robot)->wallsTest(); }
-// public:
-// 	ActionWallsTestCompetition(Robot* robot) : ActionBase(robot, "Walls test", 1) {}
-// };

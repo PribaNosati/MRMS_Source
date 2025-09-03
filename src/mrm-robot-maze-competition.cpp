@@ -27,24 +27,6 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 	mrm_mot4x3_6can->directionChange(2); // Uncomment to change 3rd wheel's rotation direction
 	mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
 
-	// All the actions will be defined here; the objects will be created.
-	// actionDecide = new ActionDecideCompetition(this);
-	// actionGoStraightAhead = new ActionMoveAhead(this);
-	// actionMap = new ActionMapCompetition(this);
-	// actionMove = new ActionMoveCompetition(this);
-	// actionMoveAhead = new ActionMoveAheadCompetition(this);
-	// actionMoveTurn = new ActionMoveTurnCompetition(this);
-	// actionRescueMaze = new ActionRescueMazeCompetition(this);
-
-	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
-	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
-	// called in the code, but only through menus. For example, ActionWallsTest test is only manu-based, and it is all right.
-	// This test is not supposed to be called in code.
-	// actionAdd(actionRescueMaze);
-	// actionAdd(new ActionOmniWheelsTestCompetition(this));
-	// actionAdd(new ActionWallsTestCompetition(this));
-	// actionAdd(new ActionMove1TileTestCompetition(this));
-	// actionAdd(new ActionMoveTurnTestCompetition(this));
 
 		/** Action that decides what to do next, using Tremaux algorithm. If a not-visited direction exists, go there. If not, return to the tile robot came from.*/
 	actions->insert({"mde", new ActionRobotMaze(this, "Decide", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::decide)});
@@ -59,10 +41,10 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 	actions->insert({"wlt", new ActionRobotMaze(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)});
 	actions->insert({"rmz", new ActionRobotMaze(this, "Rescue Maze", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::rescueMaze)});
 
-	// Set buttons' actions
-	// mrm_8x8a->actionSet(actionRescueMaze, 0); // Button 0 starts RCJ Maze.
-	// mrm_8x8a->actionSet(_actionLoop, 2); // Button 3 starts user defined loop() function
-	// mrm_8x8a->actionSet(_actionStop, 3); // Stop the robot
+	//Set buttons' actions
+	mrm_8x8a->actionSet(actionFind("rmz"), 0); // Button 0 starts RCJ Maze.
+	mrm_8x8a->actionSet(actionFind("loo"), 2); // Button 3 starts user defined loop() function
+	mrm_8x8a->actionSet(actionFind("sto"), 3); // Stop the robot
 
 	// Upload custom bitmaps into mrm-8x8a.
 	bitmapsSet();

@@ -46,17 +46,11 @@ RobotMaze::RobotMaze(char name[]) : Robot(name) {
 	actions->insert({"omn", new ActionRobotMaze(this, "Omni wheel test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::omniWheelsTest)});
 	actions->insert({"wlt", new ActionRobotMaze(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)});
 	actions->insert({"rmz", new ActionRobotMaze(this, "Rescue Maze", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::rescueMaze)});
-	// actions->insert(std::make_pair("omn", new ActionRescueMaze(this, "Omni wheel test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::omniWheelsTest)));
-	// actions->insert(std::make_pair("wlt", new ActionRescueMaze(this, "Walls test", 1, Board::BoardId::ID_ANY, NULL, &RobotMaze::wallsTest)));
-
 
 	// The actions that should be displayed in menus must be added to menu-callable actions. You can use action-objects defined
 	// right above, or can create new objects. In the latter case, the inline-created objects will have no pointer and cannot be
 	// called in the code, but only through menus. For example, ActionWallsTest test is only manu-based, and it is all right.
 	// This test is not supposed to be called in code.
-
-	// actionAdd(new ActionMove1TileTest(this));
-	// actionAdd(new ActionMoveTurnTest(this));
 
 	// Set buttons' actions
 	// mrm_8x8a->actionSet(actionRescueMaze, 0); // Button 0 starts RCJ Maze.

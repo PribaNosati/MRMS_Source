@@ -290,14 +290,6 @@ public:
 	ActionMove(Robot* robot) : ActionBase(robot, "") {}
 };
 
-/** Test - move 1 tile ahead.
-*/
-class ActionMove1TileTest : public ActionBase {
-	void perform() { ((RobotMaze*)_robot)->moveAhead1TileTest();}
-public:
-	ActionMove1TileTest(Robot* robot) : ActionBase(robot, "Go 1 tile", 1) {}
-};
-
 /** Turn.
 */
 class ActionMoveTurn : public ActionMove {
@@ -306,31 +298,6 @@ public:
 	float endAngle; // End condition: target angle.
 	float turnByCCW; // Number of degrees to turn CCW (counter-clockwise).
 	ActionMoveTurn(Robot* robot) : ActionMove(robot) {}
-};
-
-/** Turn.
-*/
-class ActionMoveTurnTest : public ActionBase {
-	void perform() { ((RobotMaze*)_robot)->moveTurnTest(); }
-public:
-	ActionMoveTurnTest(Robot* robot) : ActionBase(robot, "Turn test", 1) {}
-};
-
-
-/** Test for Mecanum wheels. Used only when the robot is rigged with mecanum wheels.
-*/
-class ActionOmniWheelsTest : public ActionBase {
-	void perform() { ((RobotMaze*)_robot)->omniWheelsTest(); }
-public:
-	ActionOmniWheelsTest(Robot* robot) : ActionBase(robot, "Test omni wh.", 1) {}
-};
-
-/** Test, checking and displaying all walls.
-*/
-class ActionWallsTest : public ActionBase {
-	void perform() { ((RobotMaze*)_robot)->wallsTest(); }
-public:
-	ActionWallsTest(Robot* robot) : ActionBase(robot, "Walls test", 1) {}
 };
 
 class ActionRobotMaze : public ActionBase {
