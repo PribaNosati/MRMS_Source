@@ -330,7 +330,7 @@ public:
 	@param deviceNumber1 - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param deviceNumber2 - Second device.
 	*/
-	void swap(uint8_t deviceNumber1, uint8_t deviceNumber2);
+	void swapCANIds(Device device1, Device device2);
 
 	/** Stops periodical CANBus messages that refresh values that can be read by reading()
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -345,7 +345,6 @@ public:
 };
 
 
-
 class MotorBoard : public Board {
 protected:
 	std::vector<uint32_t>* encoderCount; // Encoder count
@@ -356,7 +355,7 @@ protected:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - started or not
 	*/
-	bool started(uint8_t deviceNumber);
+	bool started(Device device);
 public:
 
 	/**
@@ -388,7 +387,7 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - encoder value
 	*/
-	uint16_t reading(uint8_t deviceNumber);
+	uint16_t reading(Device device);
 
 	/** Print all readings in a line
 	*/

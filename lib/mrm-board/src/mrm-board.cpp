@@ -524,18 +524,15 @@ If we want to change the order so that now the device 1 is the one with the smal
 @param deviceNumber1 - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @param deviceNumber2 - Second device.
 */
-void Board::swap(uint8_t deviceNumber1, uint8_t deviceNumber2) {
-	if (deviceNumber1 >= nextFree || deviceNumber2 >= nextFree)
-		sprintf(errorMessage, "%s: device overflow: %i or %i", name().c_str(), deviceNumber1, deviceNumber2);
-	else {
-		uint16_t idInTemp = devices[deviceNumber1].canIdIn;
-		uint16_t idOutTemp = devices[deviceNumber1].canIdOut;
-		devices[deviceNumber1].canIdIn = devices[deviceNumber2].canIdIn;
-		devices[deviceNumber1].canIdOut = devices[deviceNumber2].canIdOut;
-		devices[deviceNumber2].canIdIn = idInTemp;
-		devices[deviceNumber2].canIdOut = idOutTemp;
-	}
+void Board::swapCANIds(Device device1, Device device2) {
+	uint16_t idInTemp = device1.canIdIn;
+	uint16_t idOutTemp = device1.canIdOut;
+	device1.canIdIn = device2.canIdIn;
+	device1.canIdOut = device2.canIdOut;
+	device2.canIdIn = idInTemp;
+	device2.canIdOut = idOutTemp;
 }
+
 
 
 /**
@@ -599,14 +596,10 @@ bool MotorBoard::messageDecode(CANMessage message) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - encoder value
 */
-uint16_t MotorBoard::reading(uint8_t deviceNumber) {
-	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
-		return 0;
-	}
-	aliveWithOptionalScan(&devices[deviceNumber], true);
-	if (started(deviceNumber))
-		return (*encoderCount)[deviceNumber];
+uint16_t MotorBoard::reading(Device device) {
+	aliveWithOptionalScan(&device, true);
+	if (started(device))
+		return (*encoderCount)[device.number];
 	else
 		return 0;
 }
@@ -647,22 +640,22 @@ void MotorBoard::speedSet(uint8_t motorNumber, int8_t speed) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool MotorBoard::started(uint8_t deviceNumber) {
-	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_MOTORS_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
-		// print("Start mrm-bldc4x2.5%i \n\r", deviceNumber); 
+bool MotorBoard::started(Device device) {
+	if (millis() - device.lastReadingsMs > MRM_MOTORS_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
+		// print("Start mrm-bldc4x2.5%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(&devices[deviceNumber], 0);
+			start(&device, 0);
 			// Wait for 1. message.
-			uint32_t startMs = millis();
+			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
+				if (millis() - device.lastReadingsMs < 100) {
 					// print("BLDC confirmed\n\r");
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delay(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
+		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
