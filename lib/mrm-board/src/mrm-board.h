@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "Arduino.h"
 #include "mrm-can-bus.h"
 #include "mrm-common.h"
@@ -141,6 +142,14 @@ public:
 	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	uint8_t number; // Index in vector
+
+	// In order to avoid back-pointers to Robot class
+	std::function<void (uint16_t canId, uint8_t errorCode, bool peripheral)> errorAdd;
+	std::function<bool ()> userBreak;
+	std::function<bool ()> setup;
+	std::function<void()> end;
+	// std::function<void (CANMessage message, bool outbound)> messagePrint;
+	std::function<void (CANMessage message, uint8_t deviceNumber)> messageSendParent;
 	
 	/**
 	@param robot - robot containing this board

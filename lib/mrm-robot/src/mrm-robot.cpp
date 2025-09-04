@@ -193,6 +193,15 @@ if (actions == NULL) {
 	mrm_us_b = new Mrm_us_b(this);
 	mrm_us1 = new Mrm_us1(this);
 
+	for(Board * board : boards){
+	// 	board->errorAdd = [this](uint16_t canId, uint8_t errorCode, bool peripheral){this->errors->add(canId, errorCode, peripheral);};
+	// 	board->userBreak = [this](){return this->userBreak();};
+	// 	board->setup = [this](){return this->setup();};
+		board->end = [this](){};
+	// 	// board->messagePrint = [this] (CANMessage message, bool outbound) {messagePrint(message, outbound);};
+	// 	board->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message, deviceNumber);};
+	}
+
 	// 8x8 LED
 	mrm_8x8a->add((char*)"LED8x8-0");
 	// Motors mrm-bldc2x50
@@ -509,6 +518,14 @@ void Robot::actionSet(std::string action){
 void Robot::add(Board* aBoard) {
 	boards.push_back(aBoard);
 	aBoard->number = _boardNextFree;
+
+	aBoard->errorAdd = [this](uint16_t canId, uint8_t errorCode, bool peripheral){this->errors->add(canId, errorCode, peripheral);};
+	aBoard->userBreak = [this](){return this->userBreak();};
+	aBoard->setup = [this](){return this->setup();};
+	aBoard->end = [this](){this->end();};
+	// aBoard->messagePrint = [this] (CANMessage message, bool outbound) {messagePrint(message, outbound);};
+	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){};
+
 	_boardNextFree++;
 }
 
