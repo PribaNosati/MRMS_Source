@@ -507,11 +507,9 @@ void Robot::actionSet(std::string action){
 @param aBoard - the board.
 */
 void Robot::add(Board* aBoard) {
-	if (_boardNextFree >= BOARDS_LIMIT - 1) {
-		strcpy(errorMessage, "Too many boards");
-		return;
-	}
-	boards[_boardNextFree++] = aBoard;
+	boards.push_back(aBoard);
+	aBoard->number = _boardNextFree;
+	_boardNextFree++;
 }
 
 /** Blink LED

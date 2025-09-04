@@ -140,6 +140,7 @@ protected:
 public:
 
 	std::vector<Device> devices; // List of devices on this board
+	uint8_t number; // Index in vector
 	
 	/**
 	@param robot - robot containing this board
