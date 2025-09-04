@@ -104,7 +104,7 @@ bool Mrm_ref_can::analogStarted(uint8_t deviceNumber) {
 		//print("Start analog \n\r"); 
 		devices[deviceNumber].lastReadingsMs = 0;
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0); // As analog
+			start(&devices[deviceNumber], 0); // As analog
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
@@ -326,7 +326,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 			//print("Digital started, dark: %i \n\r", darkCenter); 
 			devices[deviceNumber].lastReadingsMs = 0;
 			for (uint8_t i = 0; i < 8; i++) { // 8 tries
-				start(deviceNumber, darkCenter ? 1 : 2); // As digital with dark or bright center
+				start(&devices[deviceNumber], darkCenter ? 1 : 2); // As digital with dark or bright center
 				// Wait for 1. message.
 				uint32_t startMs = millis();
 				while (millis() - startMs < 50) {

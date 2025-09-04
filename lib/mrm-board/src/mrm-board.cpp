@@ -435,15 +435,16 @@ void Board::notificationRequest(uint8_t commandRequestingNotification, uint8_t d
 /** Reserved for production
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Board::oscillatorTest(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			oscillatorTest(i);
+void Board::oscillatorTest(Device* device) {
+	if (device == nullptr) {
+		for (Device& dev: devices)
+			oscillatorTest(&dev);
+	}
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
-			print("Test %s\n\r", deviceName(deviceNumber).c_str());
+		if (device->alive) {
+			print("Test %s\n\r", device->name.c_str());
 			canData[0] = COMMAND_OSCILLATOR_TEST;
-			messageSend(canData, 1, deviceNumber);
+			messageSend(canData, 1, device->number);
 		}
 	}
 }
@@ -451,13 +452,13 @@ void Board::oscillatorTest(uint8_t deviceNumber) {
 /** Reset
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 */
-void Board::reset(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			reset(i);
+void Board::reset(Device* device) {
+	if (device == nullptr)
+		for (Device& dev: devices)
+			reset(&dev);
 	else {
 		canData[0] = COMMAND_RESET;
-		messageSend(canData, 1, deviceNumber);
+		messageSend(canData, 1, device->number);
 	}
 }
 
@@ -467,15 +468,15 @@ void Board::reset(uint8_t deviceNumber) {
 @param measuringModeNow - Measuring mode id. Default 0.
 @param refreshMs - gap between 2 CAN Bus messages to refresh local Arduino copy of device's data. 0 - device's default.
 */
-void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refreshMs) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			start(i, measuringModeNow, refreshMs);
+void Board::start(Device* device, uint8_t measuringModeNow, uint16_t refreshMs) {
+	if (device == nullptr)
+		for (Device& dev: devices)
+			start(&dev, measuringModeNow, refreshMs);
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
-			// print("Alive, start reading: %s, mode: %i\n\r", name(deviceNumber), measuringModeNow);
+		if (device->alive) {
+			// print("Alive, start reading: %s\n\r", _boardsName.c_str());
 #if REQUEST_NOTIFICATION
-			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);
+			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device->number);
 #else
 			if (measuringModeNow == 0 || measuringModeLimit == 0)
 				canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS;
@@ -488,11 +489,14 @@ void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refre
 				canData[1] = refreshMs & 0xFF;
 				canData[2] = (refreshMs >> 8) & 0xFF;
 			}
-			// if (maximumNumberOfBoards == 8) 
-			// 	print("In: %i\n\r", deviceNumber);
-			messageSend(canData, refreshMs == 0 ? 1 : 3, deviceNumber);
-			// if (maximumNumberOfBoards == 8)
-			// 	print("Out: %i\n\r", deviceNumber);
+			messageSend(canData, refreshMs == 0 ? 1 : 3, device->number);
+
+			// if (++dumpCnt >= DUMP_LIMIT)
+			// 	dumpCnt = 0;
+			// dumpMs[dumpCnt] = millis() - dumpLastMs;
+			// dumpLastMs = millis();
+
+			delay(1); // Otherwise only 4 devices of the same kind started.
 #endif
 		}
 	}
@@ -647,7 +651,7 @@ bool MotorBoard::started(uint8_t deviceNumber) {
 	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_MOTORS_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		// print("Start mrm-bldc4x2.5%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0);
+			start(&devices[deviceNumber], 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {

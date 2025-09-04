@@ -95,7 +95,7 @@ bool Mrm_ir_finder3::calculatedStarted(uint8_t deviceNumber) {
 		print("Start IR finder \n\r"); 
 		devices[deviceNumber].lastReadingsMs = 0;
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 1); // As calculated
+			start(&devices[deviceNumber], 1); // As calculated
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
@@ -246,7 +246,7 @@ bool Mrm_ir_finder3::singleStarted(uint8_t deviceNumber) {
 		print("Start IR finder \n\r"); 
 		devices[deviceNumber].lastReadingsMs = 0;
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0); // As single
+			start(&devices[deviceNumber], 0); // As single
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {

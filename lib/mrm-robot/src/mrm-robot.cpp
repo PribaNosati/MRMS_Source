@@ -999,7 +999,7 @@ void Robot::devicesScan(){
 */
 void Robot::devicesStart(uint8_t measuringMode) {
 	for (uint8_t deviceNumber = 0; deviceNumber < _boardNextFree; deviceNumber++)
-		board[deviceNumber]->start(0xFF, measuringMode);
+		board[deviceNumber]->start(nullptr, measuringMode);
 }
 
 /** Stops broadcasting of CAN Bus messages
@@ -1469,7 +1469,7 @@ void Robot::oscillatorTest() {
 		uint8_t lastBoardAndDeviceIndex;
 		if (boardDisplayAndSelect(&selectedBoardIndex, &selectedDeviceIndex, &maxInput, &lastBoardAndDeviceIndex)) {
 			print("\n\r");
-			board[selectedBoardIndex]->oscillatorTest(selectedDeviceIndex);
+			board[selectedBoardIndex]->oscillatorTest(board[selectedBoardIndex]->deviceGet(selectedDeviceIndex));
 		}
 	}
 }

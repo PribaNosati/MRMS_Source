@@ -930,7 +930,7 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 bool Mrm_8x8a::started(uint8_t deviceNumber) {
 	if (_activeCheckIfStarted && (millis() - devices[deviceNumber].lastReadingsMs > MRM_8X8A_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0)) {
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0);
+			start(&devices[deviceNumber], 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {

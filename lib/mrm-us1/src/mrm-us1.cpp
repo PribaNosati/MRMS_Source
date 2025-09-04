@@ -122,7 +122,7 @@ bool Mrm_us1::started(uint8_t deviceNumber) {
 	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_US1_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
 		//print("Start mrm-us1%i \n\r", deviceNumber); 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0);
+			start(&devices[deviceNumber], 0);
 			// Wait for 1. message.
 			uint32_t startMs = millis();
 			while (millis() - startMs < 50) {
