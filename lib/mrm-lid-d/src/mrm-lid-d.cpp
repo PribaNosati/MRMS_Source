@@ -222,7 +222,7 @@ bool Mrm_lid_d::messageDecode(CANMessage message) {
 				}
 				break;
 				case COMMAND_INFO_SENDING_1:
-					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", name(deviceNumber), message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
+					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", deviceName(deviceNumber), message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
 						message.data[4] & 0xFF, message.data[5] & 0xFF, message.data[6] | (message.data[7] << 8));
 					break;
 				default:

@@ -90,8 +90,8 @@ class Board;
 
 struct Device{
 	public:
-		Device(Board * board, const std::string& name, uint16_t canIdIn, uint16_t canIdOut)
-		: board(board), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0), fpsLast(0xFFFF) {};
+	Device(Board * board, const std::string& name, uint16_t canIdIn, uint16_t canIdOut, uint8_t number)
+		: board(board), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0), fpsLast(0xFFFF), number(number), alive(false), aliveOnce(false) {};
 	Board * board;
 	std::string name;
 	uint8_t readingsCount;
@@ -100,6 +100,9 @@ struct Device{
 	uint64_t lastMessageReceivedMs;
 	uint64_t lastReadingsMs;
 	uint16_t fpsLast; //FPS local copy
+	uint8_t number;
+	bool alive;
+	bool aliveOnce;
 };
 
 /** Board is a class of all the boards of the same type, not a single board!
@@ -186,7 +189,7 @@ public:
 	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0xFF);
 
 	BoardType boardType(){ return _boardType; }
-	
+
 	/** Detects if there is a gap in CAN Bus addresses' sequence, like 0, 2, 3 (missing 1).
 	@return - is there a gap.
 	*/
@@ -306,7 +309,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - name
 	*/
-	std::string name(uint8_t deviceNumber);
+	std::string deviceName(uint8_t deviceNumber);
 
 	/** Returns device group's name
 	@return - name

@@ -22,7 +22,6 @@ Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, s
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
 	this->_boardsName = boardName;
-	_alive = 0;
 	nextFree = 0;
 	_boardType = boardType;
 	_message[28] = '\0';
@@ -75,7 +74,7 @@ if (deviceName.length() > 9) {
 		sprintf(errorMessage, "Name too long: %s", deviceName.c_str());
 		return;
 	}
-	devices.push_back({this, deviceName, canIn, canOut});
+	devices.push_back({this, deviceName, canIn, canOut, nextFree});
 	nextFree++;
 }
 
@@ -97,11 +96,11 @@ bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAf
 			sprintf(errorMessage, "Device number for %s too big: %i.", _boardsName.c_str(), deviceNumber);
 			return false;
 		}
-		if ((_alive >> deviceNumber) & 1)
+		if (devices[deviceNumber].alive)
 			return true;
 		else if (checkAgainIfDead) {
 			devicesScan(false);
-			if ((_alive >> deviceNumber) & 1)
+			if (devices[deviceNumber].alive)
 				return true;
 			else {
 				if (errorIfNotAfterCheckingAgain)
@@ -129,7 +128,7 @@ uint8_t Board::aliveCount(){
 @return alive or not
 */
 bool Board::aliveGet(uint8_t deviceNumber){
-	return (_alive >> deviceNumber) & 1;
+	return devices[deviceNumber].alive;
 }
 
 /** Get aliveness at least once after power-on
@@ -137,7 +136,7 @@ bool Board::aliveGet(uint8_t deviceNumber){
 @return alive or not
 */
 bool Board::aliveOnceGet(uint8_t deviceNumber){
-	return (_aliveOnce >> deviceNumber) & 1;
+	return devices[deviceNumber].aliveOnce;
 }
 
 
@@ -148,16 +147,18 @@ bool Board::aliveOnceGet(uint8_t deviceNumber){
 					0xFF - set all
 */
 void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		_alive = yesOrNo ? 0xFF : 0x00;
+	if (deviceNumber == 0xFF){
+		for(auto device: devices)
+			device.alive = yesOrNo;
+	}
 	else{
 		if (deviceNumber > 31) {
 			sprintf(errorMessage, "%s: device number too big: %i", name().c_str(), deviceNumber);
 			return;
 		}
-		_alive = (_alive & ~(1 << deviceNumber)) | (yesOrNo << deviceNumber);
+		devices[deviceNumber].alive = yesOrNo;
 		if (yesOrNo)
-			_aliveOnce = _alive | (1 << deviceNumber);
+			devices[deviceNumber].aliveOnce = true;
 	}
 }
 
@@ -405,7 +406,7 @@ bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 	case COMMAND_REPORT_ALIVE:
 		if (!aliveGet(deviceNumber)) {
 			if (_aliveReport)
-				print("%s alive.\n\r", name(deviceNumber));
+				print("%s alive.\n\r", deviceName(deviceNumber).c_str());
 			aliveSet(true, deviceNumber);
 		}
 		break;
@@ -440,7 +441,7 @@ void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - name
 */
-std::string Board::name(uint8_t deviceNumber) {
+std::string Board::deviceName(uint8_t deviceNumber) {
 	return devices[deviceNumber].name;
 }
 
@@ -480,7 +481,7 @@ void Board::oscillatorTest(uint8_t deviceNumber) {
 			oscillatorTest(i);
 	else {
 		if (alive(deviceNumber)) {
-			print("Test %s\n\r", name(deviceNumber));
+			print("Test %s\n\r", deviceName(deviceNumber).c_str());
 			canData[0] = COMMAND_OSCILLATOR_TEST;
 			messageSend(canData, 1, deviceNumber);
 		}

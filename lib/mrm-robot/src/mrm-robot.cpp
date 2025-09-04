@@ -558,7 +558,7 @@ uint8_t Robot::boardsDisplayAll() {
 					print("%i.", ++last);
 				else
 					print(",");
-				print(" %s", board[boardNumber]->name(deviceNumber).c_str());
+				print(" %s", board[boardNumber]->deviceName(deviceNumber).c_str());
 				if (++currentCount == board[boardNumber]->devicesOnASingleBoard()) {
 					currentCount = 0;
 					print("\n\r");
@@ -933,7 +933,7 @@ void Robot::deviceScan() {
 	uint8_t selectedDeviceIndex = serialReadNumber(60000, 500, false, 100);
 	print("%i\n\r", selectedDeviceIndex);
 
-	print("Scan %s\n\r", board[selectedBoardIndex]->name(selectedDeviceIndex));
+	print("Scan %s\n\r", board[selectedBoardIndex]->deviceName(selectedDeviceIndex));
 	board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
 	uint8_t canData[8];
 	canData[0] = COMMAND_REPORT_ALIVE;
@@ -1150,9 +1150,9 @@ void Robot::lidar2mTest() {
 		}
 		else { // Test only selected
 			if (mrm_lid_can_b->alive(selected))
-				print("\n\rTest lidar %s\n\r", mrm_lid_can_b->name(selected));
+				print("\n\rTest lidar %s\n\r", mrm_lid_can_b->deviceName(selected));
 			else {
-				print("\n\rLidar %s dead, test all\n\r", mrm_lid_can_b->name(selected));
+				print("\n\rLidar %s dead, test all\n\r", mrm_lid_can_b->deviceName(selected));
 				selected = 0xFF;
 			}
 		}
@@ -1209,11 +1209,11 @@ void Robot::lidarCalibrate() {
 			print("\n\rAbort\n\r");
 		else {
 			if (selected2Or4 == 2 ? mrm_lid_can_b->alive(selected) : mrm_lid_can_b2->alive(selected)) {
-				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->name(selected));
+				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->deviceName(selected));
 				selected2Or4 == 2 ? mrm_lid_can_b->calibration(selected) : mrm_lid_can_b2->calibration(selected);
 			}
 			else
-				print("\n\rLidar %s dead\n\r", selected2Or4 == 2 ? mrm_lid_can_b->name(selected) : mrm_lid_can_b2->name(selected));
+				print("\n\rLidar %s dead\n\r", selected2Or4 == 2 ? mrm_lid_can_b->deviceName(selected) : mrm_lid_can_b2->deviceName(selected));
 		}
 	}
 
@@ -1327,7 +1327,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 		deviceNumber = board->deviceNumber(msg->id);
 	std::string name;
 	if (board != NULL && deviceNumber != 0xFF)
-		name = board->name(deviceNumber);
+		name = board->deviceName(deviceNumber);
 	else if (board != NULL)
 		name = board->name() + ",dev?";
 	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->id);
@@ -1495,25 +1495,25 @@ void Robot::pnpSet(bool enable){
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_lid_can_b2->alive(i)){
 			mrm_lid_can_b2->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_lid_can_b2->name(i), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_lid_can_b2->deviceName(i), enable ? "on" : "off");
 		}
 	count = mrm_lid_can_b->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_lid_can_b->alive(i)){
 			mrm_lid_can_b->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_lid_can_b->name(i), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_lid_can_b->deviceName(i), enable ? "on" : "off");
 		}
 	count = mrm_ref_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_ref_can->alive(i)){
 			mrm_ref_can->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_ref_can->name(i), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_ref_can->deviceName(i), enable ? "on" : "off");
 		}
 	count = mrm_col_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_col_can->alive(i)){
 			mrm_col_can->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_col_can->name(i), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_col_can->deviceName(i), enable ? "on" : "off");
 		}
 	end();
 }
