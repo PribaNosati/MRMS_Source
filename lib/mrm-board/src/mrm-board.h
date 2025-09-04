@@ -228,7 +228,7 @@ public:
 	/** Request Frames Per Second
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
 	*/
-	void fpsRequest(uint8_t deviceNumber = 0xFF);
+	void fpsRequest(Device* device = nullptr);
 
 	/** Board class id, not each device's
 	*/

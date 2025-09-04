@@ -48,13 +48,13 @@ Mrm_8x8a::~Mrm_8x8a()
 
 
 ActionBase* Mrm_8x8a::actionCheck() {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) { 
+	for (Device& device : devices) {
 		for (uint8_t switchNumber = 0; switchNumber < MRM_8x8A_SWITCHES_COUNT; switchNumber++){
-			if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL)
-				return (*offOnAction)[deviceNumber][switchNumber]; 
-			else if ((*lastOn)[deviceNumber][switchNumber] == true && !switchRead(switchNumber, deviceNumber)){
-				((*lastOn)[deviceNumber][switchNumber]) = false; 
-			} 
+			if ((*lastOn)[device.number][switchNumber] == false && switchRead(switchNumber, device.number) && (*offOnAction)[device.number][switchNumber] != NULL)
+				return (*offOnAction)[device.number][switchNumber];
+			else if ((*lastOn)[device.number][switchNumber] == true && !switchRead(switchNumber, device.number)){
+				((*lastOn)[device.number][switchNumber]) = false;
+			}
 		}
 	}
 	return NULL;

@@ -216,10 +216,10 @@ void Board::devicesScan(bool verbose, uint16_t mask) {
 */
 void Board::firmwareRequest(uint8_t deviceNumber) {
 	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			firmwareRequest(i);
+		for (Device& device : devices)
+			firmwareRequest(device.number);
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		if (devices[deviceNumber].alive) {
 			canData[0] = COMMAND_FIRMWARE_REQUEST;
 			messageSend(canData, 1, deviceNumber);
 		}
@@ -250,15 +250,16 @@ void Board::fpsDisplay() {
 /** Request Frames Per Second
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.  0xFF - for all devices.
 */
-void Board::fpsRequest(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			fpsRequest(i);
+void Board::fpsRequest(Device* device) {
+	if (device == nullptr) {
+		for (Device& dev : devices)
+			fpsRequest(&dev);
+	}
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		if (device->alive) {
 			canData[0] = COMMAND_FPS_REQUEST;
-			messageSend(canData, 1, deviceNumber);
-			devices[deviceNumber].fpsLast = 0xFFFF;
+			messageSend(canData, 1, device->number);
+			device->fpsLast = 0xFFFF;
 		}
 	}
 }
@@ -274,7 +275,7 @@ void Board::idChange(uint16_t newDeviceNumber, uint8_t deviceNumber) {
 }
 
 uint16_t Board::idGet(uint8_t deviceNumber, bool isOut) {
-	if (deviceNumber >= nextFree){
+	if (deviceNumber >= devices.size()){
 		print("Board index out of bounds.");
 		exit(22);
 	}
