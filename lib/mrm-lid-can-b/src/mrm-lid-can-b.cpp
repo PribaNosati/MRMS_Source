@@ -105,13 +105,13 @@ void Mrm_lid_can_b::add(char * deviceName)
 /** Calibration, only once after production
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			calibration(i);
-	else if (aliveWithOptionalScan(&devices[deviceNumber])){
+void Mrm_lid_can_b::calibration(Device * device){
+	if (device == nullptr)
+		for (Device& dev : devices)
+			calibration(&dev);
+	else if (device->alive){
 		canData[0] = COMMAND_LID_CAN_B_CALIBRATE;
-		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
+		messageSend(canData, 1, device->number);
 	}
 }
 
@@ -139,7 +139,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 		return 0;
 	}
 	aliveWithOptionalScan(&devices[deviceNumber], true); // This command doesn't make sense
-	if (started(deviceNumber)){
+	if (started(devices[deviceNumber]))
 		if (sampleCount == 0)
 			return (*readings)[deviceNumber];
 		else{
@@ -185,7 +185,6 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 			//print("Cnt %i\n\r", cnt);
 			return (uint16_t)(sum / cnt);
 		}
-	}
 	else
 		return 0;
 }
@@ -222,15 +221,15 @@ bool Mrm_lid_can_b::messageDecode(CANMessage message) {
 @param enable - enable or disable
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_lid_can_b::pnpSet(bool enable, uint8_t deviceNumber){
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			pnpSet(enable, i);
-	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
+void Mrm_lid_can_b::pnpSet(bool enable, Device * device){
+	if (device == nullptr)
+		for (Device& dev : devices)
+			pnpSet(enable, &dev);
+	else if (device->alive) {
 		delay(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
-		messageSend(canData, 2, deviceNumber);
+		messageSend(canData, 2, device->number);
 	}
 }
 
@@ -238,14 +237,14 @@ void Mrm_lid_can_b::pnpSet(bool enable, uint8_t deviceNumber){
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @param value - long range 0, high speed 1, high accuracy 2
 */
-void Mrm_lid_can_b::rangingType(uint8_t deviceNumber, uint8_t value) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			calibration(i);
+void Mrm_lid_can_b::rangingType(Device * device, uint8_t value) {
+	if (device == nullptr)
+		for (Device& dev : devices)
+			calibration(&dev);
 	else {
 		canData[0] = COMMAND_LID_CAN_B_RANGING_TYPE;
 		canData[1] = value;
-		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
+		messageSend(canData, 2, device->number);
 	}
 }
 
@@ -262,38 +261,37 @@ uint16_t Mrm_lid_can_b::reading(uint8_t receiverNumberInSensor, uint8_t deviceNu
 */
 void Mrm_lid_can_b::readingsPrint() {
 	print("Lid2m:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (aliveWithOptionalScan(&devices[deviceNumber]))
-			print(" %4i", distance(deviceNumber));
+	for (Device& dev : devices)
+		if (dev.alive)
+			print(" %4i", (*readings)[dev.number]);
 }
 
 /** If sensor not started, start it and wait for 1. message
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
-	if (millis() - devices[deviceNumber].lastReadingsMs > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
-		// print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
+bool Mrm_lid_can_b::started(Device& device) {
+	if (millis() - device.lastReadingsMs > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
+		//print("Start mrm-lid-can-b%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(&devices[deviceNumber], 0);
+			start(&device, 0);
 			// Wait for 1. message.
-			uint32_t startMs = millis();
+			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
-				//print("-try-");
-				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
-					//print("%s confirmed\n\r", (char*)name(deviceNumber));
+				if (millis() - device.lastReadingsMs < 100) {
+					//print("Lidar confirmed\n\r");
 					return true;
 				}
-				robotContainer->delayMicros(1000);
+				delay(1); // Messages are exchanged here
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
-		print(errorMessage);
+		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
 		return true;
 }
+
 
 
 /**Test

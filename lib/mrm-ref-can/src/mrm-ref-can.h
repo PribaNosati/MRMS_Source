@@ -192,7 +192,7 @@ public:
 	@param enable - enable or disable
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void pnpSet(bool enable, uint8_t deviceNumber = 0xFF);
+	void pnpSet(bool enable, Device * device = nullptr);
 	
 	/** Analog readings
 	@param receiverNumberInSensor - single IR transistor in mrm-ref-can

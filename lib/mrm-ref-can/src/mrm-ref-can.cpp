@@ -464,15 +464,15 @@ void Mrm_ref_can::peakRecordingSet(RecordPeakType type, uint8_t deviceNumber){
 @param enable - enable or disable
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_ref_can::pnpSet(bool enable, uint8_t deviceNumber){
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			pnpSet(enable, i);
-	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
+void Mrm_ref_can::pnpSet(bool enable, Device * device){
+	if (device == nullptr)
+		for (Device& dev : devices)
+			pnpSet(enable, &dev);
+	else if (device->alive) {
 		delay(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
-		messageSend(canData, 2, deviceNumber);
+		messageSend(canData, 2, device->number);
 	}
 }
 

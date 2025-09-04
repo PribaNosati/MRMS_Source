@@ -5,6 +5,7 @@
 #include <numeric>
 
 class CANMessage;
+struct Device;
 
 class DistanceInterface
 {
@@ -14,7 +15,7 @@ private:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - started or not
 	*/
-	virtual bool started(uint8_t deviceNumber) = 0;
+	virtual bool started(Device& device) = 0;
 
 public:
 
@@ -26,7 +27,7 @@ public:
 	/** Calibration, only once after production
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	virtual void calibration(uint8_t deviceNumber = 0) = 0;
+	virtual void calibration(Device * device = nullptr) = 0;
 
 	virtual std::string commandName(uint8_t byte) = 0;
 
@@ -51,13 +52,13 @@ public:
 	@param enable - enable or disable
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	virtual void pnpSet(bool enable = true, uint8_t deviceNumber = 0) = 0;
+	virtual void pnpSet(bool enable = true, Device * device = nullptr) = 0;
 
 	/** Ranging type
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param value - long range 0, high speed 1, high accuracy 2
 	*/
-	virtual void rangingType(uint8_t deviceNumber, uint8_t value = 0) = 0;
+	virtual void rangingType(Device * device = nullptr, uint8_t value = 0) = 0;
 
 	/** Analog readings
 	@param receiverNumberInSensor - always 0

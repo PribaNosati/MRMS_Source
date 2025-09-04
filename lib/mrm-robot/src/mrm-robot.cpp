@@ -1218,8 +1218,7 @@ void Robot::lidarCalibrate() {
 		else {
 			if (selected2Or4 == 2 ? mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->aliveWithOptionalScan(&mrm_lid_can_b2->devices[selected])) {
 				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->deviceName(selected));
-				selected2Or4 == 2 ? mrm_lid_can_b->calibration(selected) : mrm_lid_can_b2->calibration(selected);
-			}
+				selected2Or4 == 2 ? mrm_lid_can_b->calibration(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->calibration(&mrm_lid_can_b2->devices[selected]);			}
 			else
 				print("\n\rLidar %s dead\n\r", selected2Or4 == 2 ? mrm_lid_can_b->deviceName(selected) : mrm_lid_can_b2->deviceName(selected));
 		}
@@ -1501,27 +1500,21 @@ void Robot::pnpOff(){
 void Robot::pnpSet(bool enable){
 	uint8_t count = mrm_lid_can_b2->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_lid_can_b2->aliveWithOptionalScan(&mrm_lid_can_b2->devices[i])){
-			mrm_lid_can_b2->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_lid_can_b2->deviceName(i), enable ? "on" : "off");
+		if (mrm_lid_can_b2->devices[i].alive){
+			mrm_lid_can_b2->pnpSet(enable, &mrm_lid_can_b2->devices[i]);
+			print("%s PnP %s\n\r", mrm_lid_can_b2->deviceName(i).c_str(), enable ? "on" : "off");
 		}
 	count = mrm_lid_can_b->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[i])){
-			mrm_lid_can_b->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_lid_can_b->deviceName(i), enable ? "on" : "off");
+		if (mrm_lid_can_b->devices[i].alive){
+			mrm_lid_can_b->pnpSet(enable, &mrm_lid_can_b->devices[i]);
+			print("%s PnP %s\n\r", mrm_lid_can_b->deviceName(i).c_str(), enable ? "on" : "off");
 		}
 	count = mrm_ref_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_ref_can->aliveWithOptionalScan(&mrm_ref_can->devices[i])){
-			mrm_ref_can->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_ref_can->deviceName(i), enable ? "on" : "off");
-		}
-	count = mrm_col_can->deadOrAliveCount();
-	for (uint8_t i = 0; i < count; i++)
-		if (mrm_col_can->aliveWithOptionalScan(&mrm_col_can->devices[i])){
-			mrm_col_can->pnpSet(enable, i);
-			print("%s PnP %s\n\r", mrm_col_can->deviceName(i), enable ? "on" : "off");
+		if (mrm_ref_can->devices[i].alive){
+			mrm_ref_can->pnpSet(enable, &mrm_ref_can->devices[i]);
+			print("%s PnP %s\n\r", mrm_ref_can->deviceName(i).c_str(), enable ? "on" : "off");
 		}
 	end();
 }

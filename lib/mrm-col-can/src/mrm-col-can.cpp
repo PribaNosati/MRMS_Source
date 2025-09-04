@@ -201,8 +201,8 @@ std::string Mrm_col_can::commandName(uint8_t byte){
 */
 void Mrm_col_can::gain(Device * device, uint8_t gainValue) {
 	if (device == nullptr)
-		for (uint8_t i = 0; i < nextFree; i++)
-			gain(&devices[i], gainValue);
+		for (Device& dev : devices)
+			gain(&dev, gainValue);
 	else {
 		canData[0] = CAN_COL_GAIN;
 		canData[1] = gainValue;

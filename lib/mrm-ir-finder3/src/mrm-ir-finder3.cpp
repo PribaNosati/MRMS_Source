@@ -184,13 +184,13 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - analog value
 */
-uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber){
-	if (deviceNumber >= nextFree || receiverNumberInSensor > MRM_IR_FINDER3_SENSOR_COUNT) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
+uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, Device device){
+	if (receiverNumberInSensor > MRM_IR_FINDER3_SENSOR_COUNT) {
+		printf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), device.number);
 		return 0;
 	}
-	if (singleStarted(deviceNumber))
-		return (*readings)[deviceNumber][receiverNumberInSensor];
+	if (singleStarted(device))
+		return (*readings)[device.number][receiverNumberInSensor];
 	else
 		return 0;
 }
@@ -199,10 +199,10 @@ uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, uint8_t deviceN
 */
 void Mrm_ir_finder3::readingsPrint() {
 	print("IRBall:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
+	for (Device& dev : devices)
+		if (dev.alive) {
 			for (uint8_t irNo = 0; irNo < MRM_IR_FINDER3_SENSOR_COUNT; irNo++)
-				print(" %3i", reading(irNo, deviceNumber));
+				print(" %3i", reading(irNo, dev));
 		}
 }
 
@@ -210,16 +210,16 @@ void Mrm_ir_finder3::readingsPrint() {
 */
 void Mrm_ir_finder3::test()
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device& dev : devices) {
+			if (dev.alive) {
 				if (pass++)
 					print("| ");
 				uint8_t last;
-				if ((*_near)[deviceNumber]){
+				if ((*_near)[dev.number]){
 					last = MRM_IR_FINDER3_SENSOR_COUNT;
 					print("Near ");
 				}
@@ -228,7 +228,7 @@ void Mrm_ir_finder3::test()
 					print("Far ");
 				}
 				for (uint8_t i = 0; i < last; i++)
-					print("%i ", reading(i, deviceNumber));
+					print("%i ", reading(i, dev));
 			}
 		}
 		lastMs = millis();
@@ -241,24 +241,24 @@ void Mrm_ir_finder3::test()
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_ir_finder3::singleStarted(uint8_t deviceNumber) {
-	if ((*_calculated)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_IR_FINDER3_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
-		print("Start IR finder \n\r"); 
-		devices[deviceNumber].lastReadingsMs = 0;
+bool Mrm_ir_finder3::singleStarted(Device& device) {
+	if ((*_calculated)[device.number] || millis() - device.lastReadingsMs > MRM_IR_FINDER3_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
+		print("Start IR finder \n\r");
+		device.lastReadingsMs = 0;
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(&devices[deviceNumber], 0); // As single
+			start(&device, 0); // As single
 			// Wait for 1. message.
-			uint32_t startMs = millis();
+			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
-					print("IR3 confirmed\n\r"); 
-					(*_calculated)[deviceNumber] = false;
+				if (millis() - device.lastReadingsMs < 100) {
+					print("IR3 confirmed\n\r");
+					(*_calculated)[device.number] = false;
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delay(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
+		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else

@@ -54,7 +54,7 @@ class Mrm_ir_finder3 : public SensorBoard
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - started or not
 	*/
-	bool singleStarted(uint8_t deviceNumber);
+	bool singleStarted(Device& device);
 	
 public:
 	static std::map<int, std::string>* commandNamesSpecific;
@@ -102,7 +102,7 @@ bool messageDecode(CANMessage message);
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - cumulative value
 	*/
-	uint16_t reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber = 0);
+	uint16_t reading(uint8_t receiverNumberInSensor, Device device);
 
 	/** Print all readings in a line
 	*/

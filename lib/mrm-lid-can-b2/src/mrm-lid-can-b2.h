@@ -62,7 +62,7 @@ class Mrm_lid_can_b2 : public SensorBoard, public DistanceInterface
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - started or not
 	*/
-	bool started(uint8_t deviceNumber);
+	bool started(Device& device);
 	
 public:
 	static std::map<int, std::string> *commandNamesSpecific;
@@ -84,7 +84,7 @@ public:
 	/** Calibration, only once after production
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void calibration(uint8_t deviceNumber = 0);
+	void calibration(Device * device = nullptr);
 
 	std::string commandName(uint8_t byte);
 	
@@ -129,9 +129,10 @@ public:
 	@param enable - enable or disable
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void pnpSet(bool enable = true, uint8_t deviceNumber = 0);
+void pnpSet(bool enable = true, Device * device = nullptr);
 
-	void rangingType(uint8_t deviceNumber, uint8_t value = 0) {print("Not implemented");exit(1);};
+	void rangingType(Device * device = nullptr, uint8_t value = 0) {print("Not implemented");exit(1);};
+
 
 	/** Analog readings
 	@param receiverNumberInSensor - always 0
