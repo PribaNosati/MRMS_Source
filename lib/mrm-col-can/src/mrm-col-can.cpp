@@ -140,7 +140,7 @@ uint16_t Mrm_col_can::colorRed(Device device) {
 */
 bool Mrm_col_can::colorsStarted(Device device) {
 	if ((*_hsv)[device.number] || millis() - device.lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
-		//robotContainer->print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]);
+		//print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			switchTo6Colors(&device);
 			// Wait for 1. message.
@@ -216,7 +216,7 @@ void Mrm_col_can::gain(Device * device, uint8_t gainValue) {
 */
 bool Mrm_col_can::hsvStarted(Device device) {
 	if (!(*_hsv)[device.number] || millis() - device.lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
-		//robotContainer->print("Switch to HSV.\n\r");
+		//print("Switch to HSV.\n\r");
 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			switchToHSV(&device);
@@ -310,7 +310,7 @@ for (Device& device : devices)
 					(*_patternBy6Colors)[device.number] = message.data[7] >> 4;
 //					any = true;
 					device.lastReadingsMs = millis();
-					//robotContainer->print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]);
+					//print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]);
 					break;
 				case CAN_COL_SENDING_HSV:
 					(*_hue)[device.number] = (message.data[1] << 8) | message.data[2];
@@ -320,12 +320,12 @@ for (Device& device : devices)
 					(*_patternBy6Colors)[device.number] = message.data[7] >> 4;
 					(*_patternRecognizedAtMs)[device.number] = millis();
 					device.lastReadingsMs = millis();
-					//robotContainer->print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]);
+					//print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]);
 					break;
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;

@@ -322,7 +322,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		robotContainer->errors->add(message.id, message.data[1], true);
+		errorAdd(message.id, message.data[1], true);
 		print("Error %i in %s.\n\r", message.data[1], device.name.c_str());
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
@@ -380,7 +380,7 @@ void Board::messagePrint(CANMessage message, bool outbound) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
-	robotContainer->messageSend(CANMessage(robotContainer, devices[deviceNumber].canIdIn, data, dlc));
+	messageSendParent(CANMessage(devices[deviceNumber].canIdIn, data, dlc), deviceNumber);
 }
 
 /** Request notification
@@ -396,7 +396,7 @@ void Board::notificationRequest(uint8_t commandRequestingNotification,  Device d
 	//	canData[0] = commandRequestingNotification;
 	//	messageSend(canData, 1, deviceNumber);
 	//	while (tries != 0xFF && !dequeEmpty()) {
-	//		robotContainer->noLoopWithoutThis();
+	//		noLoopWithoutThis();
 	//		uint32_t id = dequeBack()->messageId;
 	//		//print("RCVD id 0x%x, data: 0x%x\n\r", id, mrm_can_bus->dequeBack->data[0]);
 	//		if (isForMe(id, deviceNumber) && dequeBack()->data[0] == COMMAND_NOTIFICATION) {
@@ -559,7 +559,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;
@@ -700,7 +700,7 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 
 			if (fixedSpeed) {
 				speedSet(dev.number, selectedSpeed);
-				if (robotContainer->userBreak())
+				if (userBreak())
 					goOn = false;
 				delay(PAUSE_MS);
 				continue;
@@ -711,7 +711,7 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 				((step[group] > 0 && speed <= endSpeed[group]) || (step[group] < 0 && speed >= endSpeed[group])) && goOn;
 					speed += step[group]) {
 				//blink();
-				if (robotContainer->userBreak())
+				if (userBreak())
 					goOn = false;
 
 				speedSet(dev.number, speed);

@@ -177,7 +177,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 		else
 			print("timeout\n\r");
 	}
-	robotContainer->end();
+	end();
 }
 
 /** Get local calibration data
@@ -424,7 +424,7 @@ for (Device& device : devices)
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 
 				if (anyReading)
@@ -529,7 +529,7 @@ void Mrm_ref_can::test(bool analog)
 	static uint64_t lastMs = 0;
 #if TEST_REF_CAN_FOR_0
 	static uint32_t cnt;
-	if (robotContainer->setup())
+	if (setup())
 		cnt = 0;
 	cnt++;
 #endif
@@ -544,7 +544,7 @@ void Mrm_ref_can::test(bool analog)
 #if TEST_REF_CAN_FOR_0
 					if (reading(i, device.number) == 0 && cnt > 10){ // At startup some zero, that's ok
 
-						robotContainer->end();
+						end();
 					}
 #endif
 				}

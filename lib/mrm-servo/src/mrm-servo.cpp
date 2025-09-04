@@ -94,7 +94,7 @@ void Mrm_servo::test()
 	int16_t step = 5;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		int16_t degrees = (*_minDegrees)[deviceNumber];
-		while (!robotContainer->userBreak()) {
+		while (!userBreak()) {
 			
 				write(degrees, deviceNumber);
 				print("%i\n\r", degrees);
@@ -107,7 +107,7 @@ void Mrm_servo::test()
 	}
 
 	print("\n\rTest over.\n\r");
-	robotContainer->end();
+	end();
 }
 
 /** Move servo

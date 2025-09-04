@@ -94,7 +94,7 @@ bool Mrm_ir_finder_can::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 
 				if (any)
@@ -122,11 +122,11 @@ uint16_t Mrm_ir_finder_can::reading(uint8_t receiverNumberInSensor, uint8_t devi
 /** Print all readings in a line
 */
 void Mrm_ir_finder_can::readingsPrint() {
-	robotContainer->print("IRBall:");
+	print("IRBall:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
 		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			for (uint8_t irNo = 0; irNo < MRM_IR_FINDER_CAN_SENSOR_COUNT; irNo++)
-				robotContainer->print(" %3i", (*readings)[deviceNumber][irNo]);
+				print(" %3i", (*readings)[deviceNumber][irNo]);
 		}
 }
 
@@ -141,14 +141,14 @@ void Mrm_ir_finder_can::test()
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
-					robotContainer->print("| ");
+					print("| ");
 				for (uint8_t i = 0; i < MRM_IR_FINDER_CAN_SENSOR_COUNT; i++)
-					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
+					print("%i ", (*readings)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }
 
@@ -161,11 +161,11 @@ void Mrm_ir_finder_can::testCalculated()
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 			if (aliveWithOptionalScan(&devices[deviceNumber])) 
-				robotContainer->print("%i deg., dist: %i\n\r", angle, distance);
+				print("%i deg., dist: %i\n\r", angle, distance);
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }
 

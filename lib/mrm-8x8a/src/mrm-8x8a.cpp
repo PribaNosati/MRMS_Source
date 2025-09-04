@@ -853,7 +853,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 					print("Unknown command. ");
 					messagePrint(message, false);
 					print("\n\r");
-					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				} 
 			}
 			return true;
@@ -978,7 +978,7 @@ void Mrm_8x8a::test()
 	static uint32_t lastMs = 0;
 	static uint8_t bitmapId = MRM_8x8A_START_BITMAP_1;
 
-	if (robotContainer->setup()) {
+	if (setup()) {
 		uint8_t red[8] = { 0b00000000, 0b01100110, 0b11111111, 0b11111111, 0b11111111, 0b01111110, 0b00111100, 0b00011000 };
 		uint8_t green[8] = { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000 };
 		bitmapCustomStore(red, green, 7);

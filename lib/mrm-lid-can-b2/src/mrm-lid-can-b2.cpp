@@ -133,7 +133,7 @@ uint16_t Mrm_lid_can_b2::distance(uint8_t deviceNumber, uint8_t sampleCount, uin
 				while ((*readings)[deviceNumber] == 0){
 					robotContainer->noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
-						robotContainer->errors->add(devices[deviceNumber].canIdIn, ERROR_TIMEOUT, false);
+						errorAdd(devices[deviceNumber].canIdIn, ERROR_TIMEOUT, false);
 						break;
 					}
 				}
@@ -214,7 +214,7 @@ bool Mrm_lid_can_b2::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;
@@ -282,14 +282,14 @@ void Mrm_lid_can_b2::roi(uint8_t deviceNumber, uint8_t x, uint8_t y) {
 */
 bool Mrm_lid_can_b2::started(Device& device) {
 	if (millis() - device.lastReadingsMs > MRM_LID_CAN_B2_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
-		//robotContainer->print("Start mrm-lid-can-b2%i \n\r", deviceNumber);
+		//print("Start mrm-lid-can-b2%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(&device, 0);
 			// Wait for 1. message.
 			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
 				if (millis() - device.lastReadingsMs < 100) {
-					//robotContainer->print("Lidar confirmed\n\r");
+					//print("Lidar confirmed\n\r");
 					return true;
 				}
 				delay(1);
