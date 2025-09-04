@@ -120,7 +120,6 @@ protected:
 	BoardType _boardType; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
 	static std::map<int, std::string>* commandNames;
-	uint8_t devicesOnABoard; // Number of devices on a single board
 	BoardId _id;
 	uint8_t maximumNumberOfBoards;
 	uint8_t measuringMode = 0;
@@ -140,6 +139,7 @@ protected:
 public:
 
 	std::vector<Device> devices; // List of devices on this board
+	uint8_t devicesOnABoard; // Number of devices on a single board
 	uint8_t number; // Index in vector
 	
 	/**
@@ -199,11 +199,6 @@ public:
 	Device* deviceGet(uint8_t deviceNumber);
 
 	uint8_t deviceNumber(uint16_t msgId);
-
-	/** Number of devices in each group (board)
-	@return - number of devices
-	*/
-	uint8_t devicesOnASingleBoard() { return this->devicesOnABoard; }
 
 	/** Ping devices and refresh alive array
 	@param verbose - prints statuses

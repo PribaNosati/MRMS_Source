@@ -5,7 +5,6 @@
 #include <mrm-can-bus.h>
 #include <mrm-col-b.h>
 
-#define BOARDS_LIMIT 30 // Maximum number of different board types.
 #define EEPROM_SIZE 12 // EEPROM size
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
 #define LED_OK 2 // mrm-esp32's pin number, hardware defined.
