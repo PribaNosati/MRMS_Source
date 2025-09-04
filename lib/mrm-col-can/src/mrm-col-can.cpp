@@ -452,7 +452,7 @@ uint16_t Mrm_col_can::reading(uint8_t colorId, Device * device) {
 */
 void Mrm_col_can::readingsPrint() {
 	print("Colors:");
-	for (Device device: devices)
+	for (Device& device: devices)
 		for (uint8_t colorId = 0; colorId < MRM_COL_CAN_COLORS; colorId++)
 			print(" %3i", (*readings)[device.number][colorId]);
 }

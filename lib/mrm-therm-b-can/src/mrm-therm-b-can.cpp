@@ -111,7 +111,7 @@ int16_t Mrm_therm_b_can::reading(uint8_t deviceNumber){
 */
 void Mrm_therm_b_can::readingsPrint() {
 	print("Therm:");
-	for (Device device: devices)
+	for (Device& device: devices)
 		if (devices[device.number].alive)
 			print(" %i", reading(device.number));
 }
@@ -151,7 +151,7 @@ void Mrm_therm_b_can::test()
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (Device device: devices){
+		for (Device& device: devices){
 			if (devices[device.number].alive) {
 				if (pass++)
 					print(" ");

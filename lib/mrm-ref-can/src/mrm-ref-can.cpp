@@ -224,7 +224,7 @@ void Mrm_ref_can::calibrationDataRequest(uint8_t deviceNumber, bool waitForResul
 /** Print all calibration in a line
 */
 void Mrm_ref_can::calibrationPrint() {
-	for (Device device: devices)
+	for (Device& device: devices)
 		if (device.alive) {
 			print("Calibration for %s.\n\r", name().c_str());
 			print("Dark: ");
@@ -497,7 +497,7 @@ uint16_t Mrm_ref_can::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumb
 */
 void Mrm_ref_can::readingsPrint() {
 	print("Refl:");
-	for (Device device: devices) {
+	for (Device& device: devices) {
 		for (uint8_t irNo = 0; irNo < std::min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[device.number]); irNo++)
 			if (device.alive)
 				print("%3i ", reading(irNo, device.number));
@@ -535,7 +535,7 @@ void Mrm_ref_can::test(bool analog)
 #endif
 	if (millis() - lastMs > 300) {//300
 		uint8_t pass = 0;
-		for (Device device: devices) {
+		for (Device& device: devices) {
 			if (device.alive) {
 				if (pass++)
 					print("| ");

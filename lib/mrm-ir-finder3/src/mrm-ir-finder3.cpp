@@ -272,7 +272,7 @@ void Mrm_ir_finder3::testCalculated()
 	static uint64_t lastMs = 0;
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (Device device: devices) {
+		for (Device& device: devices) {
 			if (device.alive)
 				print("%s: %i deg., dist: %i\n\r", (*_near)[device.number] ? "Near" : "Far",
                     angle(), distance());

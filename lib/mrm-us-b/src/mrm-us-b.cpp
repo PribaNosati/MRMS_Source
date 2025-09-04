@@ -111,7 +111,7 @@ uint16_t Mrm_us_b::reading(uint8_t deviceNumber) {
 */
 void Mrm_us_b::readingsPrint() {
 	print("US:");
-	for (Device device: devices)
+	for (Device& device: devices)
 		print(" %3i", (*readings)[device.number]);
 }
 
@@ -149,7 +149,7 @@ void Mrm_us_b::test()
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (Device device: devices){
+		for (Device& device: devices){
 			if (device.alive) {
 				if (pass++)
 					print("| ");

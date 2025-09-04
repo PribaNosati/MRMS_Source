@@ -20,7 +20,7 @@ Mrm_switch::~Mrm_switch()
 
 
 ActionBase* Mrm_switch::actionCheck() {
-	for (Device device: devices) {
+	for (Device& device: devices) {
 		for (uint8_t switchNumber = 0; switchNumber < MRM_SWITCHES_COUNT; switchNumber++)
 			if ((*lastOn)[device.number][switchNumber] == false && read(switchNumber, device.number) && (*offOnAction)[device.number][switchNumber] != NULL) {
 				((*lastOn)[device.number][switchNumber]) = true;
@@ -80,7 +80,7 @@ void Mrm_switch::test()
 
 	if (millis() - lastMs > 300) {
 //		uint8_t pass = 0;
-		for (Device device: devices){
+		for (Device& device: devices){
 			//if (alive(&devices[deviceNumber])) {
 				print("Sw:");
 				for (uint8_t i = 0; i < MRM_SWITCHES_COUNT; i++)

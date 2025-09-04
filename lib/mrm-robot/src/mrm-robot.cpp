@@ -511,7 +511,7 @@ void Robot::add(Board* aBoard) {
 		strcpy(errorMessage, "Too many boards");
 		return;
 	}
-	board[_boardNextFree++] = aBoard;
+	boards[_boardNextFree++] = aBoard;
 }
 
 /** Blink LED
@@ -552,14 +552,14 @@ uint8_t Robot::boardsDisplayAll() {
 	uint8_t last = 0;
 	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree; boardNumber++) {
 		uint8_t currentCount = 0;
-		for (Device dev : board[boardNumber]->devices) 
-			if (board[boardNumber]->aliveWithOptionalScan(&dev)) {
+		for (Device dev : boards[boardNumber]->devices) 
+			if (boards[boardNumber]->aliveWithOptionalScan(&dev)) {
 				if (currentCount == 0)
 					print("%i.", ++last);
 				else
 					print(",");
 				print(" %s", dev.name.c_str());
-				if (++currentCount == board[boardNumber]->devicesOnASingleBoard()) {
+				if (++currentCount == boards[boardNumber]->devicesOnASingleBoard()) {
 					currentCount = 0;
 					print("\n\r");
 				}
@@ -610,19 +610,19 @@ bool Robot::boardSelect(uint8_t selectedNumber, uint8_t *selectedBoardIndex, uin
 	*maxInput = 0;
 	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree && *selectedDeviceIndex == 0xFF; boardNumber++) {
 		uint8_t currentCount = 0;
-		for (Device dev : board[boardNumber]->devices) {
-			if (board[boardNumber]->aliveWithOptionalScan(&dev)) {
+		for (Device dev : boards[boardNumber]->devices) {
+			if (boards[boardNumber]->aliveWithOptionalScan(&dev)) {
 				if (currentCount == 0) {
 					if (++lastBoardAndIndex == selectedNumber) {
 						// Board *selectedBoard = board[boardNumber];
 						*selectedDeviceIndex = dev.number;
 						*selectedBoardIndex = boardNumber;
-						*maxInput = board[boardNumber]->deadOrAliveCount() / board[boardNumber]->devicesOnASingleBoard() - 1;
+						*maxInput = boards[boardNumber]->deadOrAliveCount() / boards[boardNumber]->devicesOnASingleBoard() - 1;
 						break;
 					}
 				}
 
-				if (++currentCount == board[boardNumber]->devicesOnASingleBoard())
+				if (++currentCount == boards[boardNumber]->devicesOnASingleBoard())
 					currentCount = 0;
 			}
 		}
@@ -653,7 +653,7 @@ void Robot::canBusSniffToggle() {
 */
 bool Robot::canGap() {
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (board[i]->canGap())
+		if (boards[i]->canGap())
 			return true;
 	return false;
 }
@@ -667,13 +667,13 @@ void Robot::canIdChange() {
 	uint8_t lastBoardAndDeviceIndex;
 	if (boardDisplayAndSelect(&selectedBoardIndex, &selectedDeviceIndex, &maxInput, &lastBoardAndDeviceIndex)) {
 		// Enter new id
-		print(". %s\n\rEnter new board id [0..%i]: ", board[selectedBoardIndex]->name(), maxInput);
+		print(". %s\n\rEnter new board id [0..%i]: ", boards[selectedBoardIndex]->name(), maxInput);
 		uint8_t newDeviceNumber = serialReadNumber(15000, 500, maxInput <= 9, maxInput);
 
 		if (newDeviceNumber != 0xFF) {
 			// Change
 			print("%i\n\rChange requested.\n\r", newDeviceNumber);
-				board[selectedBoardIndex]->idChange(newDeviceNumber, selectedDeviceIndex);
+				boards[selectedBoardIndex]->idChange(newDeviceNumber, selectedDeviceIndex);
 			delayMs(500); // Delay for firmware handling of devices with the same ids.
 		}
 	}
@@ -868,10 +868,10 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 
 Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
 	for (uint8_t boardIndex = 0; boardIndex < _boardNextFree; boardIndex++){
-		uint8_t nr = board[boardIndex]->deviceNumber(msgId);
+		uint8_t nr = boards[boardIndex]->deviceNumber(msgId);
 		if (nr != 0xFF){
 			deviceNumber = nr;
-			return board[boardIndex];
+			return boards[boardIndex];
 		}
 	}
 	deviceNumber = 0xFF;
@@ -886,9 +886,9 @@ Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
 void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, Board::BoardType boardType){
 	uint8_t count = 0;
 	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
-		if (boardType == Board::BoardType::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
-			for (Device& dev : board[boardKind]->devices) 
-				if (board[boardKind]->aliveWithOptionalScan(&dev)){
+		if (boardType == Board::BoardType::ANY_BOARD || boards[boardKind]->boardType() == boardType){ // Board types
+			for (Device& dev : boards[boardKind]->devices) 
+				if (boards[boardKind]->aliveWithOptionalScan(&dev)){
 					if (count == deviceGlobalOrdinalNumber)
 					{
 						deviceInfo = &dev;
@@ -897,7 +897,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 
 						//print("In func: %s %i", deviceInfo->name, deviceNumber);
 						if (boardType ==  Board::BoardType::SENSOR_BOARD)
-							deviceInfo->readingsCount = ((SensorBoard*)(board[boardKind]))->readingsCount();
+							deviceInfo->readingsCount = ((SensorBoard*)(boards[boardKind]))->readingsCount();
 						return;
 					}
 					else
@@ -924,7 +924,7 @@ void Robot::devicesLEDCount(){
 void Robot::deviceScan() {
 	//Board type
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		print("%i. %s\n\r", i, board[i]->name().c_str());
+		print("%i. %s\n\r", i, boards[i]->name().c_str());
 
 	print("Enter board id.\n\r");
 	uint8_t selectedBoardIndex = serialReadNumber(60000, 500, _boardNextFree <= 10, _boardNextFree - 1);
@@ -933,11 +933,11 @@ void Robot::deviceScan() {
 	uint8_t selectedDeviceIndex = serialReadNumber(60000, 500, false, 100);
 	print("%i\n\r", selectedDeviceIndex);
 
-	print("Scan %s\n\r", board[selectedBoardIndex]->devices[selectedDeviceIndex].name);
+	print("Scan %s\n\r", boards[selectedBoardIndex]->devices[selectedDeviceIndex].name);
 	// board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
 	uint8_t canData[8];
 	canData[0] = COMMAND_REPORT_ALIVE;
-	board[selectedBoardIndex]->messageSend(canData, 1, selectedDeviceIndex);
+	boards[selectedBoardIndex]->messageSend(canData, 1, selectedDeviceIndex);
 
 	end();
 }
@@ -957,15 +957,15 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 
 	// Set not alive
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
-			board[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
+		if (boardType == Board::ANY_BOARD || boards[i]->boardType() == boardType)
+			boards[i]->aliveSet(false); // Mark as not alive. It will be marked as alive when returned message arrives.
 
 	// Send alive ping
 	// for (uint8_t k = 0; k < 2; k++)
 		for (uint8_t i = 0; i < _boardNextFree; i++){
-			if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
+			if (boardType == Board::ANY_BOARD || boards[i]->boardType() == boardType)
 				delayMicroseconds(PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS);
-				board[i]->devicesScan(verbose);
+				boards[i]->devicesScan(verbose);
 				// print("SC1 %s ", board[i]->name().c_str()),count += board[i]->devicesScan(verbose), print("SC2");
 		}
 
@@ -974,8 +974,8 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 	// Count alive
 	uint8_t count = 0;
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == Board::BoardType::ANY_BOARD || board[i]->boardType() == boardType){
-			for(Device& device : board[i]->devices){
+		if (boardType == Board::BoardType::ANY_BOARD || boards[i]->boardType() == boardType){
+			for(Device& device : boards[i]->devices){
 				if(device.alive){
 					print("%s alive.\n\r", device.name.c_str());
 					count++;
@@ -999,14 +999,14 @@ void Robot::devicesScan(){
 */
 void Robot::devicesStart(uint8_t measuringMode) {
 	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree; boardNumber++)
-		board[boardNumber]->start(nullptr, measuringMode);
+		boards[boardNumber]->start(nullptr, measuringMode);
 }
 
 /** Stops broadcasting of CAN Bus messages
 */
 void Robot::devicesStop() {
 	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree; boardNumber++) {
-		board[boardNumber]->stop();
+		boards[boardNumber]->stop();
 		delayMicroseconds(100);
 	}
 }
@@ -1016,7 +1016,7 @@ void Robot::devicesStop() {
 */
 void Robot::firmwarePrint() {
 	for (uint8_t i = 0; i < _boardNextFree; i++) {
-		board[i]->firmwareRequest();
+		boards[i]->firmwareRequest();
 		delayMs(1);
 	}
 	end();
@@ -1050,11 +1050,11 @@ void Robot::fpsPrint() {
 	print("CAN peaks: %i received/s, %i sent/s\n\r", mrm_can_bus->messagesPeakReceived(), mrm_can_bus->messagesPeakSent());
 	print("Arduino: %i FPS, low peak: %i FPS\n\r", (int)fpsGet(), fpsTopGap == 1000 ? 0 : (int)(1000 / (float)fpsTopGap));
 	for (uint8_t i = 0; i < _boardNextFree; i++) {
-		board[i]->fpsRequest();
+		boards[i]->fpsRequest();
 		uint32_t startMs = millis();
 		while (millis() - startMs < 30)
 			noLoopWithoutThis();
-		board[i]->fpsDisplay();
+		boards[i]->fpsDisplay();
 	}
 	fpsReset();
 	end();
@@ -1122,7 +1122,7 @@ void Robot::imuTest(){
 */
 void Robot::info() {
 	for (uint8_t i = 0; i < _boardNextFree; i++) {
-		board[i]->info();
+		boards[i]->info();
 		delay(1);
 	}
 	end();
@@ -1255,7 +1255,7 @@ void Robot::menu() {
 				anyAlive = true;
 			else
 				for (uint8_t j = 0; j < _boardNextFree && !anyAlive; j++)
-					if (board[j]->aliveWithOptionalScan(NULL) && board[j]->id() == it.second->boardsId())
+					if (boards[j]->aliveWithOptionalScan(NULL) && boards[j]->id() == it.second->boardsId())
 						anyAlive = true;
 			if (anyAlive) {
 				print("%-3s - %-22s%s", (it.first + '\0').c_str(), it.second->_text, column == maxColumns ? "\n\r" : "");
@@ -1391,7 +1391,7 @@ void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 			// 	print ("BRD: %s\n\r", board[boardId]->(name().c_str()));
 			// 	messagePrint(_msg, false);
 			// }
- 			if (board[boardId]->messageDecode(*_msg)) {
+ 			if (boards[boardId]->messageDecode(*_msg)) {
 				#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 				any = true;
 				break;
@@ -1422,8 +1422,8 @@ bool Robot::messageSend(CANMessage message) {
 void Robot::motorTest() {
 	print("Test motors\n\r");
 	for (uint8_t i = 0; i < _boardNextFree; i++) 
-		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
-			board[i]->test();
+		if (boards[i]->boardType() == Board::MOTOR_BOARD && boards[i]->count() > 0)
+			boards[i]->test();
 	end();
 }
 
@@ -1468,7 +1468,7 @@ void Robot::oscillatorTest() {
 		uint8_t lastBoardAndDeviceIndex;
 		if (boardDisplayAndSelect(&selectedBoardIndex, &selectedDeviceIndex, &maxInput, &lastBoardAndDeviceIndex)) {
 			print("\n\r");
-			board[selectedBoardIndex]->oscillatorTest(board[selectedBoardIndex]->deviceGet(selectedDeviceIndex));
+			boards[selectedBoardIndex]->oscillatorTest(boards[selectedBoardIndex]->deviceGet(selectedDeviceIndex));
 		}
 	}
 }
@@ -1647,8 +1647,8 @@ void Robot::servoTest(){
 void Robot::stopAll() {
 	devicesStop();
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (board[i]->boardType() == Board::MOTOR_BOARD && board[i]->count() > 0)
-			((MotorBoard*)board[i])->stop();
+		if (boards[i]->boardType() == Board::MOTOR_BOARD && boards[i]->count() > 0)
+			((MotorBoard*)boards[i])->stop();
 	end();
 }
 
@@ -1674,12 +1674,12 @@ void Robot::stressTest() {
 			errors[i] = 0;
 		uint8_t totalCnt = 0;
 		for (uint8_t i = 0; i < _boardNextFree; i++) {
-			board[i]->devicesScan(true);
-			count[i] = board[i]->aliveCount();
+			boards[i]->devicesScan(true);
+			count[i] = boards[i]->aliveCount();
 			totalCnt += count[i];
 			mask[i] = TRY_ONLY_ALIVE ? 0 : 0xFFFF;
-			for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++)
-				if (board[i]->aliveWithOptionalScan(&board[i]->devices[j]))
+			for (uint8_t j = 0; j < boards[i]->deadOrAliveCount(); j++)
+				if (boards[i]->aliveWithOptionalScan(&boards[i]->devices[j]))
 					mask[i] |= 1 << j;
 		}
 		print("Start.\n\r");
@@ -1708,16 +1708,16 @@ void Robot::stressTest() {
 		if (count[i] > 0 || !TRY_ONLY_ALIVE) {
 			delayMicros(40);
 			digitalWrite(15, HIGH);
-			board[i]->devicesScan(false, mask[i]);
-			uint8_t cnt = board[i]->aliveCount();
+			boards[i]->devicesScan(false, mask[i]);
+			uint8_t cnt = boards[i]->aliveCount();
 			digitalWrite(15, LOW);
 			if (cnt != count[i]) {
 				errors[i]++;
-				print("***** %s: found %i, not %i.\n\r", board[i]->name().c_str(), cnt, count[i]);
+				print("***** %s: found %i, not %i.\n\r", boards[i]->name().c_str(), cnt, count[i]);
 				if (STOP_ON_ERROR) {
 					if (mrm_8x8a->aliveWithOptionalScan()) {
 						char buffer[50];
-						sprintf(buffer, "%s: error.\n\r", board[i]->name().c_str());
+						sprintf(buffer, "%s: error.\n\r", boards[i]->name().c_str());
 						mrm_8x8a->text(buffer);
 					}
 					pass = LOOP_COUNT - 1;
@@ -1732,7 +1732,7 @@ void Robot::stressTest() {
 		bool allOK = true;
 		for (uint8_t i = 0; i < _boardNextFree; i++)
 			if (count[i] > 0 && errors[i] > 0) {
-				print("%s: %i errors.\n\r", board[i]->name().c_str(), errors[i]);
+				print("%s: %i errors.\n\r", boards[i]->name().c_str(), errors[i]);
 				allOK = false;
 				delay(5000); // To freeze oscilloscope
 			}

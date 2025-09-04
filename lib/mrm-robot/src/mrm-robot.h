@@ -57,7 +57,6 @@ protected:
 
 	bool _actionTextDisplay = true;
 
-	Board* board[BOARDS_LIMIT]; // Collection of all the robot's boards
 	// Device * boardInfo;
 	uint8_t _boardNextFree = 0;
 
@@ -149,6 +148,8 @@ protected:
 	void verbosePrint();
 
 public: 
+	Board* boards[BOARDS_LIMIT]; // Collection of all the robot's boards
+	
 	Errors* errors;
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;

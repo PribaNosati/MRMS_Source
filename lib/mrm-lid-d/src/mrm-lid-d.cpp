@@ -265,7 +265,7 @@ uint16_t Mrm_lid_d::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber
 */
 void Mrm_lid_d::readingsPrint() {
 	print("Lid4mMul:");
-	for (Device device: devices)
+	for (Device& device: devices)
 		if (device.alive)
 			print(" %4i", distance(device.number));
 }
@@ -337,7 +337,7 @@ void Mrm_lid_d::test()
 // }
 	if (millis() - lastMs > 1000) {
 		uint8_t pass = 0;
-		for (Device device: devices) {
+		for (Device& device: devices) {
 			if (device.alive) {
 #if MRM_LID_H_TEST_MULTI
 				for (int8_t y = ((*_resolution)[device.number] == 64 ? 7 : 3); y >= 0; y--){

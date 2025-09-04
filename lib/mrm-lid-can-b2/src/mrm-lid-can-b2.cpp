@@ -251,7 +251,7 @@ uint16_t Mrm_lid_can_b2::reading(uint8_t receiverNumberInSensor, uint8_t deviceN
 */
 void Mrm_lid_can_b2::readingsPrint() {
 	print("Lid4m:");
-	for (Device device: devices)
+	for (Device& device: devices)
 		if (device.alive)
 			print(" %4i", distance(device.number));
 }
@@ -310,7 +310,7 @@ void Mrm_lid_can_b2::test(uint16_t betweenTestsMs)
 	static uint64_t lastMs = 0;
 	if (millis() - lastMs > (betweenTestsMs == 0 ? 300 : betweenTestsMs)) {
 		uint8_t pass = 0;
-		for (Device device: devices){
+		for (Device& device: devices){
 			if (device.alive) {
 				if (pass++)
 					print(" ");

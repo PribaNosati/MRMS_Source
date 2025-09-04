@@ -160,7 +160,7 @@ uint16_t Mrm_node::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber)
 */
 void Mrm_node::readingsPrint() {
 	print("Ref. array:");
-	for (Device device: devices){
+	for (Device& device: devices){
 		for (uint8_t irNo = 0; irNo < MRM_NODE_ANALOG_COUNT; irNo++)
 			print(" %3i", (*readings)[device.number][irNo]);
 	}
@@ -173,7 +173,7 @@ void Mrm_node::servoTest() {
 
 	if (millis() - lastMs > 100) {
 		for (uint8_t deg = 0; deg <= 180; deg += 5) {
-			for (Device device: devices) {
+			for (Device& device: devices) {
 				if (device.alive) {
 					for (uint8_t servoNumber = 0; servoNumber < MRM_NODE_SERVO_COUNT; servoNumber++)
 						servoWrite(servoNumber, deg, device.number);
@@ -255,7 +255,7 @@ void Mrm_node::test()
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (Device device: devices) {
+		for (Device& device: devices) {
 			if (device.alive) {
 				if (pass++)
 					print("| ");

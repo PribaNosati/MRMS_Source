@@ -140,7 +140,7 @@ void Mrm_fet_can::test()
 
 	if ((millis() - lastMs > 200 && isOn) || (millis() - lastMs > 2000 && !isOn)) {
 		// uint8_t pass = 0;
-		for (Device device: devices) {
+		for (Device& device: devices) {
 			if (device.alive) {
 				isOn = !isOn;
 				if (isOn)
