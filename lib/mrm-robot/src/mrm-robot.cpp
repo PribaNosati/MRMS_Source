@@ -933,7 +933,7 @@ void Robot::deviceScan() {
 	uint8_t selectedDeviceIndex = serialReadNumber(60000, 500, false, 100);
 	print("%i\n\r", selectedDeviceIndex);
 
-	print("Scan %s\n\r", board[selectedBoardIndex]->deviceName(selectedDeviceIndex));
+	print("Scan %s\n\r", board[selectedBoardIndex]->devices[selectedDeviceIndex].name);
 	// board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
 	uint8_t canData[8];
 	canData[0] = COMMAND_REPORT_ALIVE;
@@ -1217,10 +1217,10 @@ void Robot::lidarCalibrate() {
 			print("\n\rAbort\n\r");
 		else {
 			if (selected2Or4 == 2 ? mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->aliveWithOptionalScan(&mrm_lid_can_b2->devices[selected])) {
-				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->deviceName(selected));
+				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->devices[selected].name.c_str());
 				selected2Or4 == 2 ? mrm_lid_can_b->calibration(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->calibration(&mrm_lid_can_b2->devices[selected]);			}
 			else
-				print("\n\rLidar %s dead\n\r", selected2Or4 == 2 ? mrm_lid_can_b->deviceName(selected) : mrm_lid_can_b2->deviceName(selected));
+				print("\n\rLidar %s dead\n\r", selected2Or4 == 2 ? mrm_lid_can_b->devices[selected].name.c_str() : mrm_lid_can_b2->devices[selected].name.c_str());
 		}
 	}
 
@@ -1334,7 +1334,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 		deviceNumber = board->deviceNumber(msg->id);
 	std::string name;
 	if (board != NULL && deviceNumber != 0xFF)
-		name = board->deviceName(deviceNumber);
+		name = board->devices[deviceNumber].name;
 	else if (board != NULL)
 		name = board->name() + ",dev?";
 	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->id);
@@ -1502,19 +1502,19 @@ void Robot::pnpSet(bool enable){
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_lid_can_b2->devices[i].alive){
 			mrm_lid_can_b2->pnpSet(enable, &mrm_lid_can_b2->devices[i]);
-			print("%s PnP %s\n\r", mrm_lid_can_b2->deviceName(i).c_str(), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_lid_can_b2->devices[i].name.c_str(), enable ? "on" : "off");
 		}
 	count = mrm_lid_can_b->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_lid_can_b->devices[i].alive){
 			mrm_lid_can_b->pnpSet(enable, &mrm_lid_can_b->devices[i]);
-			print("%s PnP %s\n\r", mrm_lid_can_b->deviceName(i).c_str(), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_lid_can_b->devices[i].name.c_str(), enable ? "on" : "off");
 		}
 	count = mrm_ref_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
 		if (mrm_ref_can->devices[i].alive){
 			mrm_ref_can->pnpSet(enable, &mrm_ref_can->devices[i]);
-			print("%s PnP %s\n\r", mrm_ref_can->deviceName(i).c_str(), enable ? "on" : "off");
+			print("%s PnP %s\n\r", mrm_ref_can->devices[i].name.c_str(), enable ? "on" : "off");
 		}
 	end();
 }

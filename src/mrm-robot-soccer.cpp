@@ -91,10 +91,10 @@ RobotSoccer::RobotSoccer(char name[]) : Robot(name) {
 	// called in the code, but only through menus. For example, ActionWallsTest test is only manu-based, and it is all right.
 	// This test is not supposed to be called in code.
 
-	// mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
-	// mrm_mot4x3_6can->directionChange(1); // Uncomment to change 2nd wheel's rotation direction
-	// mrm_mot4x3_6can->directionChange(2); // Uncomment to change 3rd wheel's rotation direction
-	// mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
+	// mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[0]); // Uncomment to change 1st wheel's rotation direction
+	// mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[1]); // Uncomment to change 2nd wheel's rotation direction
+	// mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[2]); // Uncomment to change 3rd wheel's rotation direction
+	// mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[3]); // Uncomment to change 4th wheel's rotation direction
 
 	// Buttons
 	mrm_8x8a->actionSet(actionFind("soc"), 0); // Button 1 starts the play

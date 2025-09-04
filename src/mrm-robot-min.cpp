@@ -35,7 +35,7 @@ RobotMin::RobotMin(char name[]) : Robot(name) {
 
 	// Depending on your wiring, it may be necessary to spin some motors in the other direction. In this example, no change needed,
 	// but uncommenting the following line will change the direction of the motor 2.
-	//mrm_mot4x3_6can->directionChange(2);
+	//mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[2]);
 
 	// All the actions will be defined here; the objects will be created. 
 

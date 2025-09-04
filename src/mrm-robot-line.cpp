@@ -67,10 +67,10 @@ RobotLine::RobotLine(char name[]) : Robot(name) {
 	// Put Your buttons' actions here.
 
 	// Depending on your wiring, it may be necessary to spin some motors in the other direction. 
-	mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
-	mrm_mot4x3_6can->directionChange(1); // Uncomment to change 2nd wheel's rotation direction
-	mrm_mot4x3_6can->directionChange(2); // Uncomment to change 3rd wheel's rotation direction
-	mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[0]); // Uncomment to change 1st wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[1]); // Uncomment to change 2nd wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[2]); // Uncomment to change 3rd wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[3]); // Uncomment to change 4th wheel's rotation direction
 
 	// Digital switches connected to ESP32 pins
 	// pinMode(25, INPUT_PULLDOWN);

@@ -150,7 +150,7 @@ public:
 	*/
 	Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOnABoard, std::string boardName, BoardType boardType, BoardId id);
 
-	/** Add a device. 
+	/** Add a device.
 	@param deviceName
 	@param canIn
 	@param canOut
@@ -253,12 +253,6 @@ public:
 	*/
 	bool isFromMe(uint32_t canId, Device& device);
 
-	/** Last message received
-	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - milliseconds
-	*/
-	uint32_t lastMessageMs(uint8_t deviceNumber = 0) { return devices[deviceNumber].lastMessageReceivedMs; }
-
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
@@ -283,12 +277,6 @@ public:
 	*/
 	void messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber = 0);
 
-	/** Returns device's name
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - name
-	*/
-	std::string deviceName(uint8_t deviceNumber);
-
 	/** Returns device group's name
 	@return - name
 	*/
@@ -298,7 +286,7 @@ public:
 	@param commandRequestingNotification
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void notificationRequest(uint8_t commandRequestingNotification, uint8_t deviceNumber);
+	void notificationRequest(uint8_t commandRequestingNotification, Device device);
 
 	/** Reserved for production
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -333,7 +321,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 	@param betweenTestsMs - time in ms between 2 tests. 0 - default.
 	*/
-	virtual void test(uint8_t deviceNumber = 0xFF, uint16_t betweenTestsMs = 0) {}
+	virtual void test(Device * device = nullptr, uint16_t betweenTestsMs = 0) {}
 };
 
 
@@ -365,7 +353,7 @@ public:
 	/** Changes rotation's direction
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void directionChange(uint8_t deviceNumber);
+	void directionChange(Device device);
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id

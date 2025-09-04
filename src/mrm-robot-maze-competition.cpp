@@ -22,10 +22,10 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 
 	// Depending on your wiring, it may be necessary to spin some motors in the other direction. In this example, no change needed,
 	// but uncommenting the following line will change the direction of the motor 2.
-	mrm_mot4x3_6can->directionChange(0); // Uncomment to change 1st wheel's rotation direction
-	mrm_mot4x3_6can->directionChange(1); // Uncomment to change 2nd wheel's rotation direction
-	mrm_mot4x3_6can->directionChange(2); // Uncomment to change 3rd wheel's rotation direction
-	mrm_mot4x3_6can->directionChange(3); // Uncomment to change 4th wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[0]); // Uncomment to change 1st wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[1]); // Uncomment to change 2nd wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[2]); // Uncomment to change 3rd wheel's rotation direction
+	mrm_mot4x3_6can->directionChange(mrm_mot4x3_6can->devices[3]); // Uncomment to change 4th wheel's rotation direction
 
 
 		/** Action that decides what to do next, using Tremaux algorithm. If a not-visited direction exists, go there. If not, return to the tile robot came from.*/

@@ -383,19 +383,11 @@ void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
 	robotContainer->messageSend(CANMessage(robotContainer, devices[deviceNumber].canIdIn, data, dlc));
 }
 
-/** Returns device's name
-@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-@return - name
-*/
-std::string Board::deviceName(uint8_t deviceNumber) {
-	return devices[deviceNumber].name;
-}
-
 /** Request notification
 @param commandRequestingNotification
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Board::notificationRequest(uint8_t commandRequestingNotification, uint8_t deviceNumber) {
+void Board::notificationRequest(uint8_t commandRequestingNotification,  Device device) {
 	printf("THIS FUNCTION DOESN'T WORK\n\r");
 	//while (1);
 	//uint8_t tries = 0;
@@ -462,7 +454,7 @@ void Board::start(Device* device, uint8_t measuringModeNow, uint16_t refreshMs) 
 		if (device->alive) {
 			// print("Alive, start reading: %s\n\r", _boardsName.c_str());
 #if REQUEST_NOTIFICATION
-			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device->number);
+			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device);
 #else
 			if (measuringModeNow == 0 || measuringModeLimit == 0)
 				canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS;
@@ -543,11 +535,8 @@ MotorBoard::~MotorBoard(){
 /** Changes rotation's direction
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void MotorBoard::directionChange(uint8_t deviceNumber) {
-	if (deviceNumber >= devices.size())
-		printf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
-	else
-		(*reversed)[deviceNumber] = !(*reversed)[deviceNumber];
+void MotorBoard::directionChange(Device device) {
+	(*reversed)[device.number] = !(*reversed)[device.number];
 }
 
 /** Read CAN Bus message into local variables
@@ -777,7 +766,7 @@ void SensorBoard::continuousReadingCalculatedDataStart(Device* device) {
 		if (device->alive) {
 			// print("Alive, start reading: %s\n\r", name(deviceNumber));
 #if REQUEST_NOTIFICATION // todo
-			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device->number);
+			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device);
 #else
 			canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS_AND_RETURN_CALCULATED_DATA;
 			messageSend(canData, 1, device->number);
