@@ -773,9 +773,9 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 */
 void Robot::colorIlluminationOff() {
 	if (mrm_col_can->aliveWithOptionalScan())
-		mrm_col_can->illumination(0xFF, 0);
+		mrm_col_can->illumination(nullptr, 0);
 	else if (mrm_col_b->aliveWithOptionalScan())
-		mrm_col_b->illumination(0xFF, 0);
+		mrm_col_b->illumination(nullptr, 0);
 	end();
 }
 
@@ -783,9 +783,9 @@ void Robot::colorIlluminationOff() {
 */
 void Robot::colorIlluminationOn() {
 	if (mrm_col_can->aliveWithOptionalScan())
-		mrm_col_can->illumination(0xFF, 5);
+		mrm_col_can->illumination(nullptr, 5);
 	else if (mrm_col_b->aliveWithOptionalScan())
-		mrm_col_b->illumination(0xFF, 5);
+		mrm_col_b->illumination(nullptr, 5);
 	end();
 }
 

@@ -324,7 +324,7 @@ void RobotLine::goAhead() {
 @return - Hue
 */
 uint8_t RobotLine::hue(uint8_t deviceNumber) {
-	return mrm_col_can->hue(deviceNumber);
+	return mrm_col_can->hue(&mrm_col_can->devices[deviceNumber]);
 }
 
 /** Set color sensor's illumination intensity
@@ -332,7 +332,7 @@ uint8_t RobotLine::hue(uint8_t deviceNumber) {
 @param current - 0 - 3
 */
 void RobotLine::illumination(uint8_t current, uint8_t deviceNumber) {
-	return mrm_col_can->illumination(deviceNumber, current);
+	return mrm_col_can->illumination(&mrm_col_can->devices[deviceNumber], current);
 }
 
 /** Left side - rear sensor distance.
@@ -553,8 +553,8 @@ bool RobotLine::markers() {
 	delayMs(200);
 	//bool greenLeft = mrm_col_can->patternRecognizedBy6Colors(0) == 2; // This function returns laerned pattern's number, for sensor 0 (left). Learned pattern 2 is green.
 	//bool greenRight = mrm_col_can->patternRecognizedBy6Colors(1) == 2; // This function returns laerned pattern's number, for sensor 0 (left). Learned pattern 2 is green.
-	bool greenLeft = mrm_col_can->value(0) < 70 && mrm_col_can->hue(0) > 60 && mrm_col_can->hue(0) < 70;
-	bool greenRight = mrm_col_can->value(1) < 70 && mrm_col_can->hue(1) > 60 && mrm_col_can->hue(1) < 70;
+	bool greenLeft = mrm_col_can->value(mrm_col_can->devices[0]) < 70 && mrm_col_can->hue(&mrm_col_can->devices[0]) > 60 && mrm_col_can->hue(&mrm_col_can->devices[0]) < 70;
+	bool greenRight = mrm_col_can->value(mrm_col_can->devices[1]) < 70 && mrm_col_can->hue(&mrm_col_can->devices[1]) > 60 && mrm_col_can->hue(&mrm_col_can->devices[1]) < 70;
 
 	bool fullLineL = !lineAny(4, 7);
 	bool fullLineR = !lineAny(0, 3);
@@ -690,7 +690,7 @@ void RobotLine::obstacleAvoid() {
 @raturn - patternNumber
 */
 uint8_t RobotLine::patternColors(uint8_t deviceNumber) {
-	return mrm_col_can->patternRecognizedBy6Colors(deviceNumber);
+	return mrm_col_can->patternRecognizedBy6Colors(mrm_col_can->devices[deviceNumber]);
 }
 
 
@@ -704,7 +704,7 @@ void RobotLine::rcjLine() {
 	mrm_8x8a->rotationSet(Mrm_8x8a::LED_8X8_BY_90_DEGREES); // Rotate the mrm-8x8a by 90� so that it can be read properly when standing behind the robot.
 	bitmapsSet(); // Upload all the predefined bitmaps into the mrm-8x8a.
 	display(LED_PLAY); // Show "play" sign.
-	mrm_col_can->illumination(0xFF, 1); // Turn mrm-col-can's surface illumination on.
+	mrm_col_can->illumination(nullptr, 1); // Turn mrm-col-can's surface illumination on.
 	//armClose(); // Arm will go to its idle (up) position.
 	actionSet("lnf"); // The next action is line following.
 }
@@ -739,7 +739,7 @@ uint16_t RobotLine::rightFront(uint8_t sampleCount, uint8_t sigmaCount) {
 @return - saturation.
 */
 uint8_t RobotLine::saturation(uint8_t deviceNumber) {
-	return mrm_col_can->saturation(deviceNumber);
+	return mrm_col_can->saturation(&mrm_col_can->devices[deviceNumber]);
 }
 
 /** Move servo
@@ -779,10 +779,10 @@ void RobotLine::store(uint8_t red[], uint8_t green[], uint8_t image) {
 @param delayMsAfterPrint - delay after print
 */
 void RobotLine::surfacePrint(bool newLine, uint16_t delayMsAfterPrint) {
-	print("%i/%i/%i ", mrm_col_can->hue(0), mrm_col_can->saturation(0), mrm_col_can->value(0));
+	print("%i/%i/%i ", mrm_col_can->hue(&mrm_col_can->devices[0]), mrm_col_can->saturation(&mrm_col_can->devices[0]), mrm_col_can->value(mrm_col_can->devices[0]));
 	for (int8_t i = LAST_TRANSISTOR; i >= 0; i--)
 		print("%i", line(i));
-	print(" %i/%i/%i ", mrm_col_can->hue(1), mrm_col_can->saturation(1), mrm_col_can->value(1));
+	print(" %i/%i/%i ", mrm_col_can->hue(&mrm_col_can->devices[1]), mrm_col_can->saturation(&mrm_col_can->devices[1]), mrm_col_can->value(mrm_col_can->devices[1]));
 	if (newLine)
 		print("\n\r");
 	if (delayMsAfterPrint != 0)
@@ -814,7 +814,7 @@ void RobotLine::turn(int16_t byDegreesClockwise) {
 @return - value
 */
 uint8_t RobotLine::value(uint8_t deviceNumber) {
-	return mrm_col_can->value(deviceNumber);
+	return mrm_col_can->value(mrm_col_can->devices[deviceNumber]);
 }
 
 #if LIDAR_COUNT == 6

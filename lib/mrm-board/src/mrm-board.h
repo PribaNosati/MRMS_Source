@@ -245,7 +245,7 @@ public:
 	/** Request information
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
 	*/
-	void info(uint8_t deviceNumber = 0xFF);
+	void info(Device* device = nullptr);
 
 	/** Is the frame addressed to this device's Arduino object?
 	@param canIdOut - CAN Bus id.
@@ -335,7 +335,7 @@ public:
 	/** Stops periodical CANBus messages that refresh values that can be read by reading()
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void stop(uint8_t deviceNumber = 0xFF);
+	void stop(Device* device = nullptr);
 
 	/**Test
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.

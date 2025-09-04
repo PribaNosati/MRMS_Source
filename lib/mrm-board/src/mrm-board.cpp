@@ -74,7 +74,7 @@ if (deviceName.length() > 9) {
 		sprintf(errorMessage, "Name too long: %s", deviceName.c_str());
 		return;
 	}
-	devices.push_back({this, deviceName, canIn, canOut, nextFree});
+	devices.push_back({this, deviceName, canIn, canOut, devices.size()});
 	nextFree++;
 }
 
@@ -288,14 +288,15 @@ uint16_t Board::idGet(uint8_t deviceNumber, bool isOut) {
 /** Request information
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
 */
-void Board::info(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			info(i);
+void Board::info(Device* device) {
+	if (device == nullptr) {
+		for (Device& dev : devices)
+			info(&dev);
+	}
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		if (device->alive) {
 			canData[0] = COMMAND_INFO_REQUEST;
-			messageSend(canData, 1, deviceNumber);
+			messageSend(canData, 1, device->number);
 			delay(1);
 		}
 	}
@@ -506,15 +507,16 @@ void Board::start(Device* device, uint8_t measuringModeNow, uint16_t refreshMs) 
 /** Stops periodical CANBus messages that refresh values that can be read by reading()
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Board::stop(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			stop(i);
+void Board::stop(Device * device) {
+	if (device == nullptr)
+		for (Device& dev : devices)
+			stop(&dev);
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		if (device->alive) {
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
-			messageSend(canData, 1, deviceNumber);
-			devices[deviceNumber].lastReadingsMs = 0;
+			messageSend(canData, 1, device->number);
+			device->lastReadingsMs = 0;
+			delay(1); // TODO
 		}
 	}
 }
@@ -558,8 +560,8 @@ MotorBoard::~MotorBoard(){
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void MotorBoard::directionChange(uint8_t deviceNumber) {
-	if (deviceNumber >= nextFree)
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
+	if (deviceNumber >= devices.size())
+		printf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 	else
 		(*reversed)[deviceNumber] = !(*reversed)[deviceNumber];
 }
@@ -609,9 +611,9 @@ uint16_t MotorBoard::reading(Device device) {
 */
 void MotorBoard::readingsPrint() {
 	print("Encoders:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (aliveWithOptionalScan(&devices[deviceNumber]))
-			print(" %4i", (*encoderCount)[deviceNumber]);
+	for (Device& device : devices)
+		if (device.alive)
+			print(" %4i", (*encoderCount)[device.number]);
 }
 
 
@@ -620,7 +622,7 @@ void MotorBoard::readingsPrint() {
 @param speed - in range -127 to 127
 */
 void MotorBoard::speedSet(uint8_t motorNumber, int8_t speed) {
-	if (motorNumber >= nextFree) {
+	if (motorNumber >= devices.size()) {
 		sprintf(errorMessage, "Mot. %i doesn't exist", motorNumber);
 		return;
 	}
@@ -688,8 +690,8 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 	const int8_t step[3] = { 1, -1, 1 };
 
 	// Select motor
-	print("%s - enter motor number [0-%i] or wait for all\n\r", name().c_str(), nextFree - 1);
-	uint16_t selectedMotor = robotContainer->serialReadNumber(3000, 500, nextFree - 1 > 9, nextFree - 1, false);
+	print("%s - enter motor number [0-%i] or wait for all\n\r", name().c_str(), devices.size() - 1);
+	uint16_t selectedMotor = robotContainer->serialReadNumber(3000, 500, devices.size() - 1 > 9, devices.size() - 1, false);
 	if (selectedMotor == 0xFFFF)
 		print("Test all\n\r");
 	else
@@ -785,13 +787,13 @@ SensorBoard::SensorBoard(Robot* robot, uint8_t devicesOnABoard, const char board
 */
 void SensorBoard::continuousReadingCalculatedDataStart(Device* device) {
 	if (device == nullptr)
-		for (uint8_t i = 0; i < nextFree; i++)
-			continuousReadingCalculatedDataStart(&devices[i]);
+		for (Device& dev : devices)
+			continuousReadingCalculatedDataStart(&dev);
 	else {
 		if (device->alive) {
 			// print("Alive, start reading: %s\n\r", name(deviceNumber));
 #if REQUEST_NOTIFICATION // todo
-			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);
+			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device->number);
 #else
 			canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS_AND_RETURN_CALCULATED_DATA;
 			messageSend(canData, 1, device->number);

@@ -94,9 +94,9 @@ void Mrm_col_can::add(char * deviceName)
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorBlue(uint8_t deviceNumber) { 
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][0];
+uint16_t Mrm_col_can::colorBlue(Device device) {
+	if (colorsStarted(device))
+		return(*readings)[device.number][0];
 	else
 		return 0;
 }
@@ -105,9 +105,9 @@ uint16_t Mrm_col_can::colorBlue(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorGreen(uint8_t deviceNumber) { 
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][1];
+uint16_t Mrm_col_can::colorGreen(Device device) {
+	if (colorsStarted(device))
+		return(*readings)[device.number][1];
 	else
 		return 0;
 }
@@ -116,9 +116,9 @@ uint16_t Mrm_col_can::colorGreen(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorOrange(uint8_t deviceNumber) { 
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][2];
+uint16_t Mrm_col_can::colorOrange(Device device) {
+	if (colorsStarted(device))
+		return(*readings)[device.number][2];
 	else
 		return 0;
 }
@@ -127,9 +127,9 @@ uint16_t Mrm_col_can::colorOrange(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorRed(uint8_t deviceNumber) { 
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][3];
+uint16_t Mrm_col_can::colorRed(Device device) {
+	if (colorsStarted(device))
+		return(*readings)[device.number][3];
 	else
 		return 0;
 }
@@ -138,22 +138,22 @@ uint16_t Mrm_col_can::colorRed(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_col_can::colorsStarted(uint8_t deviceNumber) {
-	if ((*_hsv)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
-		//print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]); 
+bool Mrm_col_can::colorsStarted(Device device) {
+	if ((*_hsv)[device.number] || millis() - device.lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
+		//robotContainer->print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			switchTo6Colors(deviceNumber);
+			switchTo6Colors(&device);
 			// Wait for 1. message.
-			uint32_t startMs = millis();
+			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
+				if (millis() - device.lastReadingsMs < 100) {
 					//print("6co confirmed\n\r");
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delay(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
+		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
@@ -164,9 +164,9 @@ bool Mrm_col_can::colorsStarted(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorViolet(uint8_t deviceNumber) {
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][4];
+uint16_t Mrm_col_can::colorViolet(Device device) {
+	if (colorsStarted(device))
+		return(*readings)[device.number][4];
 	else
 		return 0;
 }
@@ -175,9 +175,9 @@ uint16_t Mrm_col_can::colorViolet(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorYellow(uint8_t deviceNumber) {
-	if (colorsStarted(deviceNumber))
-		return(*readings)[deviceNumber][5];
+uint16_t Mrm_col_can::colorYellow(Device device) {
+	if (colorsStarted(device))
+		return(*readings)[device.number][5];
 	else
 		return 0;
 }
@@ -199,14 +199,14 @@ std::string Mrm_col_can::commandName(uint8_t byte){
 	2, 16x
 	3, 64x
 */
-void Mrm_col_can::gain(uint8_t deviceNumber, uint8_t gainValue) {
-	if (deviceNumber == 0xFF)
+void Mrm_col_can::gain(Device * device, uint8_t gainValue) {
+	if (device == nullptr)
 		for (uint8_t i = 0; i < nextFree; i++)
-			gain(i, gainValue);
+			gain(&devices[i], gainValue);
 	else {
 		canData[0] = CAN_COL_GAIN;
 		canData[1] = gainValue;
-		messageSend(canData, 2, deviceNumber);
+		messageSend(canData, 2, device->number);
 	}
 }
 
@@ -214,23 +214,23 @@ void Mrm_col_can::gain(uint8_t deviceNumber, uint8_t gainValue) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_col_can::hsvStarted(uint8_t deviceNumber) {
-	if (!(*_hsv)[deviceNumber] || millis() - devices[deviceNumber].lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0) {
-		//print("Switch to HSV.\n\r"); 
+bool Mrm_col_can::hsvStarted(Device device) {
+	if (!(*_hsv)[device.number] || millis() - device.lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
+		//robotContainer->print("Switch to HSV.\n\r");
 
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			switchToHSV(deviceNumber);
+			switchToHSV(&device);
 			// Wait for 1. message.
-			uint32_t startMs = millis();
+			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
-				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
-					//print("HSV confirmed\n\r"); 
+				if (millis() - device.lastReadingsMs < 100) {
+					//print("HSV confirmed\n\r");
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delay(1);
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
+		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
@@ -241,9 +241,9 @@ bool Mrm_col_can::hsvStarted(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - Hue
 */
-uint8_t Mrm_col_can::hue(uint8_t deviceNumber) {
-	if (hsvStarted(deviceNumber))
-		return (*_hue)[deviceNumber];
+uint8_t Mrm_col_can::hue(Device * device) {
+	if (hsvStarted(*device))
+		return (*_hue)[device->number];
 	else
 		return 0;
 }
@@ -252,14 +252,14 @@ uint8_t Mrm_col_can::hue(uint8_t deviceNumber) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
 @param current - 0 - 3
 */
-void Mrm_col_can::illumination(uint8_t deviceNumber, uint8_t current) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			illumination(i, current);
+void Mrm_col_can::illumination(Device * device, uint8_t current) {
+	if (device == nullptr)
+		for(Device& dev : devices)
+			illumination(&dev, current);
 	else {
 		canData[0] = CAN_COL_ILLUMINATION_CURRENT;
 		canData[1] = current;
-		messageSend(canData, 2, deviceNumber);
+		messageSend(canData, 2, device->number);
 	}
 }
 
@@ -267,14 +267,14 @@ void Mrm_col_can::illumination(uint8_t deviceNumber, uint8_t current) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
 @param value - integration time will be value x 2.8 ms but double that in case of mode 2 (usual). value is between 0 and 255. value 18 is approx 10 FPS
 */
-void Mrm_col_can::integrationTime(uint8_t deviceNumber, uint8_t value) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			integrationTime(i, value);
+void Mrm_col_can::integrationTime(Device * device, uint8_t value) {
+	if (device == nullptr)
+		for (Device& dev : devices)
+			integrationTime(&dev, value);
 	else {
 		canData[0] = CAN_COL_INTEGRATION_TIME;
 		canData[1] = value;
-		messageSend(canData, 2, deviceNumber);
+		messageSend(canData, 2, device->number);
 	}
 }
 
@@ -336,62 +336,61 @@ for (Device& device : devices)
 /** Erase all patterns
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - in all sensors.
 */
-void Mrm_col_can::patternErase(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			patternErase(i);
+void Mrm_col_can::patternErase(Device * device) {
+	if (device == nullptr)
+		for (Device& dev : devices)
+			patternErase(&dev);
 	else {
 		canData[0] = CAN_COL_PATTERN_ERASE;
-		messageSend(canData, 1, deviceNumber);
+		messageSend(canData, 1, device->number);
 	}
 }
 
 /** Print HSV patterns
 */
 void Mrm_col_can::patternPrint() {
-	for (uint8_t deviceNumber = 0; deviceNumber < count(); deviceNumber++) {
+	for (Device& dev : devices) {
 		canData[0] = CAN_COL_PATTERN_REQUEST;
-		messageSend(canData, 1, deviceNumber);
+		messageSend(canData, 1, dev.number);
 	}
 }
 
+
 /** Choose a pattern closest to the current 6 colors
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-@raturn - patternNumber
+@return - patternNumber
 */
-uint8_t Mrm_col_can::patternRecognizedBy6Colors(uint8_t deviceNumber) {
-	if (hsvStarted(deviceNumber))
-		return (*_patternBy6Colors)[deviceNumber];
+uint8_t Mrm_col_can::patternRecognizedBy6Colors(Device device) {
+	if (hsvStarted(device))
+		return (*_patternBy6Colors)[device.number];
 	else
 		return 0;
 }
-
 
 /** Choose a pattern closest to the current HSV values
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @param includeValue - if true, HSV compared. If not, HS.
 @raturn - patternNumber
 */
-uint8_t Mrm_col_can::patternRecognizedByHSV(uint8_t deviceNumber) {
-	if (hsvStarted(deviceNumber))
-		return (*_patternByHSV)[deviceNumber];
+uint8_t Mrm_col_can::patternRecognizedByHSV(Device device) {
+	if (hsvStarted(device))
+		return (*_patternByHSV)[device.number];
 	else
 		return 0;
 }
-
 
 /** Record a HSV pattern
 @param patternNumber - 0 - MRM_COL_CAN_PATTERN_COUNT-1
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_col_can::patternRecord(uint8_t patternNumber, uint8_t deviceNumber) {
-	if (!_hsv || patternNumber >= MRM_COL_CAN_PATTERN_COUNT || deviceNumber >= nextFree) {
+void Mrm_col_can::patternRecord(uint8_t patternNumber, Device device) {
+	if (!_hsv || patternNumber >= MRM_COL_CAN_PATTERN_COUNT || device.number >= devices.size()) {
 		strcpy(errorMessage, "Patt. err.");
 		return;
 	}
 	canData[0] = CAN_COL_PATTERN_RECORD;
 	canData[1] = patternNumber;
-	messageSend(canData, 2, deviceNumber);
+	messageSend(canData, 2, device.number);
 }
 
 /** Record patterns manually
@@ -414,7 +413,7 @@ void Mrm_col_can::patternsRecord() {
 		return;
 	}
 	print("%i\n\r", patternNumber);
-	patternRecord(patternNumber, deviceNumber);
+	patternRecord(patternNumber, devices[deviceNumber]);
 }
 
 /** Enable plug and play
@@ -438,13 +437,13 @@ void Mrm_col_can::pnpSet(bool enable, uint8_t deviceNumber){
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - analog value
 */
-uint16_t Mrm_col_can::reading(uint8_t colorId, uint8_t deviceNumber) {
-	if (deviceNumber >= nextFree || colorId >= MRM_COL_CAN_COLORS) {
-		strcpy(errorMessage, "mrm-col-can doesn't exist");
+uint16_t Mrm_col_can::reading(uint8_t colorId, Device * device) {
+	if (device == nullptr || colorId >= MRM_COL_CAN_COLORS) {
+		printf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), device->number);
 		return 0;
 	}
-	if (colorsStarted(deviceNumber))
-		return (*readings)[deviceNumber][colorId];
+	if (colorsStarted(*device))
+		return (*readings)[device->number][colorId];
 	else
 		return 0;
 }
@@ -464,25 +463,24 @@ void Mrm_col_can::readingsPrint() {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - saturation
 */
-uint8_t Mrm_col_can::saturation(uint8_t deviceNumber) {
-	if (hsvStarted(deviceNumber))
-		return (*_saturation)[deviceNumber];
+uint8_t Mrm_col_can::saturation(Device * device) {
+	if (hsvStarted(*device))
+		return (*_saturation)[device->number];
 	else
 		return 0;
 }
 
-
 /** Instruction to sensor to switch to converting R, G, and B on board and return hue, saturation and value
 @param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0. 0xFF - all sensors.
 */
-void Mrm_col_can::switchToHSV(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			switchToHSV(i);
+void Mrm_col_can::switchToHSV(Device * device) {
+	if (device == nullptr)
+		for(Device& dev : devices)
+			switchToHSV(&dev);
 	else {
 		canData[0] = CAN_COL_SWITCH_TO_HSV;
-		messageSend(canData, 1, deviceNumber);
-		(*_hsv)[deviceNumber] = true;
+		messageSend(canData, 1, device->number);
+		(*_hsv)[device->number] = true;
 	}
 }
 
@@ -490,14 +488,14 @@ void Mrm_col_can::switchToHSV(uint8_t deviceNumber) {
 /** Instruction to sensor to start returning 6 raw colors
 @param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0. 0xFF - all sensors.
 */
-void Mrm_col_can::switchTo6Colors(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			switchTo6Colors(i);
+void Mrm_col_can::switchTo6Colors(Device * device) {
+	if (device == nullptr)
+		for(Device& dev : devices)
+			switchTo6Colors(&dev);
 	else {
 		canData[0] = CAN_COL_SWITCH_TO_6_COLORS;
-		messageSend(canData, 1, deviceNumber);
-		(*_hsv)[deviceNumber] = false;
+		messageSend(canData, 1, device->number);
+		(*_hsv)[device->number] = false;
 	}
 }
 
@@ -508,19 +506,20 @@ void Mrm_col_can::switchTo6Colors(uint8_t deviceNumber) {
 */
 void Mrm_col_can::test(bool hsvSelect)
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device& device : devices) {
+			if (device.alive) {
 				if (pass++)
 					print(" | ");
 				if (hsvSelect)
-					print("HSV:%3i/%3i/%3i HSV/col:%i/%i", hue(deviceNumber), saturation(deviceNumber), value(deviceNumber), patternRecognizedByHSV(deviceNumber), patternRecognizedBy6Colors(deviceNumber));
+					print("HSV:%3i/%3i/%3i HSV/col:%i/%i", hue(&device), saturation(&device), value(device), patternRecognizedByHSV(device),
+					patternRecognizedBy6Colors(device));
 				else
-					print("Bl:%3i Gr:%3i Or:%3i Re:%3i Vi:%3i Ye:%3i", colorBlue(deviceNumber), colorGreen(deviceNumber), colorOrange(deviceNumber), colorRed(deviceNumber),
-						colorViolet(deviceNumber), colorYellow(deviceNumber));
+					print("Bl:%3i Gr:%3i Or:%3i Re:%3i Vi:%3i Ye:%3i", colorBlue(device), colorGreen(device), colorOrange(device), colorRed(device),
+						colorViolet(device), colorYellow(device));
 			}
 		}
 		lastMs = millis();
@@ -533,9 +532,9 @@ void Mrm_col_can::test(bool hsvSelect)
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - value
 */
-uint8_t Mrm_col_can::value(uint8_t deviceNumber) {
-	if (hsvStarted(deviceNumber))
-		return (*_value)[deviceNumber];
-	else 
+uint8_t Mrm_col_can::value(Device device) {
+	if (hsvStarted(device))
+		return (*_value)[device.number];
+	else
 		return 0;
 }
