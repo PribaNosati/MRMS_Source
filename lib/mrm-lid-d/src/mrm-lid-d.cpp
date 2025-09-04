@@ -265,9 +265,9 @@ uint16_t Mrm_lid_d::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber
 */
 void Mrm_lid_d::readingsPrint() {
 	print("Lid4mMul:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (aliveWithOptionalScan(&devices[deviceNumber]))
-			print(" %4i", distance(deviceNumber));
+	for (Device device: devices)
+		if (device.alive)
+			print(" %4i", distance(device.number));
 }
 
 /** Resolution, 4x4 or 8x8.
@@ -323,7 +323,7 @@ bool Mrm_lid_d::started(uint8_t deviceNumber) {
 */
 void Mrm_lid_d::test()
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 #define MRM_LID_H_TEST_MULTI 1	
 // 64-resolution never enabled.
 // #define MRM_LID_H_TEST_64 1
@@ -333,16 +333,16 @@ void Mrm_lid_d::test()
 // #else
 // 		resolutionSet(0xFF, 16);
 // #endif
-// 	robotContainer->delayMs(1000); // Time needed for sensor to restart after resolution set.
+// 	delay(1000); // Time needed for sensor to restart after resolution set.
 // }
 	if (millis() - lastMs > 1000) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device device: devices) {
+			if (device.alive) {
 #if MRM_LID_H_TEST_MULTI
-				for (int8_t y = ((*_resolution)[deviceNumber] == 64 ? 7 : 3); y >= 0; y--){
-					for (uint8_t x = 0; x < ((*_resolution)[deviceNumber] == 64 ? 8 : 4); x++)
-						print("%4i ", dot(deviceNumber, x, y));
+				for (int8_t y = ((*_resolution)[device.number] == 64 ? 7 : 3); y >= 0; y--){
+					for (uint8_t x = 0; x < ((*_resolution)[device.number] == 64 ? 8 : 4); x++)
+						print("%4i ", dot(device.number, x, y));
 					print("\n\r");
 				}
 #endif

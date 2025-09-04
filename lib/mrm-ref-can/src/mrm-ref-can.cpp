@@ -224,15 +224,15 @@ void Mrm_ref_can::calibrationDataRequest(uint8_t deviceNumber, bool waitForResul
 /** Print all calibration in a line
 */
 void Mrm_ref_can::calibrationPrint() {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
+	for (Device device: devices)
+		if (device.alive) {
 			print("Calibration for %s.\n\r", name().c_str());
 			print("Dark: ");
 			for (uint8_t irNo = 0; irNo < MRM_REF_CAN_SENSOR_COUNT; irNo++)
-				print(" %3i", calibrationDataGet(irNo, true, deviceNumber));
+				print(" %3i", calibrationDataGet(irNo, true, device.number));
 			print("\n\rBright: ");
 			for (uint8_t irNo = 0; irNo < MRM_REF_CAN_SENSOR_COUNT; irNo++)
-				print(" %3i", calibrationDataGet(irNo, false, deviceNumber));
+				print(" %3i", calibrationDataGet(irNo, false, device.number));
 			print("\n\r");
 		}
 }
@@ -497,10 +497,10 @@ uint16_t Mrm_ref_can::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumb
 */
 void Mrm_ref_can::readingsPrint() {
 	print("Refl:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		for (uint8_t irNo = 0; irNo < min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); irNo++)
-			if (aliveWithOptionalScan(&devices[deviceNumber]))
-				print("%3i ", reading(irNo, deviceNumber));
+	for (Device device: devices) {
+		for (uint8_t irNo = 0; irNo < std::min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[device.number]); irNo++)
+			if (device.alive)
+				print("%3i ", reading(irNo, device.number));
 	}
 }
 
@@ -533,23 +533,23 @@ void Mrm_ref_can::test(bool analog)
 		cnt = 0;
 	cnt++;
 #endif
-	if (millis() - lastMs > 300) {
+	if (millis() - lastMs > 300) {//300
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device device: devices) {
+			if (device.alive) {
 				if (pass++)
 					print("| ");
-				for (uint8_t i = 0; i < std::min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); i++){
-					print(analog ? "%3i " : "%i", analog ? reading(i, deviceNumber) : dark(i, deviceNumber));
+				for (uint8_t i = 0; i < std::min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[device.number]); i++){
+					print(analog ? "%3i " : "%i", analog ? reading(i, device.number) : dark(i, device.number));
 #if TEST_REF_CAN_FOR_0
-					if (reading(i, deviceNumber) == 0 && cnt > 10){ // At startup some zero, that's ok
+					if (reading(i, device.number) == 0 && cnt > 10){ // At startup some zero, that's ok
 
 						robotContainer->end();
 					}
 #endif
 				}
 				if (!analog)
-					print(" c:%i", center(deviceNumber, (*_mode)[deviceNumber] == DIGITAL_AND_DARK_CENTER));
+					print(" c:%i", center(device.number, (*_mode)[device.number] == DIGITAL_AND_DARK_CENTER));
 
 			}
 			delay(1);

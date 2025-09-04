@@ -160,27 +160,27 @@ uint16_t Mrm_node::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber)
 */
 void Mrm_node::readingsPrint() {
 	print("Ref. array:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
+	for (Device device: devices){
 		for (uint8_t irNo = 0; irNo < MRM_NODE_ANALOG_COUNT; irNo++)
-			print(" %3i", (*readings)[deviceNumber][irNo]);
+			print(" %3i", (*readings)[device.number][irNo]);
 	}
 }
 
 /** Test servos
 */
 void Mrm_node::servoTest() {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 
 	if (millis() - lastMs > 100) {
 		for (uint8_t deg = 0; deg <= 180; deg += 5) {
-			for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-				if (aliveWithOptionalScan(&devices[deviceNumber])) {
+			for (Device device: devices) {
+				if (device.alive) {
 					for (uint8_t servoNumber = 0; servoNumber < MRM_NODE_SERVO_COUNT; servoNumber++)
-						servoWrite(servoNumber, deg, deviceNumber);
+						servoWrite(servoNumber, deg, device.number);
 				}
 			}
 			print("%i deg.\n\r", deg);
-			robotContainer->delayMs(100);
+			delay(100);
 		}
 		lastMs = millis();
 	}
@@ -251,20 +251,20 @@ bool Mrm_node::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
 */
 void Mrm_node::test()
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device device: devices) {
+			if (device.alive) {
 				if (pass++)
 					print("| ");
 				print("An:");
 				for (uint8_t i = 0; i < MRM_NODE_ANALOG_COUNT; i++)
-					print("%i ", (*readings)[deviceNumber][i]);
+					print("%i ", (*readings)[device.number][i]);
 				print("Di:");
 				for (uint8_t i = 0; i < MRM_NODE_SWITCHES_COUNT; i++)
-					print("%i ", (*switches)[deviceNumber][i]);
+					print("%i ", (*switches)[device.number][i]);
 			}
 		}
 		lastMs = millis();

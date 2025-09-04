@@ -409,9 +409,9 @@ void Mrm_col_b::patternErase(Device * device) {
 /** Print HSV patterns
 */
 void Mrm_col_b::patternPrint() {
-	for (uint8_t deviceNumber = 0; deviceNumber < count(); deviceNumber++) {
+	for (Device device: devices){
 		canData[0] = MRM_COL_B_PATTERN_REQUEST;
-		messageSend(canData, 1, deviceNumber);
+		messageSend(canData, 1, device.number);
 	}
 }
 

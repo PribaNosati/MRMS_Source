@@ -110,8 +110,8 @@ uint16_t Mrm_us1::reading(uint8_t deviceNumber) {
 */
 void Mrm_us1::readingsPrint() {
 	print("US:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
-			print(" %3i", (*readings)[deviceNumber]);
+	for (Device device: devices)
+			print(" %3i", (*readings)[device.number]);
 }
 
 /** If sensor not started, start it and wait for 1. message
@@ -144,15 +144,15 @@ bool Mrm_us1::started(uint8_t deviceNumber) {
 */
 void Mrm_us1::test()
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device device: devices) {
+			if (device.alive) {
 				if (pass++)
 					print("| ");
-				print("%i ", reading(deviceNumber));
+				print("%i ", reading(device.number));
 			}
 		}
 		lastMs = millis();

@@ -998,16 +998,16 @@ void Robot::devicesScan(){
 /** Starts devices' CAN Bus messages broadcasting.
 */
 void Robot::devicesStart(uint8_t measuringMode) {
-	for (uint8_t deviceNumber = 0; deviceNumber < _boardNextFree; deviceNumber++)
-		board[deviceNumber]->start(nullptr, measuringMode);
+	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree; boardNumber++)
+		board[boardNumber]->start(nullptr, measuringMode);
 }
 
 /** Stops broadcasting of CAN Bus messages
 */
 void Robot::devicesStop() {
-	for (uint8_t deviceNumber = 0; deviceNumber < _boardNextFree; deviceNumber++) {
-		board[deviceNumber]->stop();
-		delayMs(1); // TODO
+	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree; boardNumber++) {
+		board[boardNumber]->stop();
+		delayMicroseconds(100);
 	}
 }
 

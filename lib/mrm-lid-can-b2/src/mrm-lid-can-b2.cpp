@@ -251,9 +251,9 @@ uint16_t Mrm_lid_can_b2::reading(uint8_t receiverNumberInSensor, uint8_t deviceN
 */
 void Mrm_lid_can_b2::readingsPrint() {
 	print("Lid4m:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (aliveWithOptionalScan(&devices[deviceNumber]))
-			print(" %4i", distance(deviceNumber));
+	for (Device device: devices)
+		if (device.alive)
+			print(" %4i", distance(device.number));
 }
 
 /** ROI, region of interest, a matrix from 4x4 up to 16x16 (x, y). Smaller x and y - smaller view angle. Stored in sensors non-volatile memory.
@@ -307,15 +307,14 @@ bool Mrm_lid_can_b2::started(Device& device) {
 */
 void Mrm_lid_can_b2::test(uint16_t betweenTestsMs)
 {
-	static uint32_t lastMs = 0;
-
-	if (millis() - lastMs > 300) {
+	static uint64_t lastMs = 0;
+	if (millis() - lastMs > (betweenTestsMs == 0 ? 300 : betweenTestsMs)) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
+		for (Device device: devices){
+			if (device.alive) {
 				if (pass++)
 					print(" ");
-				print("%i ", distance(deviceNumber));
+				print("%i ", distance(device.number));
 			}
 		}
 		lastMs = millis();

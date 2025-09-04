@@ -20,13 +20,13 @@ Mrm_switch::~Mrm_switch()
 
 
 ActionBase* Mrm_switch::actionCheck() {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
+	for (Device device: devices) {
 		for (uint8_t switchNumber = 0; switchNumber < MRM_SWITCHES_COUNT; switchNumber++)
-			if ((*lastOn)[deviceNumber][switchNumber] == false && read(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL) {
-				((*lastOn)[deviceNumber][switchNumber]) = true;
-				return (*offOnAction)[deviceNumber][switchNumber];
-			} else if ((*lastOn)[deviceNumber][switchNumber] == true && !read(switchNumber, deviceNumber))
-				((*lastOn)[deviceNumber][switchNumber]) = false;
+			if ((*lastOn)[device.number][switchNumber] == false && read(switchNumber, device.number) && (*offOnAction)[device.number][switchNumber] != NULL) {
+				((*lastOn)[device.number][switchNumber]) = true;
+				return (*offOnAction)[device.number][switchNumber];
+			} else if ((*lastOn)[device.number][switchNumber] == true && !read(switchNumber, device.number))
+				((*lastOn)[device.number][switchNumber]) = false;
 	}
 	return NULL;
 }
@@ -76,15 +76,15 @@ bool Mrm_switch::read(uint8_t switchNumber, uint8_t deviceNumber) {
 */
 void Mrm_switch::test()
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 
 	if (millis() - lastMs > 300) {
-		// uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			//if (alive(deviceNumber)) {
+//		uint8_t pass = 0;
+		for (Device device: devices){
+			//if (alive(&devices[deviceNumber])) {
 				print("Sw:");
 				for (uint8_t i = 0; i < MRM_SWITCHES_COUNT; i++)
-					print("%i ", read(deviceNumber, i));
+					print("%i ", read(device.number, i));
 			//}
 		}
 		lastMs = millis();

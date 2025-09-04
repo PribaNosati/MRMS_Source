@@ -269,13 +269,13 @@ bool Mrm_ir_finder3::singleStarted(Device& device) {
 */
 void Mrm_ir_finder3::testCalculated()
 {
-	static uint32_t lastMs = 0;
+	static uint64_t lastMs = 0;
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) 
-				print("%s: %i deg., dist: %i\n\r", (*_near)[deviceNumber] ? "Near" : "Far",
-				angle(), distance());
+		for (Device device: devices) {
+			if (device.alive)
+				print("%s: %i deg., dist: %i\n\r", (*_near)[device.number] ? "Near" : "Far",
+                    angle(), distance());
 		}
 		lastMs = millis();
 		if (pass)
