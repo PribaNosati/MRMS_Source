@@ -407,7 +407,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 	@param betweenTestsMs - time in ms between 2 tests. 0 - default.
 	*/
-	void test(uint8_t deviceNumber = 0xFF, uint16_t betweenTestsMs = 0);
+	void test(uint16_t betweenTestsMs = 0);
 };
 
 
@@ -430,7 +430,7 @@ public:
 	/** Starts periodical CANBus messages that will be refreshing values that mirror sensor's calculated values
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void continuousReadingCalculatedDataStart(uint8_t deviceNumber = 0xFF);
+	void continuousReadingCalculatedDataStart(Device* device);
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id

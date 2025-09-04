@@ -665,8 +665,8 @@ bool MotorBoard::started(Device device) {
 /** Stop all motors
 */
 void MotorBoard::stop() {
-	for (uint8_t i = 0; i < nextFree; i++) {
-		speedSet(i, 0);
+	for(Device& device : devices) {
+		speedSet(device.number, 0);
 		delayMicroseconds(200);
 	}
 }
@@ -675,7 +675,7 @@ void MotorBoard::stop() {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 @param betweenTestsMs - time in ms between 2 tests. 0 - default.
 */
-void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
+void MotorBoard::test(uint16_t betweenTestsMs)
 {
 	const uint16_t PAUSE_MS = 20;
 	const uint16_t DISPLAY_PAUSE_MS = 300;
@@ -711,22 +711,22 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 	bool encodersStarted[4] = { false, false, false, false };
 	uint32_t lastMs = 0;
 	while (goOn) {
-		for (uint8_t motorNumber = 0; motorNumber < nextFree && goOn; motorNumber++) {
+		for (Device& dev : devices) {
 
-			if ((selectedMotor != 0xFFFF && motorNumber != selectedMotor) || !aliveWithOptionalScan(&devices[motorNumber]))
+			if ((selectedMotor != 0xFFFF && dev.number != selectedMotor) || !dev.alive)
 				continue;
 
-			if (!encodersStarted[motorNumber]) {
-				encodersStarted[motorNumber] = true;
+			if (!encodersStarted[dev.number]) {
+				encodersStarted[dev.number] = true;
 				canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS;
-				messageSend(canData, 1, motorNumber);
+				messageSend(canData, 1, dev.number);
 			}
 
 			if (fixedSpeed) {
-				speedSet(motorNumber, selectedSpeed);
+				speedSet(dev.number, selectedSpeed);
 				if (robotContainer->userBreak())
 					goOn = false;
-				robotContainer->delayMs(PAUSE_MS);
+				delay(PAUSE_MS);
 				continue;
 			}
 
@@ -738,26 +738,26 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 				if (robotContainer->userBreak())
 					goOn = false;
 
-				speedSet(motorNumber, speed);
+				speedSet(dev.number, speed);
 
 				if (millis() - lastMs > DISPLAY_PAUSE_MS) {
-					print("Mot. %i:%3i, en: %i\n\r", motorNumber, speed, (*encoderCount)[motorNumber]);
+					print("Mot. %i:%3i, en: %i\n\r", dev.number, speed, (*encoderCount)[dev.number]);
 					lastMs = millis();
 				}
 				robotContainer->delayMs(PAUSE_MS);
 			}
 
-			speedSet(motorNumber, 0);
+			speedSet(dev.number, 0);
 		}
 	}
 
 	// Stop all motors
-	for (uint8_t motorNumber = 0; motorNumber < nextFree; motorNumber++) {
-		// speedSet(motorNumber, 0);
+	for (Device& dev : devices) {
+		speedSet(dev.number, 0);
 
-		if (encodersStarted[motorNumber]) {
+		if (encodersStarted[dev.number]) {
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
-			messageSend(canData, 1, motorNumber);
+			messageSend(canData, 1, dev.number);
 		}
 	}
 }
@@ -782,20 +782,19 @@ SensorBoard::SensorBoard(Robot* robot, uint8_t devicesOnABoard, const char board
 /** Starts periodical CANBus messages that will be refreshing values that mirror sensor's calculated values
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void SensorBoard::continuousReadingCalculatedDataStart(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
+void SensorBoard::continuousReadingCalculatedDataStart(Device* device) {
+	if (device == nullptr)
 		for (uint8_t i = 0; i < nextFree; i++)
-			continuousReadingCalculatedDataStart(i);
+			continuousReadingCalculatedDataStart(&devices[i]);
 	else {
-		if (aliveWithOptionalScan(&devices[deviceNumber])) {
-			//print("Alive, start reading: %s\n\r", name(deviceNumber));
+		if (device->alive) {
+			// print("Alive, start reading: %s\n\r", name(deviceNumber));
 #if REQUEST_NOTIFICATION // todo
 			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);
 #else
 			canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS_AND_RETURN_CALCULATED_DATA;
-			messageSend(canData, 1, deviceNumber);
-			//robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
-			//print("Sent to 0x%x\n\r, ", devices[deviceNumber].canIdIn);
+			messageSend(canData, 1, device->number);
+			//print("Sent to 0x%x\n\r, ", (*idIn)[deviceNumber]);
 #endif
 		}
 	}
