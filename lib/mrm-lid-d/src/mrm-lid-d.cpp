@@ -123,7 +123,7 @@ uint16_t Mrm_lid_d::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t 
 				while ((*readings)[deviceNumber][0] == 0){
 					robotContainer->noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
-						robotContainer->errors->add(idGet(deviceNumber, false), ERROR_TIMEOUT, false);
+						robotContainer->errors->add(devices[deviceNumber].canIdIn, ERROR_TIMEOUT, false);
 						break;
 					}
 				}

@@ -227,13 +227,6 @@ void Board::firmwareRequest(Device * device) {
 	}
 }
 
-/** Frames Per Second
-@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
-@return - FPS
-*/
-uint16_t Board::fps(uint8_t deviceNumber) {
-	return devices[deviceNumber].fpsLast;
-}
 
 /** Display FPS for all devices
 */
@@ -243,7 +236,7 @@ void Board::fpsDisplay() {
 			if (devices[deviceNumber].fpsLast == 0xFFFF)
 				print("%s: no response\n\r", devices[deviceNumber].name.c_str());
 			else
-				print("%s: %i FPS\n\r", devices[deviceNumber].name.c_str(), fps(deviceNumber));
+				print("%s: %i FPS\n\r", devices[deviceNumber].name.c_str(), devices[deviceNumber].fpsLast);
 		}
 	}
 }
@@ -275,16 +268,6 @@ void Board::idChange(uint16_t newDeviceNumber, uint8_t deviceNumber) {
 	messageSend(canData, 2, deviceNumber);
 }
 
-uint16_t Board::idGet(uint8_t deviceNumber, bool isOut) {
-	if (deviceNumber >= devices.size()){
-		print("Board index out of bounds.");
-		exit(22);
-	}
-	if (isOut)
-		return devices[deviceNumber].canIdOut;
-	else
-		return devices[deviceNumber].canIdIn;
-}
 
 /** Request information
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.

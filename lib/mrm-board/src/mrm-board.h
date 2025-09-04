@@ -215,12 +215,6 @@ public:
 	*/
 	void firmwareRequest(Device * device = nullptr);
 
-	/** Frames Per Second
-	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - FPS
-	*/
-	uint16_t fps(uint8_t deviceNumber = 0);
-
 	/** Display FPS for all devices
 	*/
 	void fpsDisplay();
@@ -239,8 +233,6 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
 	void idChange(uint16_t newDeviceNumber, uint8_t deviceNumber = 0);
-
-	uint16_t idGet(uint8_t deviceNumber, bool isOut);
 	
 	/** Request information
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.

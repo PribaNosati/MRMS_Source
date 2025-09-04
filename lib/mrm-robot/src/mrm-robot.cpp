@@ -747,7 +747,7 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 					print("DLC: %i\n\r", (int)message[found].dlc);
 				ok = false;
 			}
-			if (message[found].id != mrm_8x8a->idGet(0, true)){
+			if (message[found].id != mrm_8x8a->devices[0].canIdOut, true){
 				if (verbose)
 					print("Return id: 0xFF<>0x%02X\n\r", (int)message[found].id);
 				ok = false;
