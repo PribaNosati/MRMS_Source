@@ -371,7 +371,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 @return - if true, found and printed
 */
 void Board::messagePrint(CANMessage message, bool outbound) {
-	robotContainer->messagePrint(&message, this, 0xFF, outbound);
+	messagePrintParent(message, this, 0xFF, outbound, false, "");
 }
 
 /** Send CAN Bus message

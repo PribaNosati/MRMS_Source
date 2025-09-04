@@ -523,8 +523,10 @@ void Robot::add(Board* aBoard) {
 	aBoard->userBreak = [this](){return this->userBreak();};
 	aBoard->setup = [this](){return this->setup();};
 	aBoard->end = [this](){this->end();};
-	// aBoard->messagePrint = [this] (CANMessage message, bool outbound) {messagePrint(message, outbound);};
-	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){};
+	aBoard->messagePrintParent = [this] (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) 
+		{messagePrint(message, board, deviceNumber, outbound, clientInitiated, postfix);};
+	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message, deviceNumber);};
+
 
 	_boardNextFree++;
 }

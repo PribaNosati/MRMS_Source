@@ -148,7 +148,7 @@ public:
 	std::function<bool ()> userBreak;
 	std::function<bool ()> setup;
 	std::function<void()> end;
-	// std::function<void (CANMessage message, bool outbound)> messagePrint;
+	std::function<void (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix)> messagePrintParent;
 	std::function<void (CANMessage message, uint8_t deviceNumber)> messageSendParent;
 	
 	/**
