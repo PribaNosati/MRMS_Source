@@ -827,7 +827,7 @@ std::string Mrm_8x8a::commandName(uint8_t byte){
 */
 bool Mrm_8x8a::messageDecode(CANMessage message) {
 	for (Device& device : devices)
-		if (isForMe(message.id, device.number)) {
+		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_8X8_SWITCH_ON:
@@ -971,10 +971,10 @@ bool Mrm_8x8a::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
 */
 void Mrm_8x8a::test()
 {
-#define MRM_8x8A_START_BITMAP_1 0x01
-#define MRM_8x8A_END_BITMAP_1 0x04
-#define MRM_8x8A_START_BITMAP_2 0x30
-#define MRM_8x8A_END_BITMAP_2 0x5A
+	#define MRM_8x8A_START_BITMAP_1 0x01
+	#define MRM_8x8A_END_BITMAP_1 0x04
+	#define MRM_8x8A_START_BITMAP_2 0x30
+	#define MRM_8x8A_END_BITMAP_2 0x5A
 	static uint32_t lastMs = 0;
 	static uint8_t bitmapId = MRM_8x8A_START_BITMAP_1;
 
@@ -988,14 +988,14 @@ void Mrm_8x8a::test()
 		uint8_t pass = 0;
 
 		// Built-in bitmap
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (aliveWithOptionalScan(&devices[deviceNumber])) {
-				bitmapDisplay(bitmapId, deviceNumber);
+		for (Device& device: devices){
+			if (device.alive) {
+				bitmapDisplay(bitmapId, device.number);
 				if (pass++)
 					print("| ");
 				print("Map 0x%02x, sw:", bitmapId);
 				for (uint8_t i = 0; i < MRM_8x8A_SWITCHES_COUNT; i++)
-					print("%i ", switchRead(i, deviceNumber));
+					print("%i ", switchRead(i, device.number));
 			}
 		}
 		bitmapId++;

@@ -70,7 +70,7 @@ void Mrm_therm_b_can::add(char * deviceName)
 */
 bool Mrm_therm_b_can::messageDecode(CANMessage message) {
 	for (Device& device : devices)
-		if (isForMe(message.id, device.number)) {
+		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {

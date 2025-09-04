@@ -65,9 +65,9 @@ void Mrm_ir_finder_can::add(char * deviceName)
 @param length - number of data bytes
 */
 bool Mrm_ir_finder_can::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device& device : devices)
+		if (isForMe(message.id, device)) {
+			if (!messageDecodeCommon(message, device)) {
 				bool any = false;
 				uint8_t startIndex = 0;
 				switch (message.data[0]) {
@@ -92,7 +92,7 @@ bool Mrm_ir_finder_can::messageDecode(CANMessage message) {
 					distance = message.data[3] << 8 | message.data[4];
 					break;
 				default:
-					robotContainer->print("Unknown command. ");
+					print("Unknown command. ");
 					messagePrint(message, false);
 					robotContainer->errors->add(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}

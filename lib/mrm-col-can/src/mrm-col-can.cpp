@@ -284,7 +284,7 @@ void Mrm_col_can::integrationTime(uint8_t deviceNumber, uint8_t value) {
 */
 bool Mrm_col_can::messageDecode(CANMessage message) {
 for (Device& device : devices)
-		if (isForMe(message.id, device.number)) {
+		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {
 //				bool any = false;
 //				uint8_t startIndex = 0;

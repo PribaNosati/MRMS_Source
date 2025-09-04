@@ -71,7 +71,7 @@ void Mrm_us::add(char * deviceName)
 */
 bool Mrm_us::messageDecode(CANMessage message) {
 	for (Device& device : devices)
-		if (isForMe(message.id, device.number)) {
+		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 					case COMMAND_SENSORS_MEASURE_SENDING:

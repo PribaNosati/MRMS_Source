@@ -164,20 +164,8 @@ public:
 	@return - alive or not
 	*/
 	bool aliveWithOptionalScan(Device* device = NULL, bool checkAgainIfDead = false);
-	
+
 	uint8_t aliveCount();
-
-	/** Get aliveness
-	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return alive or not
-	*/
-	bool aliveGet(uint8_t deviceNumber = 0);
-
-	/** Get aliveness at least once after power-on
-	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return alive or not
-	*/
-	bool aliveOnceGet(uint8_t deviceNumber);
 
 	/** Set aliveness
 	@param yesOrNo
@@ -264,14 +252,14 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - if true, it is
 	*/
-	bool isForMe(uint32_t canIdOut, uint8_t deviceNumber);
+	bool isForMe(uint32_t canId, Device& device);
 
 	/** Does the frame originate from this device's Arduino object?
 	@param canIdOut - CAN Bus id.
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the deviceNumber, starting with 0.
 	@return - if true, it does
 	*/
-	bool isFromMe(uint32_t canIdOut, uint8_t deviceNumber);
+	bool isFromMe(uint32_t canId, Device& device);
 
 	/** Last message received
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

@@ -116,23 +116,6 @@ uint8_t Board::aliveCount(){
 	return count;
 }
 
-/** Get aliveness
-@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-@return alive or not
-*/
-bool Board::aliveGet(uint8_t deviceNumber){
-	return devices[deviceNumber].alive;
-}
-
-/** Get aliveness at least once after power-on
-@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-@return alive or not
-*/
-bool Board::aliveOnceGet(uint8_t deviceNumber){
-	return devices[deviceNumber].aliveOnce;
-}
-
-
 
 /** Set aliveness
 @param yesOrNo
@@ -145,10 +128,6 @@ void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 			device.alive = yesOrNo;
 	}
 	else{
-		if (deviceNumber > 31) {
-			sprintf(errorMessage, "%s: device number too big: %i", name().c_str(), deviceNumber);
-			return;
-		}
 		devices[deviceNumber].alive = yesOrNo;
 		if (yesOrNo)
 			devices[deviceNumber].aliveOnce = true;
@@ -211,9 +190,9 @@ Device* Board::deviceGet(uint8_t deviceNumber){
 
 
 uint8_t Board::deviceNumber(uint16_t msgId){
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(msgId, deviceNumber) || isFromMe(msgId, deviceNumber)) 
-			return deviceNumber;
+	for(auto device: devices)
+		if (isForMe(msgId, device) || isFromMe(msgId, device)) 
+			return device.number;
 	return 0xFF;
 }
 
@@ -222,15 +201,14 @@ uint8_t Board::deviceNumber(uint16_t msgId){
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 */
 void Board::devicesScan(bool verbose, uint16_t mask) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if (((mask >> deviceNumber) & 1) && !aliveGet(deviceNumber)) { // If in the list requested to be scanned.
+	for (Device& device: devices) {
+		if (((mask >> device.number) & 1) && !device.alive) { // If in the list requested to be scanned.
 			canData[0] = COMMAND_REPORT_ALIVE;
-			messageSend(canData, 1, deviceNumber);
-			robotContainer->delayMicros(id() == BoardId::ID_MRM_8x8A ? PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS * 3 :  PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive. 
+			messageSend(canData, 1, device.number);
+			delayMicroseconds(id() == BoardId::ID_MRM_8x8A ? PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS * 3 :  PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive.
+			delay(5);
 		}
 	}
-	//print("%s OVER\n\r", nameGroup);
-	// return count();
 }
 
 /** Request firmware version
@@ -328,12 +306,9 @@ void Board::info(uint8_t deviceNumber) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the deviceNumber, starting with 0.
 @return - if true, it is
 */
-bool Board::isForMe(uint32_t canIdOut, uint8_t deviceNumber) {
-	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s: board doesn't exist: %i", name().c_str(), deviceNumber);
-		return false;
-	}
-	return canIdOut == devices[deviceNumber].canIdOut;
+bool Board::isForMe(uint32_t canId, Device& device) {
+
+	return canId == device.canIdOut;
 }
 
 /** Does the frame originate from this device's Arduino object?
@@ -341,12 +316,9 @@ bool Board::isForMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the deviceNumber, starting with 0.
 @return - if true, it does
 */
-bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
-	if (deviceNumber >= nextFree) {
-		sprintf(errorMessage, "%s: board doesn't exist: %i", name().c_str(), deviceNumber);
-		return false;
-	}
-	return canIdOut == devices[deviceNumber].canIdIn;
+bool Board::isFromMe(uint32_t canId, Device& device) {
+
+	return canId == device.canIdIn;
 }
 
 /** Common part of message decoding
@@ -598,7 +570,7 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 */
 bool MotorBoard::messageDecode(CANMessage message) {
 	for (Device& device : devices)
-		if (isForMe(message.id, device.number)) {
+		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
