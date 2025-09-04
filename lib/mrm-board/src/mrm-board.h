@@ -137,7 +137,7 @@ protected:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - command found
 	*/
-	bool messageDecodeCommon(CANMessage message, uint8_t deviceNumber = 0);
+	bool messageDecodeCommon(CANMessage message, Device& device);
 
 public:
 

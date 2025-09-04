@@ -114,9 +114,9 @@ void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 @return - true if canId for this class
 */
 bool Mrm_fet_can::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)){
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				default:
 					print("Unknown command. ");

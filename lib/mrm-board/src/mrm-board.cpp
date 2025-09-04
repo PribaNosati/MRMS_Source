@@ -363,8 +363,8 @@ bool Board::isFromMe(uint32_t canIdOut, uint8_t deviceNumber) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - command found
 */
-bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
-	devices[deviceNumber].lastMessageReceivedMs = millis();
+bool Board::messageDecodeCommon(CANMessage message, Device& device) {
+	device.lastMessageReceivedMs = millis();
 	bool found = true;
 	uint8_t command = message.data[0];
 	switch (command) {
@@ -373,15 +373,15 @@ bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 		break;
 	case COMMAND_ERROR:
 		robotContainer->errors->add(message.id, message.data[1], true);
-		print("Error %i in %s.\n\r", message.data[1], devices[deviceNumber].name.c_str());
+		print("Error %i in %s.\n\r", message.data[1], device.name.c_str());
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
 		uint16_t firmwareVersion = (message.data[2] << 8) | message.data[1];
-		print("%s: ver. %i \n\r", devices[deviceNumber].name.c_str(), firmwareVersion);
+		print("%s: ver. %i \n\r", device.name.c_str(), firmwareVersion);
 	}
 		break;
 	case COMMAND_FPS_SENDING:
-		devices[deviceNumber].fpsLast = (message.data[2] << 8) | message.data[1];
+		device.fpsLast = (message.data[2] << 8) | message.data[1];
 		break;
 	case COMMAND_MESSAGE_SENDING_1:
 		for (uint8_t i = 0; i < 7; i++)
@@ -398,16 +398,16 @@ bool Board::messageDecodeCommon(CANMessage message, uint8_t deviceNumber) {
 	case COMMAND_MESSAGE_SENDING_4:
 		for (uint8_t i = 0; i < 7; i++)
 			_message[21 + i] = message.data[i + 1];
-		print("Message from %s: %s\n\r", devices[deviceNumber].name.c_str(), _message);
+		print("Message from %s: %s\n\r", device.name.c_str(), _message);
 		break;
 	case COMMAND_NOTIFICATION:
 	case COMMAND_CAN_TEST:
 		break;
 	case COMMAND_REPORT_ALIVE:
-		if (!aliveGet(deviceNumber)) {
+		if (!device.alive) {
 			if (_aliveReport)
-				print("%s alive.\n\r", deviceName(deviceNumber).c_str());
-			aliveSet(true, deviceNumber);
+				print("%s alive.\n\r", device.name.c_str());
+			device.alive = true;
 		}
 		break;
 	default:
@@ -609,14 +609,14 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 @return - true if canId for this class
 */
 bool MotorBoard::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint32_t enc = (message.data[4] << 24) | (message.data[3] << 16) | (message.data[2] << 8) | message.data[1];
-					(*encoderCount)[deviceNumber] = enc;
-					devices[deviceNumber].lastReadingsMs = millis();
+					(*encoderCount)[device.number] = enc;
+					device.lastReadingsMs = millis();
 					break;
 				}
 				default:

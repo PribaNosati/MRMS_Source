@@ -67,15 +67,15 @@ void Mrm_us1::add(char * deviceName)
 @param length - number of data bytes
 */
 bool Mrm_us1::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 					case COMMAND_SENSORS_MEASURE_SENDING:
 					{
 						uint16_t mm = (message.data[2] << 8) | message.data[1];
-						(*readings)[deviceNumber] = mm;
-						devices[deviceNumber].lastReadingsMs = millis();
+						(*readings)[device.number] = mm;
+						device.lastReadingsMs = millis();
 					}
 					break;
 				// }

@@ -207,22 +207,22 @@ void Mrm_lid_d::frequencySet(uint8_t deviceNumber, uint8_t frequency){
 @return - true if canId for this class
 */
 bool Mrm_lid_d::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)){
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint8_t startIndex = message.data[1];
 					for (uint8_t j = 2; j < 7; j+=2){
 						uint16_t mm = (message.data[j+1] << 8) | message.data[j];
-						(*readings)[deviceNumber][startIndex++] = mm;
+						(*readings)[device.number][startIndex++] = mm;
 						// print("Distance for %i: %i mm (%i %i)\n\r", startIndex-1, mm, message.data[j], message.data[j+1]);
 					}
-					devices[deviceNumber].lastReadingsMs = millis();
+					device.lastReadingsMs = millis();
 				}
 				break;
 				case COMMAND_INFO_SENDING_1:
-					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", deviceName(deviceNumber), message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
+					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", deviceName(device.number), message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
 						message.data[4] & 0xFF, message.data[5] & 0xFF, message.data[6] | (message.data[7] << 8));
 					break;
 				default:

@@ -141,9 +141,9 @@ uint16_t Mrm_ir_finder3::distance(uint8_t deviceNumber) {
 */
 bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 	// Todo: a problem: one message can be for short range sensors, the other for long. A mixed data will be the result.
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
+		for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				bool any = false;
 				uint8_t startIndex = 0;
 				uint8_t length = 7;
@@ -154,15 +154,15 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 				case COMMAND_IR_FINDER3_SENDING_SENSORS_8_TO_12:
 					startIndex = 7;
 					length = 5;
-					(*_near)[deviceNumber] = message.data[6];
-					devices[deviceNumber].lastReadingsMs = millis();
+					(*_near)[device.number] = message.data[6];
+					device.lastReadingsMs = millis();
 					any = true;
 					break;
 				case COMMAND_SENSORS_MEASURE_CALCULATED_SENDING:
-					(*_angle)[deviceNumber] = ((message.data[1] << 8) | message.data[2]) - 180;
-					(*_distance)[deviceNumber] = (message.data[3] << 8) | message.data[4];
-					(*_near)[deviceNumber] = message.data[5];
-					devices[deviceNumber].lastReadingsMs = millis();
+					(*_angle)[device.number] = ((message.data[1] << 8) | message.data[2]) - 180;
+					(*_distance)[device.number] = (message.data[3] << 8) | message.data[4];
+					(*_near)[device.number] = message.data[5];
+					device.lastReadingsMs = millis();
 					break;
 				default:
 					print("Unknown command. ");
@@ -172,7 +172,7 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 
 				if (any)
 					for (uint8_t i = 0; i < length; i++)
-						(*readings)[deviceNumber][startIndex + i] = message.data[i + 1];
+						(*readings)[device.number][startIndex + i] = message.data[i + 1];
 			}
 			return true;
 		}

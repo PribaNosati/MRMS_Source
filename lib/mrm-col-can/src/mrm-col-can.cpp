@@ -283,45 +283,44 @@ void Mrm_col_can::integrationTime(uint8_t deviceNumber, uint8_t value) {
 @param length - number of data bytes
 */
 bool Mrm_col_can::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
-				// const uint8_t STEP = 1;
-				// bool any = false;
-				// uint8_t startIndex = 0;
+for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
+//				bool any = false;
+//				uint8_t startIndex = 0;
 				switch (message.data[0]) {
 				case CAN_COL_PATTERN_SENDING:
-					print("Sensor %i, pattern %i: %i/%i/%i (H/S/V)\n\r", deviceNumber, message.data[1], message.data[2], message.data[3], message.data[4]);
+					print("Sensor %i, pattern %i: %i/%i/%i (H/S/V)\n\r", device.number, message.data[1], message.data[2], message.data[3], message.data[4]);
 					break;
 				case COMMAND_SENSORS_MEASURE_SENDING:
-					// startIndex = 0;
-					// any = true;
+//					startIndex = 0;
+//					any = true;
 					break;
 				case CAN_COL_SENDING_COLORS_1_TO_3:
-					(*readings)[deviceNumber][0] = (message.data[1] << 8) | message.data[2]; // blue
-					(*readings)[deviceNumber][1] = (message.data[3] << 8) | message.data[4]; // green
-					(*readings)[deviceNumber][2] = (message.data[5] << 8) | message.data[6]; // orange
-					// any = true;
+					(*readings)[device.number][0] = (message.data[1] << 8) | message.data[2]; // blue
+					(*readings)[device.number][1] = (message.data[3] << 8) | message.data[4]; // green
+					(*readings)[device.number][2] = (message.data[5] << 8) | message.data[6]; // orange
+//					any = true;
 					break;
 				case CAN_COL_SENDING_COLORS_4_TO_6:
-					(*readings)[deviceNumber][3] = (message.data[1] << 8) | message.data[2]; // red
-					(*readings)[deviceNumber][4] = (message.data[3] << 8) | message.data[4]; // violet
-					(*readings)[deviceNumber][5] = (message.data[5] << 8) | message.data[6]; // yellow
-					(*_patternByHSV)[deviceNumber] = message.data[7] & 0xF;
-					(*_patternBy6Colors)[deviceNumber] = message.data[7] >> 4;
-					// any = true;
-					devices[deviceNumber].lastReadingsMs = millis();
-					//print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]); 
+					(*readings)[device.number][3] = (message.data[1] << 8) | message.data[2]; // red
+					(*readings)[device.number][4] = (message.data[3] << 8) | message.data[4]; // violet
+					(*readings)[device.number][5] = (message.data[5] << 8) | message.data[6]; // yellow
+					(*_patternByHSV)[device.number] = message.data[7] & 0xF;
+					(*_patternBy6Colors)[device.number] = message.data[7] >> 4;
+//					any = true;
+					device.lastReadingsMs = millis();
+					//robotContainer->print("RCV 6 col%i\n\r", (*_last6ColorsMs)[deviceNumber]);
 					break;
 				case CAN_COL_SENDING_HSV:
-					(*_hue)[deviceNumber] = (message.data[1] << 8) | message.data[2];
-					(*_saturation)[deviceNumber] = (message.data[3] << 8) | message.data[4];
-					(*_value)[deviceNumber] = (message.data[5] << 8) | message.data[6];
-					(*_patternByHSV)[deviceNumber] = message.data[7] & 0xF;
-					(*_patternBy6Colors)[deviceNumber] = message.data[7] >> 4;
-					(*_patternRecognizedAtMs)[deviceNumber] = millis();
-					devices[deviceNumber].lastReadingsMs = millis();
-					//print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]); 
+					(*_hue)[device.number] = (message.data[1] << 8) | message.data[2];
+					(*_saturation)[device.number] = (message.data[3] << 8) | message.data[4];
+					(*_value)[device.number] = (message.data[5] << 8) | message.data[6];
+					(*_patternByHSV)[device.number] = message.data[7] & 0xF;
+					(*_patternBy6Colors)[device.number] = message.data[7] >> 4;
+					(*_patternRecognizedAtMs)[device.number] = millis();
+					device.lastReadingsMs = millis();
+					//robotContainer->print("RCV HSV%i\n\r", (*_lastHSVMs)[deviceNumber]);
 					break;
 				default:
 					print("Unknown command. ");

@@ -826,24 +826,24 @@ std::string Mrm_8x8a::commandName(uint8_t byte){
 @return - true if canId for this class
 */
 bool Mrm_8x8a::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
-				switch (message.data[0]) { 
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
+				switch (message.data[0]) {
 				case COMMAND_8X8_SWITCH_ON:
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
 					uint8_t switchNumber = message.data[1] >> 1;
-					if (switchNumber > 4) {
-						sprintf(errorMessage, "No %s: %i.", _boardsName.c_str(), switchNumber);
+						if (switchNumber > 4) {
+							printf(errorMessage, "No %s: %i.", _boardsName.c_str(), switchNumber);
 							return false;
-					}
-					(*on)[deviceNumber][switchNumber] = message.data[1] & 1;
-					if (message.data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {
-						canData[0] = COMMAND_NOTIFICATION;
-						canData[1] = switchNumber; //todo - deviceNumber not taken into account
-						robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
-					}
-					devices[deviceNumber].lastReadingsMs = millis();
+						}
+					(*on)[device.number][switchNumber] = message.data[1] & 1;
+						if (message.data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {
+							canData[0] = COMMAND_NOTIFICATION;
+							canData[1] = switchNumber; //todo - deviceNumber not taken into account
+							messageSend(canData, 2, device.number);
+						}
+						device.lastReadingsMs = millis();
 				}
 					break;
 				case COMMAND_8x8_TEST_CAN_BUS:

@@ -197,14 +197,14 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 @return - true if canId for this class
 */
 bool Mrm_lid_can_b::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if (isForMe(message.id, deviceNumber)) {
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					uint16_t mm = (message.data[2] << 8) | message.data[1];
-					(*readings)[deviceNumber] = mm;
-					devices[deviceNumber].lastReadingsMs = millis();
+					(*readings)[device.number] = mm;
+					device.lastReadingsMs = millis();
 				}
 				break;
 				default:
@@ -215,7 +215,6 @@ bool Mrm_lid_can_b::messageDecode(CANMessage message) {
 			}
 			return true;
 		}
-	}
 	return false;
 }
 

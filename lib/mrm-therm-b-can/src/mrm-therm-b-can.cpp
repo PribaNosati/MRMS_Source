@@ -69,14 +69,14 @@ void Mrm_therm_b_can::add(char * deviceName)
 @return - true if canId for this class
 */
 bool Mrm_therm_b_can::messageDecode(CANMessage message) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(message.id, deviceNumber)){
-			if (!messageDecodeCommon(message, deviceNumber)) {
+	for(Device device : devices)
+		if (isForMe(message.id, device.number)) {
+			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
 					int16_t temp = (message.data[2] << 8) | message.data[1];
-					(*readings)[deviceNumber] = temp;
-					devices[deviceNumber].lastReadingsMs = millis();
+					(*readings)[device.number] = temp;
+					device.lastReadingsMs = millis();
 				}
 				break;
 				default:
