@@ -197,7 +197,7 @@ void Mrm_lid_can_b2::measurementTime(uint8_t deviceNumber, uint16_t ms) {
 @return - true if canId for this class
 */
 bool Mrm_lid_can_b2::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {

@@ -115,13 +115,11 @@ class Board{
 	enum BoardType{ANY_BOARD, MOTOR_BOARD, SENSOR_BOARD};
 
 protected:
-	uint32_t _alive; // Responded to ping, maximum 32 devices of the same class, stored bitwise. If bit set, that device was alive after power-on.
 	uint32_t _aliveOnce; // The device was alive at least once after power-on.
 	std::string _boardsName;
 	BoardType _boardType; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
 	static std::map<int, std::string>* commandNames;
-	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	BoardId _id;
 	uint8_t maximumNumberOfBoards;
@@ -141,7 +139,7 @@ protected:
 
 public:
 
-	bool _aliveReport = false;
+	std::vector<Device> devices; // List of devices on this board
 	
 	/**
 	@param robot - robot containing this board

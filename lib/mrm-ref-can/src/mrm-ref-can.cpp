@@ -353,7 +353,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 @return - target device found
 */
 bool Mrm_ref_can::messageDecode(CANMessage message) {
-for(Device device : devices)
+for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				bool anyReading = false;

@@ -826,7 +826,7 @@ std::string Mrm_8x8a::commandName(uint8_t byte){
 @return - true if canId for this class
 */
 bool Mrm_8x8a::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {

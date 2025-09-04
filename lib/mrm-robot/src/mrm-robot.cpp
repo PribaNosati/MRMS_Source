@@ -934,7 +934,7 @@ void Robot::deviceScan() {
 	print("%i\n\r", selectedDeviceIndex);
 
 	print("Scan %s\n\r", board[selectedBoardIndex]->deviceName(selectedDeviceIndex));
-	board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
+	// board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
 	uint8_t canData[8];
 	canData[0] = COMMAND_REPORT_ALIVE;
 	board[selectedBoardIndex]->messageSend(canData, 1, selectedDeviceIndex);
@@ -974,8 +974,14 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 	// Count alive
 	uint8_t count = 0;
 	for (uint8_t i = 0; i < _boardNextFree; i++)
-		if (boardType == Board::ANY_BOARD || board[i]->boardType() == boardType)
-			count += board[i]->aliveCount(); 
+		if (boardType == Board::BoardType::ANY_BOARD || board[i]->boardType() == boardType){
+			for(Device& device : board[i]->devices){
+				if(device.alive){
+					print("%s alive.\n\r", device.name.c_str());
+					count++;
+				}
+			}
+		}
 
 	if (verbose)
 		print("%i devices.\n\r", count);

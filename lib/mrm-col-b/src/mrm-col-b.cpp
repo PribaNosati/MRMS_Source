@@ -335,7 +335,7 @@ void Mrm_col_b::integrationTime(uint8_t deviceNumber, uint8_t time, uint16_t ste
 @param length - number of data bytes
 */
 bool Mrm_col_b::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {

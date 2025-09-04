@@ -67,7 +67,7 @@ void Mrm_us1::add(char * deviceName)
 @param length - number of data bytes
 */
 bool Mrm_us1::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {

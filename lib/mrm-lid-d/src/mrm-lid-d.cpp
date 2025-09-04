@@ -207,7 +207,7 @@ void Mrm_lid_d::frequencySet(uint8_t deviceNumber, uint8_t frequency){
 @return - true if canId for this class
 */
 bool Mrm_lid_d::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {

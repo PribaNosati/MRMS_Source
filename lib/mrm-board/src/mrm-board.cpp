@@ -229,7 +229,6 @@ uint8_t Board::deviceNumber(uint16_t msgId){
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 */
 void Board::devicesScan(bool verbose, uint16_t mask) {
-	_aliveReport = verbose; // If true, Board::messageDecodeCommon() will print board's name
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		if (((mask >> deviceNumber) & 1) && !aliveGet(deviceNumber)) { // If in the list requested to be scanned.
 			canData[0] = COMMAND_REPORT_ALIVE;
@@ -404,11 +403,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 	case COMMAND_CAN_TEST:
 		break;
 	case COMMAND_REPORT_ALIVE:
-		if (!device.alive) {
-			if (_aliveReport)
-				print("%s alive.\n\r", device.name.c_str());
-			device.alive = true;
-		}
+		device.alive = true;
 		break;
 	default:
 		found = false;
@@ -609,7 +604,7 @@ void MotorBoard::directionChange(uint8_t deviceNumber) {
 @return - true if canId for this class
 */
 bool MotorBoard::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				switch (message.data[0]) {

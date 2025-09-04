@@ -95,7 +95,7 @@ std::string Mrm_node::commandName(uint8_t byte){
 @param length - number of data bytes
 */
 bool Mrm_node::messageDecode(CANMessage message) {
-	for(Device device : devices)
+	for (Device& device : devices)
 		if (isForMe(message.id, device.number)) {
 			if (!messageDecodeCommon(message, device)) {
 				bool any = false;
