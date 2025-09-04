@@ -109,7 +109,7 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			calibration(i);
-	else if (alive(deviceNumber)){
+	else if (aliveWithOptionalScan(&devices[deviceNumber])){
 		canData[0] = COMMAND_LID_CAN_B_CALIBRATE;
 		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
 	}
@@ -138,7 +138,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
-	alive(deviceNumber, true); // This command doesn't make sense
+	aliveWithOptionalScan(&devices[deviceNumber], true); // This command doesn't make sense
 	if (started(deviceNumber)){
 		if (sampleCount == 0)
 			return (*readings)[deviceNumber];
@@ -226,7 +226,7 @@ void Mrm_lid_can_b::pnpSet(bool enable, uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			pnpSet(enable, i);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
@@ -263,7 +263,7 @@ uint16_t Mrm_lid_can_b::reading(uint8_t receiverNumberInSensor, uint8_t deviceNu
 void Mrm_lid_can_b::readingsPrint() {
 	print("Lid2m:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber))
+		if (aliveWithOptionalScan(&devices[deviceNumber]))
 			print(" %4i", distance(deviceNumber));
 }
 
@@ -307,7 +307,7 @@ void Mrm_lid_can_b::test(uint16_t betweenTestsMs)
 	if (millis() - lastMs > (betweenTestsMs == 0 ? 300 : betweenTestsMs)) {
 		uint8_t pass = 0;
 		for (uint8_t i = 0; i < nextFree; i++) {
-			bool isAlive = alive(i);
+			bool isAlive = aliveWithOptionalScan(&devices[i]);
 			// print("L%i:%s", i, isAlive ? "Y" : "N"); 
 			if (isAlive && (deviceNumber == 0xFF || i == deviceNumber)) {
 				if (pass++)

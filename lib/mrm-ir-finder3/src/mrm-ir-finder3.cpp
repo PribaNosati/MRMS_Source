@@ -200,7 +200,7 @@ uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, uint8_t deviceN
 void Mrm_ir_finder3::readingsPrint() {
 	print("IRBall:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			for (uint8_t irNo = 0; irNo < MRM_IR_FINDER3_SENSOR_COUNT; irNo++)
 				print(" %3i", reading(irNo, deviceNumber));
 		}
@@ -215,7 +215,7 @@ void Mrm_ir_finder3::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print("| ");
 				uint8_t last;
@@ -273,7 +273,7 @@ void Mrm_ir_finder3::testCalculated()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) 
+			if (aliveWithOptionalScan(&devices[deviceNumber])) 
 				print("%s: %i deg., dist: %i\n\r", (*_near)[deviceNumber] ? "Near" : "Far",
 				angle(), distance());
 		}

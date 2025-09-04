@@ -191,7 +191,7 @@ void Mrm_lid_d::frequencySet(uint8_t deviceNumber, uint8_t frequency){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			resolutionSet(i, frequency);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = COMMAND_LID_D_FREQUENCY;
 		canData[1] = frequency;
@@ -244,7 +244,7 @@ void Mrm_lid_d::pnpSet(bool enable, uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			pnpSet(enable, i);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
@@ -266,7 +266,7 @@ uint16_t Mrm_lid_d::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumber
 void Mrm_lid_d::readingsPrint() {
 	print("Lid4mMul:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber))
+		if (aliveWithOptionalScan(&devices[deviceNumber]))
 			print(" %4i", distance(deviceNumber));
 }
 
@@ -282,7 +282,7 @@ void Mrm_lid_d::resolutionSet(uint8_t deviceNumber, uint8_t resolution){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			resolutionSet(i, resolution);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = COMMAND_LID_D_RESOLUTION;
 		canData[1] = resolution;
@@ -338,7 +338,7 @@ void Mrm_lid_d::test()
 	if (millis() - lastMs > 1000) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 #if MRM_LID_H_TEST_MULTI
 				for (int8_t y = ((*_resolution)[deviceNumber] == 64 ? 7 : 3); y >= 0; y--){
 					for (uint8_t x = 0; x < ((*_resolution)[deviceNumber] == 64 ? 8 : 4); x++)

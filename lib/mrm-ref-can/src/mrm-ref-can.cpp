@@ -158,7 +158,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 				robotContainer->delayMicros(800);
 			calibrate(i);
 		}
-	else if (alive(deviceNumber)){
+	else if (aliveWithOptionalScan(&devices[deviceNumber])){
 		aliveSet(false, deviceNumber);
 		print("Calibrating %s...", deviceName(deviceNumber));
 		canData[0] = COMMAND_REF_CAN_CALIBRATE;
@@ -167,7 +167,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 		bool ok = false;
 		while (millis() - startMs < 10000) {
 			robotContainer->noLoopWithoutThis();
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				ok = true;
 				break;
 			}
@@ -191,7 +191,7 @@ uint16_t Mrm_ref_can::calibrationDataGet(uint8_t receiverNumberInSensor, bool is
 		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
-	alive(deviceNumber);
+	aliveWithOptionalScan(&devices[deviceNumber]);
 	return (isDark ? (*calibrationDataDark) : (*calibrationDataBright))[deviceNumber][receiverNumberInSensor];
 }
 
@@ -203,7 +203,7 @@ void Mrm_ref_can::calibrationDataRequest(uint8_t deviceNumber, bool waitForResul
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			calibrationDataRequest(i, waitForResult);
-	else if (alive(deviceNumber)){
+	else if (aliveWithOptionalScan(&devices[deviceNumber])){
 		if (waitForResult)
 			dataFreshCalibrationSet(false, deviceNumber);
 		canData[0] = COMMAND_REF_CAN_CALIBRATION_DATA_REQUEST;
@@ -225,7 +225,7 @@ void Mrm_ref_can::calibrationDataRequest(uint8_t deviceNumber, bool waitForResul
 */
 void Mrm_ref_can::calibrationPrint() {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			print("Calibration for %s.\n\r", name().c_str());
 			print("Dark: ");
 			for (uint8_t irNo = 0; irNo < MRM_REF_CAN_SENSOR_COUNT; irNo++)
@@ -265,7 +265,7 @@ std::string Mrm_ref_can::commandName(uint8_t byte){
 @return - yes or no.
 */
 bool Mrm_ref_can::dark(uint8_t receiverNumberInSensor, uint8_t deviceNumber, bool fromAnalog) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	if (fromAnalog) {// Analog readings
 		if (analogStarted(deviceNumber))
 			return (*_reading)[deviceNumber][receiverNumberInSensor] < ((*calibrationDataDark)[deviceNumber][receiverNumberInSensor] + (*calibrationDataBright)[deviceNumber][receiverNumberInSensor]) / 2;
@@ -452,7 +452,7 @@ void Mrm_ref_can::peakRecordingSet(RecordPeakType type, uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			peakRecordingSet(type, i);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = COMMAND_REF_CAN_RECORD_PEAK;
 		canData[1] = type;
@@ -468,7 +468,7 @@ void Mrm_ref_can::pnpSet(bool enable, uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			pnpSet(enable, i);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
@@ -486,7 +486,7 @@ uint16_t Mrm_ref_can::reading(uint8_t receiverNumberInSensor, uint8_t deviceNumb
 		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	if (analogStarted(deviceNumber))
 		return (*_reading)[deviceNumber][receiverNumberInSensor];
 	else
@@ -499,7 +499,7 @@ void Mrm_ref_can::readingsPrint() {
 	print("Refl:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
 		for (uint8_t irNo = 0; irNo < min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); irNo++)
-			if (alive(deviceNumber))
+			if (aliveWithOptionalScan(&devices[deviceNumber]))
 				print("%3i ", reading(irNo, deviceNumber));
 	}
 }
@@ -511,7 +511,7 @@ void Mrm_ref_can::refreshSet(uint16_t ms, uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			refreshSet(ms, i);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = COMMAND_REF_CAN_REFRESH_MS;
 		canData[1] = ms & 0xFF;
@@ -536,7 +536,7 @@ void Mrm_ref_can::test(bool analog)
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print("| ");
 				for (uint8_t i = 0; i < std::min(MRM_REF_CAN_SENSOR_COUNT, (int)(*_transistorCount)[deviceNumber]); i++){

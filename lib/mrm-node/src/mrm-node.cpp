@@ -174,7 +174,7 @@ void Mrm_node::servoTest() {
 	if (millis() - lastMs > 100) {
 		for (uint8_t deg = 0; deg <= 180; deg += 5) {
 			for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-				if (alive(deviceNumber)) {
+				if (aliveWithOptionalScan(&devices[deviceNumber])) {
 					for (uint8_t servoNumber = 0; servoNumber < MRM_NODE_SERVO_COUNT; servoNumber++)
 						servoWrite(servoNumber, deg, deviceNumber);
 				}
@@ -256,7 +256,7 @@ void Mrm_node::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print("| ");
 				print("An:");

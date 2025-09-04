@@ -84,29 +84,22 @@ if (deviceName.length() > 9) {
 @param errorIfNotAfterCheckingAgain - the robot will stop. Otherwise only warning displayed.
 @return - alive or not
 */
-bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAfterCheckingAgain) {
-	if (deviceNumber == 0xFF) {
-		for (uint8_t i = 0; i < nextFree; i++)
-			if (alive(i, checkAgainIfDead, errorIfNotAfterCheckingAgain))
+bool Board::aliveWithOptionalScan(Device* device, bool checkAgainIfDead) {
+	if (device == NULL) {
+		for (Device& device1 : devices)
+			if (aliveWithOptionalScan(&device1, checkAgainIfDead))
 				return true;
 		return false;
 	}
 	else {
-		if (deviceNumber > 31) {
-			sprintf(errorMessage, "Device number for %s too big: %i.", _boardsName.c_str(), deviceNumber);
-			return false;
-		}
-		if (devices[deviceNumber].alive)
+		if (device->alive)
 			return true;
 		else if (checkAgainIfDead) {
 			devicesScan(false);
-			if (devices[deviceNumber].alive)
+			if (device->alive)
 				return true;
 			else {
-				if (errorIfNotAfterCheckingAgain)
-					sprintf(errorMessage, "%s no. %i dead", name().c_str(), deviceNumber);
-				else
-					print("%s %i dead\n\r", name().c_str(), deviceNumber);
+				sprintf(errorMessage, "%s dead", device->name.c_str());
 				return false;
 			}
 		}
@@ -117,8 +110,8 @@ bool Board::alive(uint8_t deviceNumber, bool checkAgainIfDead, bool errorIfNotAf
 
 uint8_t Board::aliveCount(){
 	uint8_t count = 0;
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
-		if (aliveGet(deviceNumber))
+	for (Device& device : devices) 
+		if (device.alive)
 			count++;
 	return count;
 }
@@ -169,7 +162,7 @@ void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
 bool Board::canGap() {
 	bool dead = false;
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if (alive(deviceNumber)){
+		if (aliveWithOptionalScan(&devices[deviceNumber])){
 			if (dead)
 				return true;
 		}
@@ -198,8 +191,8 @@ std::string Board::commandNameCommon(uint8_t byte){
 */
 uint8_t Board::count() {
 	uint8_t cnt = 0;
-	for (uint8_t i = 0; i < nextFree; i++)
-		if (alive(i))
+	for(Device& device : devices)
+		if (aliveWithOptionalScan(&device))
 			cnt++;
 	return cnt;
 }
@@ -248,7 +241,7 @@ void Board::firmwareRequest(uint8_t deviceNumber) {
 		for (uint8_t i = 0; i < nextFree; i++)
 			firmwareRequest(i);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			canData[0] = COMMAND_FIRMWARE_REQUEST;
 			messageSend(canData, 1, deviceNumber);
 		}
@@ -267,7 +260,7 @@ uint16_t Board::fps(uint8_t deviceNumber) {
 */
 void Board::fpsDisplay() {
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if (alive(deviceNumber)){
+		if (aliveWithOptionalScan(&devices[deviceNumber])){
 			if (devices[deviceNumber].fpsLast == 0xFFFF)
 				print("%s: no response\n\r", devices[deviceNumber].name.c_str());
 			else
@@ -284,7 +277,7 @@ void Board::fpsRequest(uint8_t deviceNumber) {
 		for (uint8_t i = 0; i < nextFree; i++)
 			fpsRequest(i);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			canData[0] = COMMAND_FPS_REQUEST;
 			messageSend(canData, 1, deviceNumber);
 			devices[deviceNumber].fpsLast = 0xFFFF;
@@ -321,7 +314,7 @@ void Board::info(uint8_t deviceNumber) {
 		for (uint8_t i = 0; i < nextFree; i++)
 			info(i);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			canData[0] = COMMAND_INFO_REQUEST;
 			messageSend(canData, 1, deviceNumber);
 			delay(1);
@@ -475,7 +468,7 @@ void Board::oscillatorTest(uint8_t deviceNumber) {
 		for (uint8_t i = 0; i < nextFree; i++)
 			oscillatorTest(i);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			print("Test %s\n\r", deviceName(deviceNumber).c_str());
 			canData[0] = COMMAND_OSCILLATOR_TEST;
 			messageSend(canData, 1, deviceNumber);
@@ -507,7 +500,7 @@ void Board::start(uint8_t deviceNumber, uint8_t measuringModeNow, uint16_t refre
 		for (uint8_t i = 0; i < nextFree; i++)
 			start(i, measuringModeNow, refreshMs);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			// print("Alive, start reading: %s, mode: %i\n\r", name(deviceNumber), measuringModeNow);
 #if REQUEST_NOTIFICATION
 			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);
@@ -541,7 +534,7 @@ void Board::stop(uint8_t deviceNumber) {
 		for (uint8_t i = 0; i < nextFree; i++)
 			stop(i);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
 			messageSend(canData, 1, deviceNumber);
 			devices[deviceNumber].lastReadingsMs = 0;
@@ -635,7 +628,7 @@ uint16_t MotorBoard::reading(uint8_t deviceNumber) {
 		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	if (started(deviceNumber))
 		return (*encoderCount)[deviceNumber];
 	else
@@ -647,7 +640,7 @@ uint16_t MotorBoard::reading(uint8_t deviceNumber) {
 void MotorBoard::readingsPrint() {
 	print("Encoders:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber))
+		if (aliveWithOptionalScan(&devices[deviceNumber]))
 			print(" %4i", (*encoderCount)[deviceNumber]);
 }
 
@@ -751,7 +744,7 @@ void MotorBoard::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
 	while (goOn) {
 		for (uint8_t motorNumber = 0; motorNumber < nextFree && goOn; motorNumber++) {
 
-			if ((selectedMotor != 0xFFFF && motorNumber != selectedMotor) || !alive(motorNumber))
+			if ((selectedMotor != 0xFFFF && motorNumber != selectedMotor) || !aliveWithOptionalScan(&devices[motorNumber]))
 				continue;
 
 			if (!encodersStarted[motorNumber]) {
@@ -825,7 +818,7 @@ void SensorBoard::continuousReadingCalculatedDataStart(uint8_t deviceNumber) {
 		for (uint8_t i = 0; i < nextFree; i++)
 			continuousReadingCalculatedDataStart(i);
 	else {
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			//print("Alive, start reading: %s\n\r", name(deviceNumber));
 #if REQUEST_NOTIFICATION // todo
 			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, deviceNumber);

@@ -163,8 +163,8 @@ public:
 	@param errorIfNotAfterCheckingAgain - the robot will stop. Otherwise only warning displayed.
 	@return - alive or not
 	*/
-	bool alive(uint8_t deviceNumber = 0, bool checkAgainIfDead = false, bool errorIfNotAfterCheckingAgain = false);
-
+	bool aliveWithOptionalScan(Device* device = NULL, bool checkAgainIfDead = false);
+	
 	uint8_t aliveCount();
 
 	/** Get aliveness

@@ -408,7 +408,7 @@ void Robot::actionSet() {
 
 	// If a button pressed, first execute its action
 	ActionBase* action8x8 = NULL;
-	if (mrm_8x8a->alive() && _devicesScanBeforeMenuAndSwitches) // Disable message if CAN silence needed
+	if (mrm_8x8a->aliveWithOptionalScan() && _devicesScanBeforeMenuAndSwitches) // Disable message if CAN silence needed
 		action8x8 = mrm_8x8a->actionCheck(); 
 	ActionBase* actionSw = mrm_switch->actionCheck(); 
 	if (action8x8 != NULL)
@@ -484,7 +484,7 @@ void Robot::actionSet(ActionBase* newAction) {
 	_actionCurrent = newAction;
 	_actionCurrent->preprocessingStart();
 	// Display action on 8x8 LED
-	if (mrm_8x8a->alive() && _actionTextDisplay){
+	if (mrm_8x8a->aliveWithOptionalScan() && _actionTextDisplay){
 		if (_actionCurrent->ledSign == NULL)
 			devicesLEDCount();
 		else if (_actionCurrent->ledSign->type == 1 && strcmp(((Mrm_8x8a::LEDSignText*)(_actionCurrent->ledSign))->text, "") != 0)
@@ -552,13 +552,13 @@ uint8_t Robot::boardsDisplayAll() {
 	uint8_t last = 0;
 	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree; boardNumber++) {
 		uint8_t currentCount = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < board[boardNumber]->deadOrAliveCount(); deviceNumber++)
-			if (board[boardNumber]->alive(deviceNumber)) {
+		for (Device dev : board[boardNumber]->devices) 
+			if (board[boardNumber]->aliveWithOptionalScan(&dev)) {
 				if (currentCount == 0)
 					print("%i.", ++last);
 				else
 					print(",");
-				print(" %s", board[boardNumber]->deviceName(deviceNumber).c_str());
+				print(" %s", dev.name.c_str());
 				if (++currentCount == board[boardNumber]->devicesOnASingleBoard()) {
 					currentCount = 0;
 					print("\n\r");
@@ -610,12 +610,12 @@ bool Robot::boardSelect(uint8_t selectedNumber, uint8_t *selectedBoardIndex, uin
 	*maxInput = 0;
 	for (uint8_t boardNumber = 0; boardNumber < _boardNextFree && *selectedDeviceIndex == 0xFF; boardNumber++) {
 		uint8_t currentCount = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < board[boardNumber]->deadOrAliveCount() && *selectedDeviceIndex == 0xFF; deviceNumber++)
-			if (board[boardNumber]->alive(deviceNumber)) {
+		for (Device dev : board[boardNumber]->devices) {
+			if (board[boardNumber]->aliveWithOptionalScan(&dev)) {
 				if (currentCount == 0) {
 					if (++lastBoardAndIndex == selectedNumber) {
 						// Board *selectedBoard = board[boardNumber];
-						*selectedDeviceIndex = deviceNumber;
+						*selectedDeviceIndex = dev.number;
 						*selectedBoardIndex = boardNumber;
 						*maxInput = board[boardNumber]->deadOrAliveCount() / board[boardNumber]->devicesOnASingleBoard() - 1;
 						break;
@@ -625,6 +625,7 @@ bool Robot::boardSelect(uint8_t selectedNumber, uint8_t *selectedBoardIndex, uin
 				if (++currentCount == board[boardNumber]->devicesOnASingleBoard())
 					currentCount = 0;
 			}
+		}
 	}
 	return *selectedDeviceIndex != 0xFF;
 }
@@ -771,9 +772,9 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 /** mrm-color-can illumination off
 */
 void Robot::colorIlluminationOff() {
-	if (mrm_col_can->alive())
+	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->illumination(0xFF, 0);
-	else if (mrm_col_b->alive())
+	else if (mrm_col_b->aliveWithOptionalScan())
 		mrm_col_b->illumination(0xFF, 0);
 	end();
 }
@@ -781,9 +782,9 @@ void Robot::colorIlluminationOff() {
 /** mrm-color-can illumination on
 */
 void Robot::colorIlluminationOn() {
-	if (mrm_col_can->alive())
+	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->illumination(0xFF, 5);
-	else if (mrm_col_b->alive())
+	else if (mrm_col_b->aliveWithOptionalScan())
 		mrm_col_b->illumination(0xFF, 5);
 	end();
 }
@@ -791,9 +792,9 @@ void Robot::colorIlluminationOn() {
 /** Erase HSV patterns
 */
 void Robot::colorPatternErase() {
-	if (mrm_col_can->alive())
+	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->patternErase();
-	else if (mrm_col_b->alive())
+	else if (mrm_col_b->aliveWithOptionalScan())
 		mrm_col_b->patternErase();
 	end();
 }
@@ -801,9 +802,9 @@ void Robot::colorPatternErase() {
 /** Print HSV patterns
 */
 void Robot::colorPatternPrint() {
-	if (mrm_col_can->alive())
+	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->patternPrint();
-	else if (mrm_col_b->alive())
+	else if (mrm_col_b->aliveWithOptionalScan())
 		mrm_col_b->patternPrint();
 	end();
 }
@@ -811,9 +812,9 @@ void Robot::colorPatternPrint() {
 /** Record HSV color patterns
 */
 void Robot::colorPatternRecord() {
-	if (mrm_col_can->alive())
+	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->patternsRecord();
-	else if (mrm_col_b->alive())
+	else if (mrm_col_b->aliveWithOptionalScan())
 		mrm_col_b->patternsRecord();
 	end();
 }
@@ -886,11 +887,11 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 	uint8_t count = 0;
 	for (uint8_t boardKind = 0; boardKind < _boardNextFree; boardKind++){
 		if (boardType == Board::BoardType::ANY_BOARD || board[boardKind]->boardType() == boardType){ // Board types
-			for (uint8_t deviceNumber = 0; deviceNumber < board[boardKind]->deadOrAliveCount(); deviceNumber++){// Devices for the current board type
-				if (board[boardKind]->alive(deviceNumber)){
+			for (Device& dev : board[boardKind]->devices) 
+				if (board[boardKind]->aliveWithOptionalScan(&dev)){
 					if (count == deviceGlobalOrdinalNumber)
 					{
-						deviceInfo = board[boardKind]->deviceGet(deviceNumber);
+						deviceInfo = &dev;
 						// deviceInfo->name = board[boardKind]->name(deviceNumber);
 						// deviceInfo->board = board[boardKind];
 
@@ -902,7 +903,6 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 					else
 						count++;
 				}
-			}
 		}
 	}
 	deviceInfo->name = "";
@@ -912,7 +912,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 /** Display number of CAN Bus devices using 8x8 display
 */
 void Robot::devicesLEDCount(){
-	if (mrm_8x8a->alive()){
+	if (mrm_8x8a->aliveWithOptionalScan()){
 		char buffer[7];
 		sprintf(buffer, "N:%i.", _devicesAtStartup);
 		mrm_8x8a->text(buffer);
@@ -1144,6 +1144,7 @@ void Robot::led8x8Test(){
 */
 void Robot::lidar2mTest() {
 	static uint16_t selected;
+	static Device * selectedDevice;
 	if (setup()) {
 		//devicesScan(false, SENSOR_BOARD);
 		// Select lidar
@@ -1152,14 +1153,15 @@ void Robot::lidar2mTest() {
 		selected = serialReadNumber(2000, 1000, count - 1 < 9, count - 1, false);
 		if (selected == 0xFFFF) { // Test all
 			print("Test all\n\r");
-			selected = 0xFF;
+			selectedDevice = NULL;
 		}
 		else { // Test only selected
-			if (mrm_lid_can_b->alive(selected))
-				print("\n\rTest lidar %s\n\r", mrm_lid_can_b->deviceName(selected));
+			selectedDevice = &mrm_lid_can_b->devices[selected];
+			if (mrm_lid_can_b->aliveWithOptionalScan(selectedDevice))
+				print("\n\rTest lidar %s\n\r", selectedDevice->name.c_str());
 			else {
-				print("\n\rLidar %s dead, test all\n\r", mrm_lid_can_b->deviceName(selected));
-				selected = 0xFF;
+				print("\n\rLidar %s dead, test all\n\r", selectedDevice->name.c_str());
+				selectedDevice = NULL;
 			}
 		}
 		//mrm_lid_can_b->start(selected);
@@ -1214,7 +1216,7 @@ void Robot::lidarCalibrate() {
 		if (selected == 0xFFFF)
 			print("\n\rAbort\n\r");
 		else {
-			if (selected2Or4 == 2 ? mrm_lid_can_b->alive(selected) : mrm_lid_can_b2->alive(selected)) {
+			if (selected2Or4 == 2 ? mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->aliveWithOptionalScan(&mrm_lid_can_b2->devices[selected])) {
 				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->deviceName(selected));
 				selected2Or4 == 2 ? mrm_lid_can_b->calibration(selected) : mrm_lid_can_b2->calibration(selected);
 			}
@@ -1236,7 +1238,7 @@ void Robot::menu() {
 			_devicesAtStartup = cnt;
 		else if (cnt < _devicesAtStartup){
 			print("%i devices instead of %i!\n\r", cnt, _devicesAtStartup);
-			if (mrm_8x8a->alive(0, false))
+			if (mrm_8x8a->aliveWithOptionalScan(0, false))
 				mrm_8x8a->text((char*)"Error. Cnt.");
 		}
 	}
@@ -1254,7 +1256,7 @@ void Robot::menu() {
 				anyAlive = true;
 			else
 				for (uint8_t j = 0; j < _boardNextFree && !anyAlive; j++)
-					if (board[j]->alive(0xFF) && board[j]->id() == it.second->boardsId())
+					if (board[j]->aliveWithOptionalScan(NULL) && board[j]->id() == it.second->boardsId())
 						anyAlive = true;
 			if (anyAlive) {
 				print("%-3s - %-22s%s", (it.first + '\0').c_str(), it.second->_text, column == maxColumns ? "\n\r" : "");
@@ -1499,25 +1501,25 @@ void Robot::pnpOff(){
 void Robot::pnpSet(bool enable){
 	uint8_t count = mrm_lid_can_b2->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_lid_can_b2->alive(i)){
+		if (mrm_lid_can_b2->aliveWithOptionalScan(&mrm_lid_can_b2->devices[i])){
 			mrm_lid_can_b2->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_lid_can_b2->deviceName(i), enable ? "on" : "off");
 		}
 	count = mrm_lid_can_b->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_lid_can_b->alive(i)){
+		if (mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[i])){
 			mrm_lid_can_b->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_lid_can_b->deviceName(i), enable ? "on" : "off");
 		}
 	count = mrm_ref_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_ref_can->alive(i)){
+		if (mrm_ref_can->aliveWithOptionalScan(&mrm_ref_can->devices[i])){
 			mrm_ref_can->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_ref_can->deviceName(i), enable ? "on" : "off");
 		}
 	count = mrm_col_can->deadOrAliveCount();
 	for (uint8_t i = 0; i < count; i++)
-		if (mrm_col_can->alive(i)){
+		if (mrm_col_can->aliveWithOptionalScan(&mrm_col_can->devices[i])){
 			mrm_col_can->pnpSet(enable, i);
 			print("%s PnP %s\n\r", mrm_col_can->deviceName(i), enable ? "on" : "off");
 		}
@@ -1684,11 +1686,11 @@ void Robot::stressTest() {
 			totalCnt += count[i];
 			mask[i] = TRY_ONLY_ALIVE ? 0 : 0xFFFF;
 			for (uint8_t j = 0; j < board[i]->deadOrAliveCount(); j++)
-				if (board[i]->alive(j))
+				if (board[i]->aliveWithOptionalScan(&board[i]->devices[j]))
 					mask[i] |= 1 << j;
 		}
 		print("Start.\n\r");
-		if (mrm_8x8a->alive()) {
+		if (mrm_8x8a->aliveWithOptionalScan()) {
 			char buffer[50];
 			sprintf(buffer, "%i devices.\n\r", totalCnt);
 			mrm_8x8a->text(buffer);
@@ -1704,7 +1706,7 @@ void Robot::stressTest() {
 	}
 
 	// Display progress using mrm-8x8a
-	if (mrm_8x8a->alive())
+	if (mrm_8x8a->aliveWithOptionalScan())
 		if (mrm_8x8a->progressBar(LOOP_COUNT, pass, pass == 0))
 			delayMs(5); // To avoid disturbing stress test
 
@@ -1720,7 +1722,7 @@ void Robot::stressTest() {
 				errors[i]++;
 				print("***** %s: found %i, not %i.\n\r", board[i]->name().c_str(), cnt, count[i]);
 				if (STOP_ON_ERROR) {
-					if (mrm_8x8a->alive()) {
+					if (mrm_8x8a->aliveWithOptionalScan()) {
 						char buffer[50];
 						sprintf(buffer, "%s: error.\n\r", board[i]->name().c_str());
 						mrm_8x8a->text(buffer);
@@ -1742,7 +1744,7 @@ void Robot::stressTest() {
 				delay(5000); // To freeze oscilloscope
 			}
 		if (allOK) {
-			if (mrm_8x8a->alive())
+			if (mrm_8x8a->aliveWithOptionalScan())
 				mrm_8x8a->bitmapDisplay(0);
 			print("No errors.");
 		}

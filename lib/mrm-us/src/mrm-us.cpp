@@ -103,7 +103,11 @@ uint16_t Mrm_us::reading(uint8_t echoNumber, uint8_t deviceNumber) {
 		strcpy(errorMessage, "mrm-us doesn't exist");
 		return 0;
 	}
-	return (*readings)[deviceNumber][echoNumber];
+	aliveWithOptionalScan(&devices[deviceNumber], true);
+	if (started(deviceNumber))
+		return (*readings)[deviceNumber][echoNumber];
+	else
+		return 0;
 }
 
 /** Print all readings in a line
@@ -126,7 +130,7 @@ void Mrm_us::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print("| ");
 				print("Echo:");

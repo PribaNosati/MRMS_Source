@@ -383,11 +383,11 @@ void RobotMin::loop0(){
 			#endif
 		}
 		else{
-			bool ref = mrm_ref_can->alive(0);
-			bool lid0 = mrm_lid_can_b->alive(0);
-			bool lid1 = mrm_lid_can_b->alive(1);
-			bool lid2 = mrm_lid_can_b->alive(2);
-			bool mot0 = mrm_mot4x3_6can->alive(0);
+			bool ref = mrm_ref_can->aliveWithOptionalScan(&mrm_ref_can->devices[0]);
+			bool lid0 = mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[0]);
+			bool lid1 = mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[1]);
+			bool lid2 = mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[2]);
+			bool mot0 = mrm_mot4x3_6can->aliveWithOptionalScan(&mrm_mot4x3_6can->devices[0]);
 			char buffer[40];
 			sprintf(buffer, "%i dev, %s%s%s%s%s", count, ref ? "" : "R", lid0 ? "" : "L0", 
 				lid1 ? "" : "L1", lid2 ? "" : "L2", mot0 ? "" : "M0");

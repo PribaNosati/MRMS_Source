@@ -159,7 +159,7 @@ uint16_t Mrm_lid_can_b2::distance(uint8_t deviceNumber, uint8_t sampleCount, uin
 void Mrm_lid_can_b2::distanceMode(uint8_t deviceNumber, bool isShort) {
 	if (deviceNumber == 0xFF) {
 		for (uint8_t i = 0; i < nextFree; i++)
-			if (alive(i)) {
+			if (aliveWithOptionalScan(&devices[i])) {
 				distanceMode(i, isShort);
 				delay(1);
 			}
@@ -181,7 +181,7 @@ void Mrm_lid_can_b2::measurementTime(uint8_t deviceNumber, uint16_t ms) {
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			measurementTime(i, ms);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		canData[0] = COMMAND_LID_CAN_B2_MEASUREMENT_TIME;
 		canData[1] = ms & 0xFF;
 		canData[2] = ms >> 8;
@@ -230,7 +230,7 @@ void Mrm_lid_can_b2::pnpSet(bool enable, uint8_t deviceNumber){
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			pnpSet(enable, i);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
@@ -252,7 +252,7 @@ uint16_t Mrm_lid_can_b2::reading(uint8_t receiverNumberInSensor, uint8_t deviceN
 void Mrm_lid_can_b2::readingsPrint() {
 	print("Lid4m:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber))
+		if (aliveWithOptionalScan(&devices[deviceNumber]))
 			print(" %4i", distance(deviceNumber));
 }
 
@@ -266,7 +266,7 @@ void Mrm_lid_can_b2::roi(uint8_t deviceNumber, uint8_t x, uint8_t y) {
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			roi(i, x, y);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = COMMAND_LID_CAN_B2_ROI;
 		canData[1] = x;
@@ -312,7 +312,7 @@ void Mrm_lid_can_b2::test(uint16_t betweenTestsMs)
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print(" ");
 				print("%i ", distance(deviceNumber));
@@ -334,7 +334,7 @@ void Mrm_lid_can_b2::timingBudget(uint8_t deviceNumber, uint16_t ms) {
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++)
 			timingBudget(i, ms);
-	else if (alive(deviceNumber)) {
+	else if (aliveWithOptionalScan(&devices[deviceNumber])) {
 		delay(1);
 		canData[0] = COMMAND_LID_CAN_B2_TIMING_BUDGET;
 		canData[1] = ms & 0xFF;

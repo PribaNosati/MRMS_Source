@@ -53,7 +53,7 @@ RobotMazeCompetition::RobotMazeCompetition(char name[]) : Robot(name) {
 /** Store custom bitmaps in mrm-led8x8a.
 */
 void RobotMazeCompetition::bitmapsSet() {
-	mrm_8x8a->alive(0, true); // Makes sure that mrm-8x8a is present and functioning. If not, issues a warning message.
+	mrm_8x8a->aliveWithOptionalScan(0, true); // Makes sure that mrm-8x8a is present and functioning. If not, issues a warning message.
 
 		const std::vector<Mrm_8x8a::ledSign> selectedImages = {Mrm_8x8a::LED_CUSTOM, Mrm_8x8a::LED_EVACUATION_ZONE, Mrm_8x8a::LED_FULL_CROSSING_BOTH_MARKS,  
 		Mrm_8x8a::LED_FULL_CROSSING_MARK_LEFT, Mrm_8x8a::LED_FULL_CROSSING_MARK_RIGHT, Mrm_8x8a::LED_FULL_CROSSING_NO_MARK,

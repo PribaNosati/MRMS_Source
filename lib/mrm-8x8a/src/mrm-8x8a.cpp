@@ -127,7 +127,7 @@ void Mrm_8x8a::bitmapDisplay(uint8_t bitmapId, uint8_t deviceNumber){
 	if (bitmapId != (*displayedLast)[deviceNumber] || (*displayedTypeLast)[deviceNumber] != LED8x8Type::LED_8X8_STORED) {
 		(*displayedLast)[deviceNumber] = bitmapId;
 		(*displayedTypeLast)[deviceNumber] = LED8x8Type::LED_8X8_STORED;
-		alive(deviceNumber, true);
+		aliveWithOptionalScan(&devices[deviceNumber], true);
 		canData[0] = COMMAND_8X8_DISPLAY;
 		canData[1] = bitmapId;
 		messageSend(canData, 2, devices[deviceNumber].canIdIn);
@@ -140,7 +140,7 @@ void Mrm_8x8a::bitmapDisplay(uint8_t bitmapId, uint8_t deviceNumber){
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Mrm_8x8a::bitmapCustomDisplay(uint8_t red[], uint8_t green[], uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART1;
 	for (uint8_t i = 0; i < 7; i++) 
 		canData[i + 1] = green[i];
@@ -167,7 +167,7 @@ void Mrm_8x8a::bitmapCustomDisplay(uint8_t red[], uint8_t green[], uint8_t devic
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Mrm_8x8a::bitmapCustomStore(uint8_t red[], uint8_t green[], uint8_t address, uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART1;
 	for (uint8_t i = 0; i < 7; i++)
@@ -195,7 +195,7 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 	if (address != (*displayedLast)[deviceNumber] || (*displayedTypeLast)[deviceNumber] != LED8x8Type::LED_8X8_STORED_CUSTOM) {
 		(*displayedLast)[deviceNumber] = address;
 		(*displayedTypeLast)[deviceNumber] = LED8x8Type::LED_8X8_STORED_CUSTOM;
-		alive(deviceNumber, true);
+		aliveWithOptionalScan(&devices[deviceNumber], true);
 		canData[0] = COMMAND_8X8_BITMAP_STORED_DISPLAY;
 		canData[1] = address;
 		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
@@ -917,7 +917,7 @@ bool Mrm_8x8a::progressBar(uint32_t period, uint32_t current, bool reset) {
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	canData[0] = COMMAND_8X8_ROTATION_SET;
 	canData[1] = rotation;
 	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
@@ -954,7 +954,7 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 @return - true if pressed, false otherwise
 */
 bool Mrm_8x8a::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	if (deviceNumber >= nextFree || switchNumber >= MRM_8x8A_SWITCHES_COUNT) {
 		strcpy(errorMessage, "Switch doesn't exist");
 		return false;
@@ -989,7 +989,7 @@ void Mrm_8x8a::test()
 
 		// Built-in bitmap
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				bitmapDisplay(bitmapId, deviceNumber);
 				if (pass++)
 					print("| ");

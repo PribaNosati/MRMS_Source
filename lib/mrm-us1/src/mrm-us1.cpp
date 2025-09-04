@@ -99,7 +99,7 @@ uint16_t Mrm_us1::reading(uint8_t deviceNumber) {
 		strcpy(errorMessage, "mrm-us1 doesn't exist");
 		return 0;
 	}
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	if (started(deviceNumber))
 		return (*readings)[deviceNumber];
 	else
@@ -149,7 +149,7 @@ void Mrm_us1::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print("| ");
 				print("%i ", reading(deviceNumber));

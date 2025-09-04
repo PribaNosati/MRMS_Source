@@ -124,7 +124,7 @@ uint16_t Mrm_ir_finder_can::reading(uint8_t receiverNumberInSensor, uint8_t devi
 void Mrm_ir_finder_can::readingsPrint() {
 	robotContainer->print("IRBall:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			for (uint8_t irNo = 0; irNo < MRM_IR_FINDER_CAN_SENSOR_COUNT; irNo++)
 				robotContainer->print(" %3i", (*readings)[deviceNumber][irNo]);
 		}
@@ -139,7 +139,7 @@ void Mrm_ir_finder_can::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					robotContainer->print("| ");
 				for (uint8_t i = 0; i < MRM_IR_FINDER_CAN_SENSOR_COUNT; i++)
@@ -160,7 +160,7 @@ void Mrm_ir_finder_can::testCalculated()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) 
+			if (aliveWithOptionalScan(&devices[deviceNumber])) 
 				robotContainer->print("%i deg., dist: %i\n\r", angle, distance);
 		}
 		lastMs = millis();

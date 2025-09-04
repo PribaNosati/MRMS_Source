@@ -141,7 +141,7 @@ void Mrm_fet_can::test()
 	if ((millis() - lastMs > 200 && isOn) || (millis() - lastMs > 2000 && !isOn)) {
 		// uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				isOn = !isOn;
 				if (isOn)
 					turnOn(fet);
