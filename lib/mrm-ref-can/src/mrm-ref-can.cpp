@@ -159,7 +159,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 			calibrate(i);
 		}
 	else if (aliveWithOptionalScan(&devices[deviceNumber])){
-		aliveSet(false, deviceNumber);
+		aliveSet(false, &devices[deviceNumber]);
 		print("Calibrating %s...", deviceName(deviceNumber));
 		canData[0] = COMMAND_REF_CAN_CALIBRATE;
 		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);

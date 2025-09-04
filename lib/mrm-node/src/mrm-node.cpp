@@ -112,7 +112,7 @@ bool Mrm_node::messageDecode(CANMessage message) {
 				case COMMAND_NODE_SENDING_SENSORS_7_TO_9:
 					startIndex = 6;
 					any = true;
-					devices[device.number].lastReadingsMs = millis();
+					device.lastReadingsMs = millis();
 					break;
 				case COMMAND_NODE_SWITCH_ON: {
 					uint8_t switchNumber = message.data[1] >> 1;

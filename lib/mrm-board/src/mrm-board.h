@@ -172,7 +172,7 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 						0xFF - set all
 	*/
-	void aliveSet(bool yesOrNo, uint8_t deviceNumber = 0xFF);
+	void aliveSet(bool yesOrNo, Device * device = nullptr);
 
 	BoardType boardType(){ return _boardType; }
 
@@ -213,7 +213,7 @@ public:
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
 	*/
-	void firmwareRequest(uint8_t deviceNumber = 0xFF);
+	void firmwareRequest(Device * device = nullptr);
 
 	/** Frames Per Second
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

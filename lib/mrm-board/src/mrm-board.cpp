@@ -122,15 +122,15 @@ uint8_t Board::aliveCount(){
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 					0xFF - set all
 */
-void Board::aliveSet(bool yesOrNo, uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF){
-		for(auto device: devices)
-			device.alive = yesOrNo;
+void Board::aliveSet(bool yesOrNo, Device * device) {
+	if (device == nullptr) {
+		for (auto dev : devices)
+			dev.alive = yesOrNo;
 	}
 	else{
-		devices[deviceNumber].alive = yesOrNo;
+		device->alive = yesOrNo;
 		if (yesOrNo)
-			devices[deviceNumber].aliveOnce = true;
+			device->aliveOnce = true;
 	}
 }
 
@@ -214,14 +214,15 @@ void Board::devicesScan(bool verbose, uint16_t mask) {
 /** Request firmware version
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Board::firmwareRequest(uint8_t deviceNumber) {
-	if (deviceNumber == 0xFF)
-		for (Device& device : devices)
-			firmwareRequest(device.number);
+void Board::firmwareRequest(Device * device) {
+	if (device == nullptr) {
+		for (Device& dev : devices)
+			firmwareRequest(&dev);
+	}
 	else {
-		if (devices[deviceNumber].alive) {
+		if (device->alive) {
 			canData[0] = COMMAND_FIRMWARE_REQUEST;
-			messageSend(canData, 1, deviceNumber);
+			messageSend(canData, 1, device->number);
 		}
 	}
 }
