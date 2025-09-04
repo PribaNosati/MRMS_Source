@@ -524,8 +524,8 @@ void Robot::add(Board* aBoard) {
 	aBoard->setup = [this](){return this->setup();};
 	aBoard->end = [this](){this->end();};
 	aBoard->messagePrintParent = [this] (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) 
-		{messagePrint(message, board, deviceNumber, outbound, clientInitiated, postfix);};
-	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message, deviceNumber);};
+		{messagePrint(&message, board, deviceNumber, outbound, clientInitiated, postfix);};
+	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message);};
 
 
 	_boardNextFree++;
@@ -1340,7 +1340,7 @@ void Robot::menuSystem() {
 @param msg - message
 @param oubound - if not, inbound
 */
-void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bool outbound) {
+void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) {
 	if (msg->dlc > 8){
 		print("dlc too big: %i\n\r", (int)msg->dlc);
 		errors->add(msg->id, ERROR_DLC_TOO_BIG, false);

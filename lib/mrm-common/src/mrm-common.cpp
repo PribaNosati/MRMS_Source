@@ -98,7 +98,7 @@ std::map<uint8_t, std::string> Error::errorNames = {
 		{ERROR_COMMAND_UNKNOWN, "Unknown Command"},
 		{ERROR_DLC_TOO_BIG, "DLC Too Big"},
 		{ERROR_TIMEOUT, "Timeout"}
-	};;
+	};
 
 void Errors::add(uint16_t canId, uint8_t errorCode, bool peripheral) {
     try{

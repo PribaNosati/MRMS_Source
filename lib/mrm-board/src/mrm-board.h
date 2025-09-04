@@ -127,7 +127,6 @@ protected:
 	uint8_t measuringModeLimit = 0;
 	uint8_t _message[29]; // Message a device sent.
 	int nextFree = -1;
-	Robot* robotContainer;
 
 	/** Common part of message decoding
 	@param canId - CAN Bus id
@@ -138,7 +137,7 @@ protected:
 	bool messageDecodeCommon(CANMessage message, Device& device);
 
 public:
-
+		Robot * robotContainer;
 	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	uint8_t number; // Index in vector
@@ -442,7 +441,6 @@ protected:
 	MotorBoard* motorBoard[MAX_MOTORS_IN_GROUP] = { NULL, NULL, NULL, NULL }; // Motor board for each wheel. It can the same, but need not be.
 	uint8_t motorNumber[MAX_MOTORS_IN_GROUP];
 	Robot* robotContainer;
-
 public:
 	MotorGroup(Robot* robot);
 

@@ -406,7 +406,8 @@ public:
 	@param msg - message
 	@param oubound - if not, inbound
 	*/
-	void messagePrint(CANMessage* msg, Board* board, uint8_t boardIndex, bool outbound);
+
+	void messagePrint(CANMessage * message, Board* board = NULL, uint8_t boardIndex = 0xFF, bool outbound = true, bool clientInitiated = false, std::string postfix = "") ;
 
 	/** Receives CAN Bus messages.
 	*/

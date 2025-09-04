@@ -203,7 +203,7 @@ void Mrm_node::servoWrite(uint8_t servoNumber, uint16_t degrees, uint8_t deviceN
 		canData[3] = degrees & 0xFF;
 		(*servoDegrees)[deviceNumber][servoNumber] = degrees;
 
-		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 4, canData);
+		messageSend(canData, 4, deviceNumber);
 	}
 }
 

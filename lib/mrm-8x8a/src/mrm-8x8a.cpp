@@ -144,18 +144,18 @@ void Mrm_8x8a::bitmapCustomDisplay(uint8_t red[], uint8_t green[], uint8_t devic
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART1;
 	for (uint8_t i = 0; i < 7; i++) 
 		canData[i + 1] = green[i];
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART2;
 	canData[1] = green[7];
 	for (uint8_t i = 0; i < 6; i++) 
 		canData[i + 2] = red[i];
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART3;
 	for (uint8_t i = 0; i < 2; i++) 
 		canData[i + 1] = red[i + 6];
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 3, canData);
+	messageSend(canData, 3, deviceNumber);
 
 	(*displayedTypeLast)[deviceNumber] = LED8x8Type::LED_8X8_CUSTOM;
 }
@@ -172,19 +172,19 @@ void Mrm_8x8a::bitmapCustomStore(uint8_t red[], uint8_t green[], uint8_t address
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART1;
 	for (uint8_t i = 0; i < 7; i++)
 		canData[i + 1] = green[i];
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART2;
 	canData[1] = green[7];
 	for (uint8_t i = 0; i < 6; i++)
 		canData[i + 2] = red[i];
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART3;
 	for (uint8_t i = 0; i < 2; i++)
 		canData[i + 1] = red[i + 6];
 	canData[3] = address;
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 4, canData);
+	messageSend(canData, 4, deviceNumber);
 }
 
 /** Display custom stored bitmap
@@ -198,7 +198,7 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 		aliveWithOptionalScan(&devices[deviceNumber], true);
 		canData[0] = COMMAND_8X8_BITMAP_STORED_DISPLAY;
 		canData[1] = address;
-		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
+		messageSend(canData, 2, deviceNumber);
 	}
 }
 
@@ -920,7 +920,7 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 	aliveWithOptionalScan(&devices[deviceNumber], true);
 	canData[0] = COMMAND_8X8_ROTATION_SET;
 	canData[1] = rotation;
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
+	messageSend(canData, 2, deviceNumber);
 }
 
 /** If sensor not started, start it and wait for 1. message

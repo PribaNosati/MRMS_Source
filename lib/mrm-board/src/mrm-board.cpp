@@ -18,10 +18,10 @@ std::map<int, std::string>* Board::commandNames = NULL;
 @param id - unique id
 */
 Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boardName, BoardType boardType, BoardId id) {
-	robotContainer = robot;
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
 	this->_boardsName = boardName;
+	robotContainer = robot;
 	nextFree = 0;
 	_boardType = boardType;
 	_message[28] = '\0';
@@ -380,7 +380,12 @@ void Board::messagePrint(CANMessage message, bool outbound) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
-	messageSendParent(CANMessage(devices[deviceNumber].canIdIn, data, dlc), deviceNumber);
+	if (messageSendParent)
+		messageSendParent(CANMessage(robotContainer, devices[deviceNumber].canIdIn, data, dlc), deviceNumber);
+	else{
+		print("messageSendParent() not defined.\n\r");
+		exit(1);
+	}
 }
 
 /** Request notification
@@ -778,7 +783,7 @@ void SensorBoard::continuousReadingCalculatedDataStart(Device* device) {
 
 
 MotorGroup::MotorGroup(Robot* robot){
-	this->robotContainer = robot;
+	robotContainer = robot;
 }
 
 

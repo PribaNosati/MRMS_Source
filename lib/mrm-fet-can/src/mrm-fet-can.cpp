@@ -89,7 +89,7 @@ void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 	canData[0] = COMMAND_TURN_ON;
 	canData[1] = outputNumber;
 
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
+	messageSend(canData, 2, deviceNumber);
 }
 
 /** Turn output off
@@ -104,7 +104,7 @@ void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 	canData[0] = COMMAND_TURN_OFF;
 	canData[1] = outputNumber;
 
-	robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 2, canData);
+	messageSend(canData, 2, deviceNumber);
 }
 
 /** Read CAN Bus message into local variables
