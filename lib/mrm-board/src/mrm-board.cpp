@@ -599,13 +599,13 @@ void MotorBoard::readingsPrint() {
 @param motorNumber - motor's number
 @param speed - in range -127 to 127
 */
-void MotorBoard::speedSet(uint8_t motorNumber, int8_t speed) {
+void MotorBoard::speedSet(uint8_t motorNumber, int8_t speed, bool force) {
 	if (motorNumber >= devices.size()) {
 		sprintf(errorMessage, "Mot. %i doesn't exist", motorNumber);
 		return;
 	}
 
-	if ((*lastSpeed)[motorNumber] == speed)
+	if (!force && (*lastSpeed)[motorNumber] == speed)
 		return;
 	(*lastSpeed)[motorNumber] = speed;
 
@@ -647,7 +647,7 @@ bool MotorBoard::started(Device device) {
 */
 void MotorBoard::stop() {
 	for (Device& dev : devices) {
-			speedSet(dev.number, 0);
+			speedSet(dev.number, 0, true);
 			delay(2);
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP; // Stop encoders
 			messageSend(canData, 1, dev.number);

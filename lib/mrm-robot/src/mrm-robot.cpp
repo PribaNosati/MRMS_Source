@@ -1658,10 +1658,10 @@ void Robot::servoTest(){
 /** Stops all motors
 */
 void Robot::stopAll() {
-	devicesStop(); // Devices
-	for (Board* board :boards) // Motors
+	devicesStop(); // Devices, measurements
+	for (Board* board :boards) // Motors stop
 		if (board->boardType() == Board::BoardType::MOTOR_BOARD && board->count() > 0)
-			((MotorBoard*)board)->stop();
+			((MotorBoard*)board)->stop(); // Stops motors
 	end();
 }
 

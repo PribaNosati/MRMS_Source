@@ -384,7 +384,7 @@ public:
 	@param motorNumber - motor's number
 	@param speed - in range -127 to 127
 	*/
-	void speedSet(uint8_t motorNumber, int8_t speed);
+	void speedSet(uint8_t motorNumber, int8_t speed, bool force = false);
 
 	/** Stop all motors
 	*/
