@@ -25,7 +25,7 @@ public:
 	@param boardId - menu only for a specific board
 	@param ledSign - the LED sign that will be displayed when action set to this one
 	*/
-	ActionBase(Robot* robot, const char text[20], uint8_t menuLevel = 1, Board::BoardId boardsId = Board::ID_ANY,
+	ActionBase(Robot* robot, const char text[20], uint8_t menuLevel = 1, Board::BoardId boardsId = Board::BoardId::ID_ANY,
 		Mrm_8x8a::LEDSign* ledSign8x8 = NULL, void (Robot::*actionPerform)() = NULL);
 
 	Board::BoardId boardsId() { return _boardsId; }

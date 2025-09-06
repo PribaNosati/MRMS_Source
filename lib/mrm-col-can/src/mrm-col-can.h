@@ -189,8 +189,6 @@ public:
 	*/
 	void patternsRecord();
 
-	void pnpSet(bool enable, uint8_t deviceNumber);
-
 	/** Analog readings
 	@param color - one of 6 colors
 	@param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0.

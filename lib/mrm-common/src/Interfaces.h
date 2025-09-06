@@ -48,12 +48,6 @@ public:
 	*/
 	virtual bool messageDecode(CANMessage message) = 0;
 
-    /** Enable plug and play
-	@param enable - enable or disable
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-	virtual void pnpSet(bool enable = true, Device * device = nullptr) = 0;
-
 	/** Ranging type
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param value - long range 0, high speed 1, high accuracy 2

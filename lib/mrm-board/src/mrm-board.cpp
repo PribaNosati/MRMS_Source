@@ -473,6 +473,24 @@ void Board::oscillatorTest(Device* device) {
 	}
 }
 
+/** Enable plug and play
+@param enable - enable or disable
+@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+*/
+void Board::pnpSet(bool enable, Device * device){
+	if (device == nullptr)
+		for (Device& dev : devices)
+			pnpSet(enable, &dev);
+	else if (device->alive) {
+		delay(1);
+		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
+		canData[1] = enable;
+		messageSend(canData, 2, device->number);
+		print("%s PnP %s\n\r", device->name.c_str(), enable ? "on" : "off");
+	}
+}
+
+
 /** Reset
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 */
@@ -501,7 +519,7 @@ uint16_t Board::serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween,
 
 bool Board::setup(){
 	if (setupParent)
-		retrun setupParent();
+		return setupParent();
 	else{
 		print("setupParent() not defined.\n\r");
 		exit(1);

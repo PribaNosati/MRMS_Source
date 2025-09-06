@@ -1511,24 +1511,8 @@ void Robot::pnpOff(){
  @param enable - enable or disable
  */
 void Robot::pnpSet(bool enable){
-	uint8_t count = mrm_lid_can_b2->deadOrAliveCount();
-	for (uint8_t i = 0; i < count; i++)
-		if (mrm_lid_can_b2->devices[i].alive){
-			mrm_lid_can_b2->pnpSet(enable, &mrm_lid_can_b2->devices[i]);
-			print("%s PnP %s\n\r", mrm_lid_can_b2->devices[i].name.c_str(), enable ? "on" : "off");
-		}
-	count = mrm_lid_can_b->deadOrAliveCount();
-	for (uint8_t i = 0; i < count; i++)
-		if (mrm_lid_can_b->devices[i].alive){
-			mrm_lid_can_b->pnpSet(enable, &mrm_lid_can_b->devices[i]);
-			print("%s PnP %s\n\r", mrm_lid_can_b->devices[i].name.c_str(), enable ? "on" : "off");
-		}
-	count = mrm_ref_can->deadOrAliveCount();
-	for (uint8_t i = 0; i < count; i++)
-		if (mrm_ref_can->devices[i].alive){
-			mrm_ref_can->pnpSet(enable, &mrm_ref_can->devices[i]);
-			print("%s PnP %s\n\r", mrm_ref_can->devices[i].name.c_str(), enable ? "on" : "off");
-		}
+	for (Board * board : boards)
+		board->pnpSet(enable, nullptr);
 	end();
 }
 

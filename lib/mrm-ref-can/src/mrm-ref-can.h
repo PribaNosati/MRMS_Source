@@ -188,12 +188,6 @@ public:
 	*/
 	void peakRecordingSet(RecordPeakType type, uint8_t deviceNumber = 0xFF);
 
-	/** Enable plug and play
-	@param enable - enable or disable
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-	void pnpSet(bool enable, Device * device = nullptr);
-	
 	/** Analog readings
 	@param receiverNumberInSensor - single IR transistor in mrm-ref-can
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

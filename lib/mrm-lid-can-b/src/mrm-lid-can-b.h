@@ -105,12 +105,6 @@ public:
 	*/
 	bool messageDecode(CANMessage message);
 
-	/** Enable plug and play
-	@param enable - enable or disable
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-	void pnpSet(bool enable = true, Device * device = nullptr);
-
 	/** Ranging type
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param value - long range 0, high speed 1, high accuracy 2

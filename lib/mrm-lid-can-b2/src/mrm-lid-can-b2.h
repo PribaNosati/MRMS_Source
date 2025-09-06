@@ -125,12 +125,6 @@ public:
 	*/
 	bool messageDecode(CANMessage message);
 
-	/** Enable plug and play
-	@param enable - enable or disable
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-void pnpSet(bool enable = true, Device * device = nullptr);
-
 	void rangingType(Device * device = nullptr, uint8_t value = 0) {print("Not implemented");exit(1);};
 
 

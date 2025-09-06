@@ -236,21 +236,6 @@ bool Mrm_lid_d::messageDecode(CANMessage message) {
 	return false;
 }
 
-/** Enable plug and play
-@param enable - enable or disable
-@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-*/
-void Mrm_lid_d::pnpSet(bool enable, Device * device){
-	if (device == nullptr)
-		for (Device& dev : devices)
-			pnpSet(enable, &dev);
-	else if (device->alive) {
-		delay(1);
-		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
-		canData[1] = enable;
-		messageSend(canData, 2, device->number);
-	}
-}
 
 /** Analog readings
 @param receiverNumberInSensor - always 0
