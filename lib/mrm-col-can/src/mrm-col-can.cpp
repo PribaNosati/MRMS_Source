@@ -7,8 +7,8 @@ std::map<int, std::string>* Mrm_col_can::commandNamesSpecific = NULL;
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_col_can::Mrm_col_can(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "Color", maxNumberOfBoards, ID_MRM_COL_CAN, MRM_COL_CAN_COLORS) {
+Mrm_col_can::Mrm_col_can(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "Color", maxNumberOfBoards, ID_MRM_COL_CAN, MRM_COL_CAN_COLORS) {
 	readings = new std::vector<uint16_t[MRM_COL_CAN_COLORS]>(maxNumberOfBoards);
 	_hsv = new std::vector<bool>(maxNumberOfBoards);
 	_hue = new std::vector<uint8_t>(maxNumberOfBoards);

@@ -168,30 +168,30 @@ if (actions == NULL) {
 		actions->insert({"cts", new ActionRobot(this, "CAN test", 16, Board::BoardId::ID_ANY, signTest, &Robot::canTest)});
 }
 
-	mrm_8x8a = new Mrm_8x8a(this);
-	mrm_bldc2x50 = new Mrm_bldc2x50(this);
-	mrm_bldc4x2_5 = new Mrm_bldc4x2_5(this);
-	mrm_col_b = new Mrm_col_b(this);
-	mrm_col_can = new Mrm_col_can(this);
-	mrm_fet_can = new Mrm_fet_can(this);
+	mrm_8x8a = new Mrm_8x8a();
+	mrm_bldc2x50 = new Mrm_bldc2x50();
+	mrm_bldc4x2_5 = new Mrm_bldc4x2_5();
+	mrm_col_b = new Mrm_col_b();
+	mrm_col_can = new Mrm_col_can();
+	mrm_fet_can = new Mrm_fet_can();
 	mrm_imu = new Mrm_imu();
-	//mrm_ir_finder2 = new Mrm_ir_finder2(this);
-	// mrm_ir_finder_can = new Mrm_ir_finder_can(this);
-	mrm_ir_finder3 = new Mrm_ir_finder3(this);
-	mrm_lid_can_b = new Mrm_lid_can_b(this);
-	mrm_lid_can_b2 = new Mrm_lid_can_b2(this);
-	mrm_lid_d = new Mrm_lid_d(this);
-	mrm_mot2x50 = new Mrm_mot2x50(this);
-	mrm_mot4x3_6can = new Mrm_mot4x3_6can(this);
-	mrm_mot4x10 = new Mrm_mot4x10(this);
-	mrm_node = new Mrm_node(this);
-	mrm_ref_can = new Mrm_ref_can(this);
+	//mrm_ir_finder2 = new Mrm_ir_finder2();
+	// mrm_ir_finder_can = new Mrm_ir_finder_can();
+	mrm_ir_finder3 = new Mrm_ir_finder3();
+	mrm_lid_can_b = new Mrm_lid_can_b();
+	mrm_lid_can_b2 = new Mrm_lid_can_b2();
+	mrm_lid_d = new Mrm_lid_d();
+	mrm_mot2x50 = new Mrm_mot2x50();
+	mrm_mot4x3_6can = new Mrm_mot4x3_6can();
+	mrm_mot4x10 = new Mrm_mot4x10();
+	mrm_node = new Mrm_node();
+	mrm_ref_can = new Mrm_ref_can();
 	mrm_servo = new Mrm_servo(this);
-	mrm_switch = new Mrm_switch(this);
-	mrm_therm_b_can = new Mrm_therm_b_can(this);
-	// mrm_us = new Mrm_us(this);
-	mrm_us_b = new Mrm_us_b(this);
-	mrm_us1 = new Mrm_us1(this);
+	mrm_switch = new Mrm_switch();
+	mrm_therm_b_can = new Mrm_therm_b_can();
+	// mrm_us = new Mrm_us();
+	mrm_us_b = new Mrm_us_b();
+	mrm_us1 = new Mrm_us1();
 
 	// 8x8 LED
 	mrm_8x8a->add((char*)"LED8x8-0");

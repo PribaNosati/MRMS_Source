@@ -160,7 +160,7 @@ public:
 	@param boardName - board's name
 	@param id - unique id
 	*/
-	Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOnABoard, std::string boardName, BoardType boardType, BoardId id);
+	Board(uint8_t maxNumberOfBoards, uint8_t devicesOnABoard, std::string boardName, BoardType boardType, BoardId id);
 
 	/** Add a device.
 	@param deviceName
@@ -353,7 +353,7 @@ public:
 	@param maxNumberOfBoards - maximum number of boards
 	@param id - unique id
 	*/
-	MotorBoard(Robot* robot, uint8_t devicesOnABoard, std::string boardName, uint8_t maxNumberOfBoards, BoardId id);
+	MotorBoard(uint8_t devicesOnABoard, std::string boardName, uint8_t maxNumberOfBoards, BoardId id);
 
 	~MotorBoard();
 
@@ -411,7 +411,7 @@ public:
 	@param maxNumberOfBoards - maximum number of boards
 	@param id - unique id
 	*/
-	SensorBoard(Robot* robot, uint8_t devicesOnABoard, const char* boardName, uint8_t maxNumberOfBoards, BoardId id,
+	SensorBoard(uint8_t devicesOnABoard, const char* boardName, uint8_t maxNumberOfBoards, BoardId id,
 		uint8_t measurementsCount);
 
 	/** Starts periodical CANBus messages that will be refreshing values that mirror sensor's calculated values

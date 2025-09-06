@@ -9,8 +9,8 @@ std::map<int, std::string>* Mrm_8x8a::commandNamesSpecific = NULL;
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_8x8a::Mrm_8x8a(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "LED8x8", maxNumberOfBoards, ID_MRM_8x8A, MRM_8x8A_SWITCHES_COUNT) {
+Mrm_8x8a::Mrm_8x8a(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "LED8x8", maxNumberOfBoards, ID_MRM_8x8A, MRM_8x8A_SWITCHES_COUNT) {
 	displayedLast = new std::vector<uint8_t>(maxNumberOfBoards);
 	displayedTypeLast = new std::vector<uint8_t>(maxNumberOfBoards);
 	lastOn = new std::vector<bool[MRM_8x8A_SWITCHES_COUNT]>(maxNumberOfBoards);

@@ -9,8 +9,8 @@ std::map<int, std::string>* Mrm_lid_d::commandNamesSpecific = NULL;
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_lid_d::Mrm_lid_d(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "LidMul", maxNumberOfBoards, ID_MRM_LID_D, 1) {
+Mrm_lid_d::Mrm_lid_d(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "LidMul", maxNumberOfBoards, ID_MRM_LID_D, 1) {
 	readings = new std::vector<std::vector<uint16_t>>(maxNumberOfBoards);
 	_resolution = new std::vector<uint8_t>(maxNumberOfBoards);
 

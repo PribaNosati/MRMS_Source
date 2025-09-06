@@ -9,8 +9,8 @@ std::map<int, std::string>* Mrm_lid_can_b2::commandNamesSpecific = NULL;
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_lid_can_b2::Mrm_lid_can_b2(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "Lid4m", maxNumberOfBoards, ID_MRM_LID_CAN_B2, 1) {
+Mrm_lid_can_b2::Mrm_lid_can_b2(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "Lid4m", maxNumberOfBoards, ID_MRM_LID_CAN_B2, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
 
 	if (commandNamesSpecific == NULL){

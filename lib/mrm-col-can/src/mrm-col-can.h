@@ -75,7 +75,7 @@ public:
 	@param robot - robot containing this board
 	@param maxNumberOfBoards - maximum number of boards
 	*/
-	Mrm_col_can(Robot* robot = NULL, uint8_t maxNumberOfBoards = 4);
+	Mrm_col_can(uint8_t maxNumberOfBoards = 4);
 
 	~Mrm_col_can();
 

@@ -7,8 +7,8 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_us_b::Mrm_us_b(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "US-B", maxNumberOfBoards, ID_MRM_US_B, 1) {
+Mrm_us_b::Mrm_us_b(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "US-B", maxNumberOfBoards, ID_MRM_US_B, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
 }
 

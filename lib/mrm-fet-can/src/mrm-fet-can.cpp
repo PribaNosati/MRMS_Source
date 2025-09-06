@@ -9,8 +9,8 @@ std::map<int, std::string>* Mrm_fet_can::commandNamesSpecific = NULL;
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : 
-	MotorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
+Mrm_fet_can::Mrm_fet_can(uint8_t maxNumberOfBoards) : 
+	MotorBoard(1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
 
 	if (commandNamesSpecific == NULL){
 		commandNamesSpecific = new std::map<int, std::string>();

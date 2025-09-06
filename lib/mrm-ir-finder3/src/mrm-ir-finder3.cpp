@@ -7,8 +7,8 @@ std::map<int, std::string>* Mrm_ir_finder3::commandNamesSpecific = NULL;
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_ir_finder3::Mrm_ir_finder3(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "IRFind3", maxNumberOfBoards, ID_MRM_IR_FINDER3, MRM_IR_FINDER3_SENSOR_COUNT) {
+Mrm_ir_finder3::Mrm_ir_finder3(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "IRFind3", maxNumberOfBoards, ID_MRM_IR_FINDER3, MRM_IR_FINDER3_SENSOR_COUNT) {
 	_angle = new std::vector<int16_t>(maxNumberOfBoards);
 	_calculated = new std::vector<bool>(maxNumberOfBoards);
 	_distance = new std::vector<uint16_t>(maxNumberOfBoards);

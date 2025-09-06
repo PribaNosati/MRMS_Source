@@ -17,7 +17,7 @@ std::map<int, std::string>* Board::commandNames = NULL;
 @param boardName - board's name
 @param id - unique id
 */
-Board::Board(Robot* robot, uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boardName, BoardType boardType, BoardId id) {
+Board::Board(uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boardName, BoardType boardType, BoardId id) {
 	this->devicesOnABoard = devicesOn1Board;
 	this->maximumNumberOfBoards = maxNumberOfBoards;
 	this->_boardsName = boardName;
@@ -525,8 +525,8 @@ void Board::swapCANIds(Device device1, Device device2) {
 @param maxNumberOfBoards - maximum number of boards
 @param id - unique id
 */
-MotorBoard::MotorBoard(Robot* robot, uint8_t devicesOnABoard, std::string boardName, uint8_t maxNumberOfBoards, BoardId id) :
-	Board(robot, maxNumberOfBoards, devicesOnABoard, boardName, MOTOR_BOARD, id) {
+MotorBoard::MotorBoard(uint8_t devicesOnABoard, std::string boardName, uint8_t maxNumberOfBoards, BoardId id) :
+	Board(maxNumberOfBoards, devicesOnABoard, boardName, MOTOR_BOARD, id) {
 	encoderCount = new std::vector<uint32_t>(devicesOnABoard * maxNumberOfBoards);
 	reversed = new std::vector<bool>(devicesOnABoard * maxNumberOfBoards);
 	lastSpeed = new std::vector<int8_t>(devicesOnABoard * maxNumberOfBoards);
@@ -753,9 +753,9 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 @param maxNumberOfBoards - maximum number of boards
 @param id - unique id
 */
-SensorBoard::SensorBoard(Robot* robot, uint8_t devicesOnABoard, const char boardName[], uint8_t maxNumberOfBoards, 
+SensorBoard::SensorBoard(uint8_t devicesOnABoard, const char boardName[], uint8_t maxNumberOfBoards, 
 	BoardId id, uint8_t readingsCount) :
-	Board(robot, maxNumberOfBoards, devicesOnABoard, boardName, SENSOR_BOARD, id) {
+	Board(maxNumberOfBoards, devicesOnABoard, boardName, SENSOR_BOARD, id) {
 		_readingsCount = readingsCount;
 }
 
