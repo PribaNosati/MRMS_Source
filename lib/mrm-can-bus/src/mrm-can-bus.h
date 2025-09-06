@@ -7,12 +7,10 @@ struct CANMessage {
 	uint32_t id;
 	uint8_t dlc;
 	uint8_t data[8];
-	Robot * robotContainer;
 
 	void print();
 
-	CANMessage(Robot* robot);
-	CANMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc);
+	CANMessage(uint16_t id, uint8_t payload[8], uint8_t dlc);
 	CANMessage();
 };
 
@@ -20,12 +18,11 @@ struct CANMessage {
 class Mrm_can_bus {
 private:
 	uint32_t lastSentMicros = 0;
-	Robot* robotContainer = NULL;
 public:
 	/*
 	@param robot - robot containing this board
 	*/
-	Mrm_can_bus(Robot* robot = NULL);
+	Mrm_can_bus();
 
 	/**Receive a CANBus message
 	@return true - a message received, false - none

@@ -131,7 +131,7 @@ uint16_t Mrm_lid_can_b2::distance(uint8_t deviceNumber, uint8_t sampleCount, uin
 					(*readings)[deviceNumber] = 0;
 				uint32_t ms = millis();
 				while ((*readings)[deviceNumber] == 0){
-					robotContainer->noLoopWithoutThis();
+					noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
 						errorAdd(devices[deviceNumber].canIdIn, ERROR_TIMEOUT, false);
 						break;

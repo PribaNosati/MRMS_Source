@@ -30,32 +30,25 @@ uint16_t _peakSend = 0;
 
 CANMessage* receivedMessage = NULL;
 
-CANMessage::CANMessage(Robot* robot){
-	robotContainer = robot;
-}
 
-CANMessage::CANMessage(Robot* robot, uint16_t id, uint8_t payload[8], uint8_t dlc) : 
-	robotContainer(robot), id(id), dlc(dlc) {
+CANMessage::CANMessage(uint16_t id, uint8_t payload[8], uint8_t dlc) : id(id), dlc(dlc) {
 	for (uint8_t i = 0; i < 8; i++)
 		this->data[i] = payload[i];
 }
 
-CANMessage::CANMessage() : id(0), dlc(0), robotContainer(NULL) {}
+CANMessage::CANMessage() : id(0), dlc(0) {}
 
 void CANMessage::print() {
-	if (robotContainer != NULL){
-		::print("Id: 0x%04X, data:", id);
-		for (uint8_t i = 0; i < dlc; i++)
-			::print(" %02X", data[i]);
-		::print("\n\r");
-	}
+	::print("Id: 0x%04X, data:", id);
+	for (uint8_t i = 0; i < dlc; i++)
+		::print(" %02X", data[i]);
+	::print("\n\r");
 }
 
 /** Constructor
 @param robot - robot containing this board
 */
-Mrm_can_bus::Mrm_can_bus(Robot* robot) {
-	robotContainer = robot;
+Mrm_can_bus::Mrm_can_bus() {
 	twai_general_config_t general_config = {
 	   .mode = TWAI_MODE_NORMAL,
 	   .tx_io = (gpio_num_t)GPIO_NUM_5,
@@ -75,7 +68,7 @@ Mrm_can_bus::Mrm_can_bus(Robot* robot) {
 	if (twai_start() != ESP_OK)
 		strcpy(errorMessage, "Error start CAN");
 
-	receivedMessage = new CANMessage(robotContainer);
+	receivedMessage = new CANMessage();
 }
 
 /**Receive a CANBus message

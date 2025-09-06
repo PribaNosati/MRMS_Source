@@ -519,6 +519,10 @@ void Robot::add(Board* aBoard) {
 	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message);};
 	aBoard->delayMs = [this](uint16_t pauseMs){delayMs(pauseMs);};
 	aBoard->noLoopWithoutThis = [this](){noLoopWithoutThis();};
+	aBoard->serialReadNumber = [this](uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+		uint16_t limit, bool printWarnings) {
+			return serialReadNumber(timeoutFirst, timeoutBetween, onlySingleDigitInput, limit, printWarnings);
+		};
 
 	_boardNextFree++;
 }
@@ -1385,7 +1389,6 @@ void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 			message[nextIndex].id = _msg->id;
 			for (uint8_t i = 0; i < _msg->dlc; i++)
 				message[nextIndex].data[i] = _msg->data[i];
-			message[nextIndex].robotContainer = _msg->robotContainer;
 			last = nextIndex;
 			nextIndex++;
 		}

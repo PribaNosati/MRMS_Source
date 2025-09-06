@@ -155,7 +155,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 	if (deviceNumber == 0xFF)
 		for (uint8_t i = 0; i < nextFree; i++) {
 			if (i != 0)
-				robotContainer->delayMicros(800);
+				delayMs(1);
 			calibrate(i);
 		}
 	else if (aliveWithOptionalScan(&devices[deviceNumber])){
@@ -166,7 +166,7 @@ void Mrm_ref_can::calibrate(uint8_t deviceNumber) {
 		uint32_t startMs = millis();
 		bool ok = false;
 		while (millis() - startMs < 10000) {
-			robotContainer->noLoopWithoutThis();
+			noLoopWithoutThis();
 			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				ok = true;
 				break;
@@ -207,11 +207,11 @@ void Mrm_ref_can::calibrationDataRequest(uint8_t deviceNumber, bool waitForResul
 		if (waitForResult)
 			dataFreshCalibrationSet(false, deviceNumber);
 		canData[0] = COMMAND_REF_CAN_CALIBRATION_DATA_REQUEST;
-		robotContainer->mrm_can_bus->messageSend(devices[deviceNumber].canIdIn, 1, canData);
+		messageSend(canData, 1,deviceNumber);
 		if (waitForResult) {
 			uint32_t ms = millis();
 			while (!dataCalibrationFreshAsk(deviceNumber)) {
-				robotContainer->noLoopWithoutThis();
+				noLoopWithoutThis();
 				if (millis() - ms > 1000) {
 					strcpy(errorMessage, "Cal. data timeout.");
 					break;

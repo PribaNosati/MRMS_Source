@@ -4,8 +4,7 @@
 /**Constructor
 @param robot - robot containing this board
 */
-Mrm_ir_finder2::Mrm_ir_finder2(Robot* robot) {
-	robotContainer = robot;
+Mrm_ir_finder2::Mrm_ir_finder2() {
 	nextFree = 0;
 }
 

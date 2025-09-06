@@ -460,7 +460,7 @@ void Mrm_col_b::patternsRecord() {
 	// Select device
 	uint8_t sensorsAlive = count();
 	print("Enter sensor id [0..%i]: ", sensorsAlive - 1);
-	uint16_t deviceNumber = robotContainer->serialReadNumber(8000, 500, nextFree - 1 <= 9, sensorsAlive - 1);
+	uint16_t deviceNumber = serialReadNumber(8000, 500, nextFree - 1 <= 9, sensorsAlive - 1, true);
 	if (deviceNumber == 0xFFFF) {
 		print("Exit\n\r");
 		return;
@@ -468,7 +468,7 @@ void Mrm_col_b::patternsRecord() {
 	print("%i\n\r", deviceNumber);
 	// Select pattern
 	print("Enter pattern id [0..%i]: ", MRM_COL_B_PATTERN_COUNT - 1);
-	uint16_t patternNumber = robotContainer->serialReadNumber(8000, 500, MRM_COL_B_PATTERN_COUNT - 1 <= 9, MRM_COL_B_PATTERN_COUNT - 1);
+	uint16_t patternNumber = serialReadNumber(8000, 500, MRM_COL_B_PATTERN_COUNT - 1 <= 9, MRM_COL_B_PATTERN_COUNT - 1, true);
 	if (patternNumber == 0xFFFF) {
 		print("Exit\n\r");
 		return;

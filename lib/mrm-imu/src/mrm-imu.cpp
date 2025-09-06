@@ -23,10 +23,7 @@ Mrm_imu::~Mrm_imu() {}
 void Mrm_imu::add(bool defaultI2CAddress) {
 	if (nextFree >= MAX_MRM_IMU) {
 #ifdef ESP_PLATFORM
-		if (robotContainer != NULL)
-			strcpy(errorMessage, "Too many mrm-imus.");//Todo - enabling more sensors by changing bno055Initialize() call.
-		else
-			errorGeneric();
+		strcpy(errorMessage, "Too many mrm-imus.");//Todo - enabling more sensors by changing bno055Initialize() call.
 #else
 		Serial.println("To many IMUs");
 #endif
@@ -77,10 +74,7 @@ uint8_t Mrm_imu::accelerationCalibration() {
 		return acc;
 	else {
 #ifdef ESP_PLATFORM
-		if (robotContainer != NULL)
-			strcpy(errorMessage, "No accelerometer");
-		else
-			errorGeneric();
+		strcpy(errorMessage, "No accelerometer");
 #else
 		Serial.println("No accelerometer");
 #endif
@@ -98,10 +92,7 @@ uint8_t Mrm_imu::gyroCalibration() {
 		return cal;
 	else {
 #ifdef ESP_PLATFORM
-		if (robotContainer != NULL)
-			strcpy(errorMessage, "No gyroscope");
-		else
-			errorGeneric();
+		strcpy(errorMessage, "No gyroscope");
 #else
 		Serial.println("No gyroscope");
 #endif
@@ -119,10 +110,7 @@ uint8_t Mrm_imu::magneticCalibration() {
 		return cal;
 	else {
 #ifdef ESP_PLATFORM
-		if (robotContainer != NULL)
-			strcpy(errorMessage, "No magnetometer.");
-		else
-			errorGeneric();
+		strcpy(errorMessage, "No magnetometer.");
 #else
 		Serial.println("No magnetometer.");
 #endif

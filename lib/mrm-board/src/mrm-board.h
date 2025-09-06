@@ -137,7 +137,6 @@ protected:
 	bool messageDecodeCommon(CANMessage message, Device& device);
 
 public:
-		Robot * robotContainer;
 	std::vector<Device> devices; // List of devices on this board
 	uint8_t devicesOnABoard; // Number of devices on a single board
 	uint8_t number; // Index in vector
@@ -151,6 +150,8 @@ public:
 	std::function<void (CANMessage message, uint8_t deviceNumber)> messageSendParent;
 	std::function<void (uint16_t)> delayMs;
 	std::function<void ()> noLoopWithoutThis;
+	std::function<uint16_t (uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+		uint16_t limit, bool printWarnings)> serialReadNumber;
 	
 	/**
 	@param robot - robot containing this board
@@ -442,9 +443,10 @@ class MotorGroup {
 protected:
 	MotorBoard* motorBoard[MAX_MOTORS_IN_GROUP] = { NULL, NULL, NULL, NULL }; // Motor board for each wheel. It can the same, but need not be.
 	uint8_t motorNumber[MAX_MOTORS_IN_GROUP];
-	Robot* robotContainer;
 public:
-	MotorGroup(Robot* robot);
+	std::function<void (uint16_t)> delayMs;
+
+	MotorGroup();
 
 	/** Stop motors
 	*/
@@ -472,7 +474,7 @@ public:
 	@param motorBoardForRight2 - Controller for one of the right wheels
 	@param motorNumberForRight2 - Controller's output number
 	*/
-	MotorGroupDifferential(Robot* robot, MotorBoard* motorBoardForLeft1, uint8_t motorNumberForLeft1, MotorBoard* motorBoardForRight1, uint8_t motorNumberForRight1,
+	MotorGroupDifferential(MotorBoard* motorBoardForLeft1, uint8_t motorNumberForLeft1, MotorBoard* motorBoardForRight1, uint8_t motorNumberForRight1,
 		MotorBoard* motorBoardForLeft2 = NULL, uint8_t motorNumberForLeft2 = 0, MotorBoard* motorBoardForRight2 = NULL, uint8_t motorNumberForRight2 = 0);
 
 	/** Start all motors
@@ -497,7 +499,7 @@ public:
 	@param motorBoardForMinus45Degrees - motor controller for the motor which axle is inclined -45 degrees clockwise from robot's front.
 	@param motorNumberForMinus45Degrees - Controller's output number.
 	*/
-	MotorGroupStar(Robot* robot, MotorBoard* motorBoardFor45Degrees, uint8_t motorNumberFor45Degrees, MotorBoard* motorBoardFor135Degrees, uint8_t motorNumberFor135Degrees,
+	MotorGroupStar(MotorBoard* motorBoardFor45Degrees, uint8_t motorNumberFor45Degrees, MotorBoard* motorBoardFor135Degrees, uint8_t motorNumberFor135Degrees,
 		MotorBoard* motorBoardForMinus135Degrees, uint8_t motorNumberForMinus135Degrees, MotorBoard* motorBoardForMinus45Degrees, uint8_t motorNumberForMinus45Degrees);
 
 	/** Control of a robot with axles connected in a star formation, like in a RCJ soccer robot with omni wheels. Motor 0 is at 45 degrees, 1 at 135, 2 at -135, 3 at -45.
