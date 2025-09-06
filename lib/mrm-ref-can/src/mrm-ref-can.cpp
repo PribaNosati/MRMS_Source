@@ -424,7 +424,7 @@ for (Device& device : devices)
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					errorAddParent(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 
 				if (anyReading)

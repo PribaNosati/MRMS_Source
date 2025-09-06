@@ -143,15 +143,15 @@ public:
 
 	// In order to avoid back-pointers to Robot class
 	std::function<void (uint16_t canId, uint8_t errorCode, bool peripheral)> errorAddParent;
-	std::function<bool ()> userBreak;
-	std::function<bool ()> setup;
-	std::function<void()> end;
+	std::function<bool ()> userBreakParent;
+	std::function<bool ()> setupParent;
+	std::function<void()> endParent;
 	std::function<void (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix)> messagePrintParent;
 	std::function<void (CANMessage message, uint8_t deviceNumber)> messageSendParent;
-	std::function<void (uint16_t)> delayMs;
-	std::function<void ()> noLoopWithoutThis;
+	std::function<void (uint16_t)> delayMsParent;
+	std::function<void ()> noLoopWithoutThisParent;
 	std::function<uint16_t (uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
-		uint16_t limit, bool printWarnings)> serialReadNumber;
+		uint16_t limit, bool printWarnings)> serialReadNumberParent;
 	
 	/**
 	@param robot - robot containing this board
@@ -217,7 +217,14 @@ public:
 	*/
 	void devicesScan(bool verbose = true, uint16_t mask = 0xFFFF);
 
+	void end();
 	void errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral);
+	bool setup();
+	bool userBreak();
+	void delayMs(uint16_t ms);
+	void noLoopWithoutThis();
+	uint16_t serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+		uint16_t limit, bool printWarnings);
 
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.

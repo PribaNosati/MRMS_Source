@@ -219,6 +219,64 @@ void Board::errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral){
 	}
 }
 
+bool Board::userBreak(){
+	if (userBreakParent)
+		userBreakParent();
+	else{
+		print("userBreakParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+bool Board::setup(){
+	if (setupParent)
+		setupParent();
+	else{
+		print("setupParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+
+void Board::end(){
+	if (endParent)
+		endParent();
+	else{
+		print("endParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+void Board::delayMs(uint16_t ms){
+	if (delayMsParent)
+		delayMsParent(ms);
+	else{
+		print("delayMsParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+void Board::noLoopWithoutThis(){
+	if (noLoopWithoutThisParent)
+		noLoopWithoutThisParent();
+	else{
+		print("noLoopWithoutThisParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+uint16_t Board::serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+		uint16_t limit, bool printWarnings){
+	if (serialReadNumberParent)
+		return serialReadNumberParent(timeoutFirst, timeoutBetween, onlySingleDigitInput, 
+			limit, printWarnings);
+	else{
+		print("serialReadNumberParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+
 /** Request firmware version
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
@@ -330,7 +388,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		errorAddParent(message.id, message.data[1], true);
+		errorAdd(message.id, message.data[1], true);
 		print("Error %i in %s.\n\r", message.data[1], device.name.c_str());
 		break;
 	case COMMAND_FIRMWARE_SENDING: {

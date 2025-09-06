@@ -511,15 +511,15 @@ void Robot::add(Board* aBoard) {
 	aBoard->number = _boardNextFree;
 
 	aBoard->errorAddParent = [this](uint16_t canId, uint8_t errorCode, bool peripheral){this->errors->add(canId, errorCode, peripheral);};
-	aBoard->userBreak = [this](){return this->userBreak();};
-	aBoard->setup = [this](){return this->setup();};
-	aBoard->end = [this](){this->end();};
+	aBoard->userBreakParent = [this](){return this->userBreak();};
+	aBoard->setupParent = [this](){return this->setup();};
+	aBoard->endParent = [this](){this->end();};
 	aBoard->messagePrintParent = [this] (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) 
 		{messagePrint(&message, board, deviceNumber, outbound, clientInitiated, postfix);};
 	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message);};
-	aBoard->delayMs = [this](uint16_t pauseMs){delayMs(pauseMs);};
-	aBoard->noLoopWithoutThis = [this](){noLoopWithoutThis();};
-	aBoard->serialReadNumber = [this](uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+	aBoard->delayMsParent = [this](uint16_t pauseMs){delayMs(pauseMs);};
+	aBoard->noLoopWithoutThisParent = [this](){noLoopWithoutThis();};
+	aBoard->serialReadNumberParent = [this](uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
 		uint16_t limit, bool printWarnings) {
 			return serialReadNumber(timeoutFirst, timeoutBetween, onlySingleDigitInput, limit, printWarnings);
 		};

@@ -853,7 +853,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 					print("Unknown command. ");
 					messagePrint(message, false);
 					print("\n\r");
-					errorAddParent(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
 				} 
 			}
 			return true;
