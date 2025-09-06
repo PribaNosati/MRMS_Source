@@ -73,7 +73,7 @@ if (deviceName.length() > 9) {
 		sprintf(errorMessage, "Name too long: %s", deviceName.c_str());
 		return;
 	}
-	devices.push_back({this, deviceName, canIn, canOut, devices.size()});
+	devices.push_back({deviceName, canIn, canOut, (uint8_t)devices.size()});
 	nextFree++;
 }
 

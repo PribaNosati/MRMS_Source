@@ -898,7 +898,7 @@ Board* Robot::deviceFind(uint16_t msgId, uint8_t& deviceNumber){
 @boardType - sensor, motor, or all boards
 @return count
 */
-void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, Board::BoardType boardType){
+void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Board * boardFound, Device * deviceFound, Board::BoardType boardType){
 	uint8_t count = 0;
 	for (Board* board :boards){
 		if (boardType == Board::BoardType::ANY_BOARD || board->boardType() == boardType){ // Board types
@@ -906,13 +906,14 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 				if (dev.alive) { // Alive devices
 					if (count == deviceGlobalOrdinalNumber)
 					{
-						deviceInfo = &dev;
+						boardFound = board;
+						deviceFound = &dev;
 						// deviceInfo->name = board[boardKind]->name(deviceNumber);
 						// deviceInfo->board = board[boardKind];
 
 						//print("In func: %s %i", deviceInfo->name, deviceNumber);
 						if (boardType ==  Board::BoardType::SENSOR_BOARD)
-							deviceInfo->readingsCount = ((SensorBoard*)(board))->readingsCount();
+							deviceFound->readingsCount = ((SensorBoard*)(board))->readingsCount();
 						return;
 					}
 					else
@@ -920,8 +921,7 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Device * deviceInfo, B
 				}
 		}
 	}
-	deviceInfo->name = "";
-	deviceInfo->readingsCount = 0;
+	deviceFound->readingsCount = 0;
 }
 
 /** Display number of CAN Bus devices using 8x8 display

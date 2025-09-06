@@ -284,7 +284,7 @@ public:
 	@boardType - sensor, motor, or all boards
 	@return count
 	*/
-	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, Device * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
+	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, Board * boardFound, Device * deviceFound, Board::BoardType boardType = Board::BoardType::ANY_BOARD);
 
 	void deviceScan();
 

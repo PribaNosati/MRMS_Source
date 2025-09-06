@@ -91,9 +91,8 @@ class Board;
 
 struct Device{
 	public:
-	Device(Board * board, const std::string& name, uint16_t canIdIn, uint16_t canIdOut, uint8_t number)
-		: board(board), name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0), fpsLast(0xFFFF), number(number), alive(false), aliveOnce(false) {};
-	Board * board;
+	Device(const std::string& name, uint16_t canIdIn, uint16_t canIdOut, uint8_t number)
+		: name(name), readingsCount(0), canIdIn(canIdIn), canIdOut(canIdOut), lastMessageReceivedMs(0), lastReadingsMs(0), fpsLast(0xFFFF), number(number), alive(false), aliveOnce(false) {};
 	std::string name;
 	uint8_t readingsCount;
 	uint16_t canIdIn;
