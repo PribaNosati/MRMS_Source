@@ -207,6 +207,8 @@ public:
 	*/
 	uint8_t deadOrAliveCount();
 
+	void delayMs(uint16_t ms);
+
 	Device* deviceGet(uint8_t deviceNumber);
 
 	uint8_t deviceNumber(uint16_t msgId);
@@ -219,12 +221,6 @@ public:
 
 	void end();
 	void errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral);
-	bool setup();
-	bool userBreak();
-	void delayMs(uint16_t ms);
-	void noLoopWithoutThis();
-	uint16_t serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
-		uint16_t limit, bool printWarnings);
 
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.
@@ -298,6 +294,8 @@ public:
 	*/
 	std::string name() {return _boardsName;}
 
+	void noLoopWithoutThis();
+
 	/** Request notification
 	@param commandRequestingNotification
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -313,6 +311,11 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 	*/
 	void reset(Device* device = nullptr);
+
+	uint16_t serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+		uint16_t limit, bool printWarnings);
+
+	bool setup();
 
 	/** Starts periodical CANBus messages that will be refreshing values that can be read by reading()
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
@@ -338,6 +341,8 @@ public:
 	@param betweenTestsMs - time in ms between 2 tests. 0 - default.
 	*/
 	virtual void test(Device * device = nullptr, uint16_t betweenTestsMs = 0) {}
+
+	bool userBreak();
 };
 
 

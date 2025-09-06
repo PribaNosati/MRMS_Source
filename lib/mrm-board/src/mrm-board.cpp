@@ -180,6 +180,17 @@ uint8_t Board::count() {
 */
 uint8_t Board::deadOrAliveCount() { return devices.size(); }
 
+
+void Board::delayMs(uint16_t ms){
+	if (delayMsParent)
+		delayMsParent(ms);
+	else{
+		print("delayMsParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+
 Device* Board::deviceGet(uint8_t deviceNumber){
 	if (deviceNumber < devices.size())
 		return &devices[deviceNumber];
@@ -210,33 +221,6 @@ void Board::devicesScan(bool verbose, uint16_t mask) {
 	}
 }
 
-void Board::errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral){
-	if (errorAddParent)
-		errorAddParent(canId, errorCode, peripheral);
-	else{
-		print("errorAddParent() not defined.\n\r");
-		exit(1);
-	}
-}
-
-bool Board::userBreak(){
-	if (userBreakParent)
-		userBreakParent();
-	else{
-		print("userBreakParent() not defined.\n\r");
-		exit(1);
-	}
-}
-
-bool Board::setup(){
-	if (setupParent)
-		setupParent();
-	else{
-		print("setupParent() not defined.\n\r");
-		exit(1);
-	}
-}
-
 
 void Board::end(){
 	if (endParent)
@@ -247,31 +231,12 @@ void Board::end(){
 	}
 }
 
-void Board::delayMs(uint16_t ms){
-	if (delayMsParent)
-		delayMsParent(ms);
-	else{
-		print("delayMsParent() not defined.\n\r");
-		exit(1);
-	}
-}
 
-void Board::noLoopWithoutThis(){
-	if (noLoopWithoutThisParent)
-		noLoopWithoutThisParent();
+void Board::errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral){
+	if (errorAddParent)
+		errorAddParent(canId, errorCode, peripheral);
 	else{
-		print("noLoopWithoutThisParent() not defined.\n\r");
-		exit(1);
-	}
-}
-
-uint16_t Board::serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
-		uint16_t limit, bool printWarnings){
-	if (serialReadNumberParent)
-		return serialReadNumberParent(timeoutFirst, timeoutBetween, onlySingleDigitInput, 
-			limit, printWarnings);
-	else{
-		print("serialReadNumberParent() not defined.\n\r");
+		print("errorAddParent() not defined.\n\r");
 		exit(1);
 	}
 }
@@ -454,6 +419,16 @@ void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
 	}
 }
 
+
+void Board::noLoopWithoutThis(){
+	if (noLoopWithoutThisParent)
+		noLoopWithoutThisParent();
+	else{
+		print("noLoopWithoutThisParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
 /** Request notification
 @param commandRequestingNotification
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -511,6 +486,27 @@ void Board::reset(Device* device) {
 	}
 }
 
+
+uint16_t Board::serialReadNumber(uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
+		uint16_t limit, bool printWarnings){
+	if (serialReadNumberParent)
+		return serialReadNumberParent(timeoutFirst, timeoutBetween, onlySingleDigitInput, 
+			limit, printWarnings);
+	else{
+		print("serialReadNumberParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
+
+bool Board::setup(){
+	if (setupParent)
+		retrun setupParent();
+	else{
+		print("setupParent() not defined.\n\r");
+		exit(1);
+	}
+}
 
 /** Starts periodical CANBus messages that will be refreshing values that can be read by reading()
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
@@ -585,6 +581,14 @@ void Board::swapCANIds(Device device1, Device device2) {
 }
 
 
+bool Board::userBreak(){
+	if (userBreakParent)
+		return userBreakParent();
+	else{
+		print("userBreakParent() not defined.\n\r");
+		exit(1);
+	}
+}
 
 /**
 @param robot - robot containing this board
