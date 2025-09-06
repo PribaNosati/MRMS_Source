@@ -881,7 +881,7 @@ void Robot::delayMicros(uint16_t pauseMicros) {
 }
 
 
-Board* Robot::deviceFind(uint16_t msgId, uint8_t deviceNumber){
+Board* Robot::deviceFind(uint16_t msgId, uint8_t& deviceNumber){
 	for (Board* board :boards){
 		uint8_t nr = board->deviceNumber(msgId);
 		if (nr != 0xFF){

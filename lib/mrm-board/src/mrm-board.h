@@ -118,7 +118,7 @@ class Board{
 protected:
 	uint32_t _aliveOnce; // The device was alive at least once after power-on.
 	std::string _boardsName;
-	BoardType _boardType; // To differentiate derived boards
+	BoardType typeId; // To differentiate derived boards
 	uint8_t canData[8]; // Array used to store temporary CAN Bus data
 	static std::map<int, std::string>* commandNames;
 	BoardId _id;
@@ -186,7 +186,7 @@ public:
 	*/
 	void aliveSet(bool yesOrNo, Device * device = nullptr);
 
-	BoardType boardType(){ return _boardType; }
+	BoardType boardType(){ return typeId; }
 
 	/** Detects if there is a gap in CAN Bus addresses' sequence, like 0, 2, 3 (missing 1).
 	@return - is there a gap.
@@ -394,7 +394,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 	@param betweenTestsMs - time in ms between 2 tests. 0 - default.
 	*/
-	void test(uint16_t betweenTestsMs = 0);
+	void test(Device * device , uint16_t betweenTestsMs = 0);
 };
 
 

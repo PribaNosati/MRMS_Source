@@ -22,7 +22,7 @@ Board::Board(uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boa
 	this->maximumNumberOfBoards = maxNumberOfBoards;
 	this->_boardsName = boardName;
 	nextFree = 0;
-	_boardType = boardType;
+	typeId = boardType;
 	_message[28] = '\0';
 	_id = id;
 
@@ -493,6 +493,7 @@ void Board::stop(Device * device) {
 			stop(&dev);
 	else {
 		if (device->alive) {
+			
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
 			messageSend(canData, 1, device->number);
 			device->lastReadingsMs = 0;
@@ -645,17 +646,20 @@ bool MotorBoard::started(Device device) {
 /** Stop all motors
 */
 void MotorBoard::stop() {
-	for(Device& device : devices) {
-		speedSet(device.number, 0);
-		delayMicroseconds(200);
-	}
+	for (Device& dev : devices) {
+			speedSet(dev.number, 0);
+			delay(2);
+			canData[0] = COMMAND_SENSORS_MEASURE_STOP; // Stop encoders
+			messageSend(canData, 1, dev.number);
+			delay(2);
+		}
 }
 
 /**Test
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 @param betweenTestsMs - time in ms between 2 tests. 0 - default.
 */
-void MotorBoard::test(uint16_t betweenTestsMs)
+void MotorBoard::test(Device * device , uint16_t betweenTestsMs)
 {
 	const uint16_t PAUSE_MS = 20;
 	const uint16_t DISPLAY_PAUSE_MS = 300;
@@ -727,6 +731,7 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 				delayMs(PAUSE_MS);
 			}
 
+			delay(2);
 			speedSet(dev.number, 0);
 		}
 	}
@@ -740,6 +745,8 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 			messageSend(canData, 1, dev.number);
 		}
 	}
+
+	stop();
 }
 
 
