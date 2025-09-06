@@ -928,20 +928,24 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_8x8a::started(uint8_t deviceNumber) {
+	static uint64_t lastTriedMs = 0;
 	if (_activeCheckIfStarted && (millis() - devices[deviceNumber].lastReadingsMs > MRM_8X8A_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0)) {
-		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(&devices[deviceNumber], 0);
-			// Wait for 1. message.
-			uint32_t startMs = millis();
-			while (millis() - startMs < 50) {
-				if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
-					//print("8x8 confirmed\n\r"); 
-					return true;
+		if (millis() - lastTriedMs > 5000){
+			for (uint8_t i = 0; i < 2; i++) { // 2 tries
+				start(&devices[deviceNumber], 0);
+				// Wait for 1. message.
+				uint64_t startMs = millis();
+				while (millis() - startMs < 50) {
+					if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
+						//print("8x8 confirmed\n\r");
+						return true;
+					}
+					delay(1);
 				}
-				delayMs(1);
 			}
+			print("%s %i not responding.", _boardsName.c_str(), deviceNumber);
+			lastTriedMs = millis();
 		}
-		strcpy(errorMessage, "mrm-8x8a not responding.\n\r");
 		return false;
 	}
 	else
