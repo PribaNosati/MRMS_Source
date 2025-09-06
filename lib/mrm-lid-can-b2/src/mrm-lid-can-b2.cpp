@@ -98,11 +98,11 @@ std::string Mrm_lid_can_b2::commandName(uint8_t byte){
 */
 void Mrm_lid_can_b2::defaults(uint8_t deviceNumber) {
 	timingBudget(deviceNumber);
-	robotContainer->delayMs(50); // Allow 50 ms for flash to be written
+	delayMs(50); // Allow 50 ms for flash to be written
 	measurementTime(deviceNumber);
-	robotContainer->delayMs(50);
+	delayMs(50);
 	distanceMode(deviceNumber);
-	robotContainer->delayMs(50);
+	delayMs(50);
 	roi(deviceNumber);
 }
 

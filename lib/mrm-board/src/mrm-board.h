@@ -149,6 +149,8 @@ public:
 	std::function<void()> end;
 	std::function<void (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix)> messagePrintParent;
 	std::function<void (CANMessage message, uint8_t deviceNumber)> messageSendParent;
+	std::function<void (uint16_t)> delayMs;
+	std::function<void ()> noLoopWithoutThis;
 	
 	/**
 	@param robot - robot containing this board

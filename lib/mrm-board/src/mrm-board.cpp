@@ -725,7 +725,7 @@ void MotorBoard::test(uint16_t betweenTestsMs)
 					print("Mot. %i:%3i, en: %i\n\r", dev.number, speed, (*encoderCount)[dev.number]);
 					lastMs = millis();
 				}
-				robotContainer->delayMs(PAUSE_MS);
+				delayMs(PAUSE_MS);
 			}
 
 			speedSet(dev.number, 0);

@@ -131,7 +131,7 @@ bool Mrm_us_b::started(uint8_t deviceNumber) {
 					//print("US confirmed\n\r");
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		strcpy(errorMessage, "mrm-us-b dead.\n\r");

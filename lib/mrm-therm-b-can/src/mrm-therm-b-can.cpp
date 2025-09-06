@@ -133,7 +133,7 @@ bool Mrm_therm_b_can::started(uint8_t deviceNumber) {
 					// print("Thermo confirmed\n\r"); 
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);

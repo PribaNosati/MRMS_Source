@@ -104,7 +104,7 @@ bool Mrm_ir_finder3::calculatedStarted(uint8_t deviceNumber) {
 					(*_calculated)[deviceNumber] = true;
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);

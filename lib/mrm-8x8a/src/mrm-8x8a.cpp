@@ -938,7 +938,7 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 					//print("8x8 confirmed\n\r"); 
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		strcpy(errorMessage, "mrm-8x8a not responding.\n\r");
@@ -1005,13 +1005,13 @@ void Mrm_8x8a::test()
 			bitmapId = MRM_8x8A_START_BITMAP_1;
 
 			// Custom bitmap.
-			robotContainer->delayMs(300);
+			delayMs(300);
 			uint8_t red[8] = { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000100, 0b00111000, 0b00000000, 0b00111100 };
 			uint8_t green[8] = { 0b00111100, 0b01000010, 0b10101001, 0b10101001, 0b10000001, 0b10000001, 0b01000010, 0b00111100 };
 			bitmapCustomDisplay(red, green);
 
 			// Custom stored bitmap
-			robotContainer->delayMs(300);
+			delayMs(300);
 			bitmapCustomStoredDisplay(7);
 		}
 		lastMs = millis();

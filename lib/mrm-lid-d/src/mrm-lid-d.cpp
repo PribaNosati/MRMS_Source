@@ -87,11 +87,11 @@ std::string Mrm_lid_d::commandName(uint8_t byte){
 */
 void Mrm_lid_d::defaults(uint8_t deviceNumber) {
 	// timingBudget(deviceNumber);
-	// robotContainer->delayMs(50); // Allow 50 ms for flash to be written
+	// delayMs(50); // Allow 50 ms for flash to be written
 	// measurementTime(deviceNumber);
-	// robotContainer->delayMs(50);
+	// delayMs(50);
 	// distanceMode(deviceNumber);
-	// robotContainer->delayMs(50);
+	// delayMs(50);
 	// roi(deviceNumber);
 }
 
@@ -308,7 +308,7 @@ bool Mrm_lid_d::started(uint8_t deviceNumber) {
 					//print("Lidar confirmed\n\r"); 
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);

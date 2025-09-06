@@ -223,7 +223,7 @@ bool Mrm_node::started(uint8_t deviceNumber) {
 					//print("Lidar confirmed\n\r"); 
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);

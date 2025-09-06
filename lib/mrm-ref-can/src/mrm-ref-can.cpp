@@ -113,7 +113,7 @@ bool Mrm_ref_can::analogStarted(uint8_t deviceNumber) {
 					(*_mode)[deviceNumber] = ANALOG_VALUES;
 					return true;
 				}
-				robotContainer->delayMs(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
@@ -335,7 +335,7 @@ bool Mrm_ref_can::digitalStarted(uint8_t deviceNumber, bool darkCenter, bool sta
 						(*_mode)[deviceNumber] = darkCenter ? DIGITAL_AND_DARK_CENTER : DIGITAL_AND_BRIGHT_CENTER;
 						return true;
 					}
-					robotContainer->delayMs(1);
+					delayMs(1);
 				}
 			}
 			sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), deviceNumber);
