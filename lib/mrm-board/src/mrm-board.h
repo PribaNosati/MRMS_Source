@@ -202,11 +202,6 @@ public:
 	*/
 	uint8_t count();
 
-	/** Count all the devices, alive or not
-	@return - count
-	*/
-	uint8_t deadOrAliveCount();
-
 	void delayMs(uint16_t ms);
 
 	Device* deviceGet(uint8_t deviceNumber);

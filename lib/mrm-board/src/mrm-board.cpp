@@ -85,8 +85,8 @@ if (deviceName.length() > 9) {
 */
 bool Board::aliveWithOptionalScan(Device* device, bool checkAgainIfDead) {
 	if (device == NULL) {
-		for (Device& device1 : devices)
-			if (aliveWithOptionalScan(&device1, checkAgainIfDead))
+		for (Device& dev : devices)
+			if (aliveWithOptionalScan(&dev, checkAgainIfDead))
 				return true;
 		return false;
 	}
@@ -174,11 +174,6 @@ uint8_t Board::count() {
 			cnt++;
 	return cnt;
 }
-
-/** Count all the devices, alive or not
-@return - count
-*/
-uint8_t Board::deadOrAliveCount() { return devices.size(); }
 
 
 void Board::delayMs(uint16_t ms){

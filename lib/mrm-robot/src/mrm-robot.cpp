@@ -632,7 +632,7 @@ bool Robot::boardSelect(uint8_t selectedNumber, uint8_t *selectedBoardIndex, uin
 //						Board *selectedBoard = board[boardNumber];
 						*selectedDeviceIndex = dev.number;
 						*selectedBoardIndex = board->number;
-						*maxInput = board->deadOrAliveCount() / board->devicesOnABoard - 1;
+						*maxInput = board->devices.size() / board->devicesOnABoard - 1;
 						break;
 					}
 				}
@@ -1162,7 +1162,7 @@ void Robot::lidar2mTest() {
 	if (setup()) {
 		//devicesScan(false, SENSOR_BOARD);
 		// Select lidar
-		uint8_t count = mrm_lid_can_b->deadOrAliveCount();
+		uint8_t count = mrm_lid_can_b->devices.size();
 		print("%s - enter lidar number [0-%i] or wait for all\n\r", mrm_lid_can_b->name().c_str(), count - 1);
 		selected = serialReadNumber(2000, 1000, count - 1 < 9, count - 1, false);
 		if (selected == 0xFFFF) { // Test all
@@ -1224,7 +1224,7 @@ void Robot::lidarCalibrate() {
 	// Select lidar number
 	if (selected2Or4 != -1) {
 		// Select lidar
-		uint8_t count = selected2Or4 == 2 ? mrm_lid_can_b->deadOrAliveCount() : mrm_lid_can_b2->deadOrAliveCount();
+		uint8_t count = selected2Or4 == 2 ? mrm_lid_can_b->devices.size() : mrm_lid_can_b2->devices.size();
 		print("Enter lidar number [0-%i] or wait to abort", count - 1);
 		uint16_t selected = serialReadNumber(3000, 1000, count - 1 < 9, count - 1, false);
 		if (selected == 0xFFFF)
@@ -1677,7 +1677,7 @@ void Robot::stressTest() {
 			count.push_back(board->aliveCount());
 			totalCnt += count[i];
 			mask.push_back(TRY_ONLY_ALIVE ? 0 : 0xFFFF);
-			for (uint8_t j = 0; j < board->deadOrAliveCount(); j++)
+			for (uint8_t j = 0; j < board->devices.size(); j++)
 				if (board->devices[j].alive)
 					mask[i] |= 1 << j;
 			i++;
