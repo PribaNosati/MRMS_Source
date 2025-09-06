@@ -174,7 +174,7 @@ if (actions == NULL) {
 	mrm_col_b = new Mrm_col_b(this);
 	mrm_col_can = new Mrm_col_can(this);
 	mrm_fet_can = new Mrm_fet_can(this);
-	mrm_imu = new Mrm_imu(this);
+	mrm_imu = new Mrm_imu();
 	//mrm_ir_finder2 = new Mrm_ir_finder2(this);
 	// mrm_ir_finder_can = new Mrm_ir_finder_can(this);
 	mrm_ir_finder3 = new Mrm_ir_finder3(this);
