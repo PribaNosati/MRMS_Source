@@ -270,7 +270,7 @@ bool Mrm_lid_can_b::started(Device& device) {
 				delay(1); // Messages are exchanged here
 			}
 		}
-		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else

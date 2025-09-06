@@ -153,7 +153,7 @@ bool Mrm_col_can::colorsStarted(Device device) {
 				delay(1);
 			}
 		}
-		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
@@ -230,7 +230,7 @@ bool Mrm_col_can::hsvStarted(Device device) {
 				delay(1);
 			}
 		}
-		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
@@ -424,7 +424,7 @@ void Mrm_col_can::patternsRecord() {
 */
 uint16_t Mrm_col_can::reading(uint8_t colorId, Device * device) {
 	if (device == nullptr || colorId >= MRM_COL_CAN_COLORS) {
-		printf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), device->number);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), device->number);
 		return 0;
 	}
 	if (colorsStarted(*device))

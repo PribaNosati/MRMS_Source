@@ -834,7 +834,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
 					uint8_t switchNumber = message.data[1] >> 1;
 						if (switchNumber > 4) {
-							printf(errorMessage, "No %s: %i.", _boardsName.c_str(), switchNumber);
+							sprintf(errorMessage, "No %s: %i.", _boardsName.c_str(), switchNumber);
 							return false;
 						}
 					(*on)[device.number][switchNumber] = message.data[1] & 1;

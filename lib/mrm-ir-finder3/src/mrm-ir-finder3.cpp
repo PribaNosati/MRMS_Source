@@ -186,7 +186,7 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 */
 uint16_t Mrm_ir_finder3::reading(uint8_t receiverNumberInSensor, Device device){
 	if (receiverNumberInSensor > MRM_IR_FINDER3_SENSOR_COUNT) {
-		printf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), device.number);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), device.number);
 		return 0;
 	}
 	if (singleStarted(device))
@@ -258,7 +258,7 @@ bool Mrm_ir_finder3::singleStarted(Device& device) {
 				delay(1);
 			}
 		}
-		printf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
