@@ -142,7 +142,7 @@ public:
 	uint8_t number; // Index in vector
 
 	// In order to avoid back-pointers to Robot class
-	std::function<void (uint16_t canId, uint8_t errorCode, bool peripheral)> errorAdd;
+	std::function<void (uint16_t canId, uint8_t errorCode, bool peripheral)> errorAddParent;
 	std::function<bool ()> userBreak;
 	std::function<bool ()> setup;
 	std::function<void()> end;
@@ -216,6 +216,8 @@ public:
 	@param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 	*/
 	void devicesScan(bool verbose = true, uint16_t mask = 0xFFFF);
+
+	void errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral);
 
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.

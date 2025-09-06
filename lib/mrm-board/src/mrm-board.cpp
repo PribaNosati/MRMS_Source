@@ -210,6 +210,15 @@ void Board::devicesScan(bool verbose, uint16_t mask) {
 	}
 }
 
+void Board::errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral){
+	if (errorAddParent)
+		errorAddParent(canId, errorCode, peripheral);
+	else{
+		print("errorAddParent() not defined.\n\r");
+		exit(1);
+	}
+}
+
 /** Request firmware version
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
@@ -321,7 +330,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		errorAdd(message.id, message.data[1], true);
+		errorAddParent(message.id, message.data[1], true);
 		print("Error %i in %s.\n\r", message.data[1], device.name.c_str());
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
@@ -564,7 +573,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAddParent(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;

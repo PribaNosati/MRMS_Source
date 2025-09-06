@@ -83,7 +83,7 @@ bool Mrm_us_b::messageDecode(CANMessage message) {
 				default:
 					print("Unknown command. ");
 					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAddParent(message.id, ERROR_COMMAND_UNKNOWN, false);
 				}
 			}
 			return true;

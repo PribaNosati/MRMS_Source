@@ -510,7 +510,7 @@ void Robot::add(Board* aBoard) {
 	boards.push_back(aBoard);
 	aBoard->number = _boardNextFree;
 
-	aBoard->errorAdd = [this](uint16_t canId, uint8_t errorCode, bool peripheral){this->errors->add(canId, errorCode, peripheral);};
+	aBoard->errorAddParent = [this](uint16_t canId, uint8_t errorCode, bool peripheral){this->errors->add(canId, errorCode, peripheral);};
 	aBoard->userBreak = [this](){return this->userBreak();};
 	aBoard->setup = [this](){return this->setup();};
 	aBoard->end = [this](){this->end();};
