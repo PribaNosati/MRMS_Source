@@ -239,9 +239,9 @@ void RobotSoccer::calibrate(){
 */
 void RobotSoccer::catchBall() {
 	if (lineAny())
-		actionSet(actionFind("avo"));
+		actionSet("avo");
 	else if (barrier())
-		actionSet(actionFind("apr"));
+		actionSet("apr");
 	else if (mrm_ir_finder3->distance() > 100) {
 		float direction = -mrm_ir_finder3->angle() - 10;
 		if (fabsf(direction) > 7)
@@ -250,7 +250,7 @@ void RobotSoccer::catchBall() {
 		print("Catch ball, angle: %i\n\r", (int)mrm_ir_finder3->angle());
 	}
 	else
-		actionSet(actionFind("idl"));
+		actionSet("idl");
 }
 
 /** Front distance to wall
@@ -289,9 +289,9 @@ void RobotSoccer::goAhead() {
 */
 void RobotSoccer::goalApproach(){
 	if (lineAny())
-		actionSet(actionFind("avo"));
+		actionSet("avo");
 	else if (!barrier())
-		actionSet(actionFind("idl"));
+		actionSet("idl");
 	else{
 		float errorL = SOCCER_SIDE_DISTANCE_WHEN_CENTERED - left();
 		float errorR = right() - SOCCER_SIDE_DISTANCE_WHEN_CENTERED;
@@ -324,9 +324,9 @@ float RobotSoccer::headingRandom(int heading, int variation){
 */
 void RobotSoccer::idle() {
 	if (lineAny())
-		actionSet(actionFind("avo"));
+		actionSet("avo");
 	else if (mrm_ir_finder3->distance() > 50)
-		actionSet(actionFind("cat"));
+		actionSet("cat");
 	else {
 		float errorL = SOCCER_SIDE_DISTANCE_WHEN_CENTERED - left();
 		float errorR = right() - SOCCER_SIDE_DISTANCE_WHEN_CENTERED;
@@ -423,12 +423,12 @@ void RobotSoccer::lineAvoid(){
 			print("Escaped\n\r");
 			lineLeft = TriState::Unknown;
 			lineFront = TriState::Unknown;
-			actionSet(actionFind("idl"));
+			actionSet("idl");
 			//actionSet(actionBounce);
 		}
 	}
 	else
-		actionSet(actionFind("idl")), print("False line");
+		actionSet("idl"), print("False line");
 		//actionSet(actionBounce), print("False line");
 }
 

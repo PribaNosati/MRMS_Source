@@ -278,7 +278,7 @@ void RobotMaze::map() {
 				tileCurrent->wallSet(dir, WallStatus::NO_WALL); // Map empty space.
 		}
 	}
-	actionSet(actionFind("mde"));  // After mapping the next action will be a decision what to do.
+	actionSet("mde");  // After mapping the next action will be a decision what to do.
 	mazePrint(); // A debug tool: print all the maze after each map event.
 }
 
@@ -398,13 +398,13 @@ void RobotMaze::moveAhead() {
 			if (targetTile != NULL) { // A tile found. That means we returned to the already visited tile.
 				print("tile exists\n\r"); // Debug.
 				tileCurrent = targetTile; // Set the position to the found tile.
-				actionSet(actionFind("mde"));  // Movement over. The next action will be decision what to do next. No mapping is needed here as the tile has already been mapped.
+				actionSet("mde");  // Movement over. The next action will be decision what to do next. No mapping is needed here as the tile has already been mapped.
 			}
 			else { // No such a tile. Therefore, this coordinate has not been visited yet. We have to create a new Tile object.
 				print("new tile\n\r");
 				// Set the position to a newly created tile, with new (x, y) coordinates. Breadcrumb direction will be the opposite direction to the current one.
 				tileCurrent = new Tile(newX, newY, (Direction)((directionCurrent + 2) % 4));
-				actionSet(actionFind("map"));  // The next action will be tile mapping as this is a new tile and its walls are not mapped yet.
+				actionSet(actionFind("mmp"));  // The next action will be tile mapping as this is a new tile and its walls are not mapped yet.
 			}
 		}
 	}
