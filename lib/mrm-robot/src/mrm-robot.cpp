@@ -1022,8 +1022,8 @@ void Robot::devicesStart(uint8_t measuringMode) {
 */
 void Robot::devicesStop() {
 	for (Board* board :boards) {
+		delay(3);
 		board->stop();
-		delayMicroseconds(100);
 	}
 }
 

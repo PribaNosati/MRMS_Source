@@ -651,7 +651,7 @@ void MotorBoard::stop() {
 			delay(2);
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP; // Stop encoders
 			messageSend(canData, 1, dev.number);
-			delay(2);
+			delay(3);
 		}
 }
 
