@@ -430,8 +430,8 @@ print("Board: %s\n\r", boards[14]->name().c_str());
 
 	// Send alive ping
 	for (uint8_t k = 0; k < 2; k++)
-				boards[14]->devicesScan(verbose);
-				// print("SC1 %s ", board[i]->name().c_str()),count += board[i]->devicesScan(verbose), print("SC2");
+				boards[14]->devicesScan();
+				// print("SC1 %s ", board[i]->name().c_str()),count += board[i]->devicesScan(), print("SC2");
 
 
 	// Count alive

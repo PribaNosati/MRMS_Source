@@ -211,7 +211,7 @@ public:
 	@param verbose - prints statuses
 	@param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 	*/
-	void devicesScan(bool verbose = true, uint16_t mask = 0xFFFF);
+	void devicesScan(uint16_t mask = 0xFFFF);
 
 	void end();
 	void errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral);

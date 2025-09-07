@@ -94,7 +94,7 @@ bool Board::aliveWithOptionalScan(Device* device, bool checkAgainIfDead) {
 		if (device->alive)
 			return true;
 		else if (checkAgainIfDead) {
-			devicesScan(false);
+			devicesScan();
 			if (device->alive)
 				return true;
 			else {
@@ -205,7 +205,7 @@ uint8_t Board::deviceNumber(uint16_t msgId){
 @param verbose - prints statuses
 @param mask - bitwise, 16 bits - no more than 16 devices! Bit == 1 - scan, 0 - no scan.
 */
-void Board::devicesScan(bool verbose, uint16_t mask) {
+void Board::devicesScan(uint16_t mask) {
 	for (Device& device: devices) {
 		if (((mask >> device.number) & 1) && !device.alive) { // If in the list requested to be scanned.
 			canData[0] = COMMAND_REPORT_ALIVE;

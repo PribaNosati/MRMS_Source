@@ -347,7 +347,6 @@ if (actions == NULL) {
 	add(mrm_us_b);
 	add(mrm_us1);
 
-	_devicesAtStartup =  _devicesScanOnStartup ? devicesScan(true) : 0;
 	devicesLEDCount();
 }
 
@@ -978,8 +977,8 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 		for (Board* board :boards){
 			if (boardType == Board::BoardType::ANY_BOARD || board->boardType() == boardType){
 				delayMicroseconds(PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS);
-				board->devicesScan(verbose);
-				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(verbose), print("SC2");
+				board->devicesScan();
+				// print("SC1 %s ", board[i]->name()),count += board[i]->devicesScan(), print("SC2");
 			}
 		}
 
@@ -996,6 +995,9 @@ uint8_t Robot::devicesScan(bool verbose, Board::BoardType boardType) {
 				}
 			}
 		}
+
+	if (_devicesAtStartup == 0xFF)
+		_devicesAtStartup =  count;
 
 	if (verbose)
 		print("%i devices.\n\r", count);
@@ -1244,7 +1246,7 @@ void Robot::lidarCalibrate() {
 void Robot::menu() {
 	// Print menu
 	if (_devicesScanBeforeMenuAndSwitches){
-		uint8_t cnt = devicesScan(false);
+		uint8_t cnt = devicesScan(true);
 		if (cnt > _devicesAtStartup)  // Late-booters
 			_devicesAtStartup = cnt;
 		else if (cnt < _devicesAtStartup){
@@ -1671,7 +1673,7 @@ void Robot::stressTest() {
 		uint8_t totalCnt = 0;
 		i = 0;
 		for (Board* board :boards) {
-			board->devicesScan(true);
+			board->devicesScan();
 			count.push_back(board->aliveCount());
 			totalCnt += count[i];
 			mask.push_back(TRY_ONLY_ALIVE ? 0 : 0xFFFF);
@@ -1707,7 +1709,7 @@ void Robot::stressTest() {
 		if (count[i] > 0 || !TRY_ONLY_ALIVE) {
 			delayMicroseconds(40);
 			// digitalWrite(15, HIGH);
-			board->devicesScan(false, mask[i]);
+			board->devicesScan(mask[i]);
 			uint8_t cnt = board->aliveCount();
 			// digitalWrite(15, LOW);
 			if (cnt != count[i]) {
