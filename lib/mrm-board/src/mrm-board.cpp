@@ -123,8 +123,8 @@ uint8_t Board::aliveCount(){
 */
 void Board::aliveSet(bool yesOrNo, Device * device) {
 	if (device == nullptr) {
-		for (auto dev : devices)
-			dev.alive = yesOrNo;
+		for (Device& dev : devices)
+			aliveSet(yesOrNo, &dev);
 	}
 	else{
 		device->alive = yesOrNo;
