@@ -436,11 +436,9 @@ void Robot::actionSet() {
 
 			if (ch == 13 || (uartRxCommandIndex >= 3 && !(uartRxCommandCumulative[0] == 'e' && uartRxCommandCumulative[1] == 's' && uartRxCommandCumulative[2] == 'c')) || ch == 'x' && uartRxCommandIndex == 1) //if received data = 13
 			{
-
-				print("Command: %s", uartRxCommandCumulative);
-
 				uint8_t found = 0;
 				uartRxCommandCumulative[uartRxCommandIndex] = '\0';
+				print("Command: %s", uartRxCommandCumulative);
 				if (uartRxCommandCumulative[0] == 'e' && uartRxCommandCumulative[1] == 's' && uartRxCommandCumulative[2] == 'c'){
 					found = 1;
 				}
