@@ -1351,7 +1351,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 		name = board->devices[deviceNumber].name;
 	else if (board != NULL)
 		name = board->name() + ",dev?";
-	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name, msg->id);
+	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name.c_str(), msg->id);
 
 	for (uint8_t i = 0; i < msg->dlc; i++) {
 		if (i == 0){
@@ -1395,7 +1395,7 @@ void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 
 		uint32_t id = _msg->id;
 		if (_sniff)
-			messagePrint(_msg, NULL, 0, true);
+			messagePrint(_msg, NULL, 0, false);
 		#if REPORT_DEVICE_TO_DEVICE_MESSAGES_AS_UNKNOWN
 		bool any = false;
 		#endif

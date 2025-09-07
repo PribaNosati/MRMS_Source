@@ -208,10 +208,10 @@ uint8_t Board::deviceNumber(uint16_t msgId){
 void Board::devicesScan(uint16_t mask) {
 	for (Device& device: devices) {
 		if (((mask >> device.number) & 1) && !device.alive) { // If in the list requested to be scanned.
+			delayMs(5);
 			canData[0] = COMMAND_REPORT_ALIVE;
 			messageSend(canData, 1, device.number);
 			delayMicroseconds(id() == BoardId::ID_MRM_8x8A ? PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS * 3 :  PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive.
-			delayMs(5);
 		}
 	}
 }
@@ -947,16 +947,13 @@ void MotorGroupDifferential::go(int16_t leftSpeed, int16_t rightSpeed, int16_t l
 				maxSpeed = abs(speeds[i]);
 		// print("M0:%i M1:%i M2:%i M3:%i Lat:%i\n\r", speeds[0], speeds[1], speeds[2], speeds[3], lateralSpeedToRight);
 		for (uint8_t i = 0; i < 4; i++) {
-			//motorBoard[i]->speedSet(motorNumber[i], speeds[i]);
+						delayMs(1);
 			if (maxSpeed > speedLimit) {
 				motorBoard[i]->speedSet(motorNumber[i], (int8_t)(speeds[i] / maxSpeed * speedLimit));
-				//Serial.print("MAX ");
 			}
 			else {
 				motorBoard[i]->speedSet(motorNumber[i], (int8_t)speeds[i]);
-				//Serial.print((String)speeds[i] + " ");
 			}
-			delayMs(1);
 		}
 	}
 }
