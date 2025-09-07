@@ -211,7 +211,7 @@ void Board::devicesScan(uint16_t mask) {
 			canData[0] = COMMAND_REPORT_ALIVE;
 			messageSend(canData, 1, device.number);
 			delayMicroseconds(id() == BoardId::ID_MRM_8x8A ? PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS * 3 :  PAUSE_MICRO_S_BETWEEN_DEVICE_SCANS); // Exchange CAN Bus messages and receive possible answer, that sets _alive.
-			delay(5);
+			delayMs(5);
 		}
 	}
 }
@@ -307,7 +307,7 @@ void Board::info(Device* device) {
 		if (device->alive) {
 			canData[0] = COMMAND_INFO_REQUEST;
 			messageSend(canData, 1, device->number);
-			delay(1);
+			delayMs(1);
 		}
 	}
 }
@@ -477,7 +477,7 @@ void Board::pnpSet(bool enable, Device * device){
 		for (Device& dev : devices)
 			pnpSet(enable, &dev);
 	else if (device->alive) {
-		delay(1);
+		delayMs(1);
 		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
 		canData[1] = enable;
 		messageSend(canData, 2, device->number);
@@ -554,7 +554,7 @@ void Board::start(Device* device, uint8_t measuringModeNow, uint16_t refreshMs) 
 			// dumpMs[dumpCnt] = millis() - dumpLastMs;
 			// dumpLastMs = millis();
 
-			delay(1); // Otherwise only 4 devices of the same kind started.
+			delayMs(1); // Otherwise only 4 devices of the same kind started.
 #endif
 		}
 	}
@@ -573,7 +573,7 @@ void Board::stop(Device * device) {
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP;
 			messageSend(canData, 1, device->number);
 			device->lastReadingsMs = 0;
-			delay(1); // TODO
+			delayMs(1); // TODO
 		}
 	}
 }
@@ -717,7 +717,7 @@ bool MotorBoard::started(Device device) {
 					// print("BLDC confirmed\n\r");
 					return true;
 				}
-				delay(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
@@ -732,10 +732,10 @@ bool MotorBoard::started(Device device) {
 void MotorBoard::stop() {
 	for (Device& dev : devices) {
 			speedSet(dev.number, 0, true);
-			delay(2);
+			delayMs(2);
 			canData[0] = COMMAND_SENSORS_MEASURE_STOP; // Stop encoders
 			messageSend(canData, 1, dev.number);
-			delay(3);
+			delayMs(3);
 		}
 }
 
@@ -794,7 +794,7 @@ void MotorBoard::test(Device * device , uint16_t betweenTestsMs)
 				speedSet(dev.number, selectedSpeed);
 				if (userBreak())
 					goOn = false;
-				delay(PAUSE_MS);
+				delayMs(PAUSE_MS);
 				continue;
 			}
 
@@ -815,7 +815,7 @@ void MotorBoard::test(Device * device , uint16_t betweenTestsMs)
 				delayMs(PAUSE_MS);
 			}
 
-			delay(2);
+			delayMs(2);
 			speedSet(dev.number, 0);
 		}
 	}

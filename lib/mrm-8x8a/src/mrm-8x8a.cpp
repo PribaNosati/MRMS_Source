@@ -232,7 +232,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000011;
 		red[7] = 0b00000001;
 		bitmapCustomStore(red, green, LED_CUSTOM);
-		delay(1);
+		delayMs(1);
 	}
 
 
@@ -249,7 +249,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_CURVE_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Curve right.
@@ -265,7 +265,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_CURVE_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Evacuation zone
@@ -281,7 +281,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		green[6] = 0b11100001;
 		green[7] = 0b11111111;
 		bitmapCustomStore(red, green, LED_EVACUATION_ZONE);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, both marks.
@@ -304,7 +304,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_BOTH_MARKS);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, mark left.
@@ -327,7 +327,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, mark right.
@@ -350,7 +350,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, no marks.
@@ -366,7 +366,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_NO_MARK);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing, mark right.
@@ -389,7 +389,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing, mark left.
@@ -412,7 +412,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing right, no mark.
@@ -435,7 +435,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_RIGHT_NO_MARK);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing left, no mark
@@ -458,7 +458,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_LEFT_NO_MARK);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow IMU.
@@ -474,7 +474,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_IMU_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, no marks
@@ -484,7 +484,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_LINE_FULL);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, both marks
@@ -502,7 +502,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		/* Store this bitmap in mrm-8x8a. The 3rd parameter is bitmap's address. If You want to define new bitmaps, expand LedSign enum with
 		Your names, and use the new values for Your bitmaps. This parameter can be a plain number, but enum keeps thing tidy.*/
 		bitmapCustomStore(red, green, LED_LINE_FULL_BOTH_MARKS);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, left mark.
@@ -518,7 +518,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_LINE_FULL_MARK_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, right mark.
@@ -534,7 +534,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_LINE_FULL_MARK_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Interrupted line.
@@ -550,7 +550,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_LINE_INTERRUPTED);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Obstacle.
@@ -566,7 +566,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_OBSTACLE);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Around obstacle left.
@@ -582,7 +582,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Around obstacle right.
@@ -598,7 +598,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Pause.
@@ -614,7 +614,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_PAUSE);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Play.
@@ -630,7 +630,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_PLAY);
-		delay(1);
+		delayMs(1);
 	}
 
 	// T-crossing approached by left side.
@@ -646,7 +646,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_T_CROSSING_BY_L);
-		delay(1);
+		delayMs(1);
 	}
 
 	// T-crossing approached by right side.
@@ -662,7 +662,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_T_CROSSING_BY_R);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Wall ahead
@@ -678,7 +678,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_AHEAD);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall down, green taken from Follow IMU bitmap.
@@ -687,7 +687,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 			red[i] = 0;
 		red[7] = 0b11111111;
 		bitmapCustomStore(red, green, LED_WALL_DOWN_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Wall on the left side
@@ -703,7 +703,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_L);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall left, green taken from Follow IMU bitmap.
@@ -711,7 +711,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0b10000000;
 		bitmapCustomStore(red, green, LED_WALL_LEFT_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Wall on the right side
@@ -727,7 +727,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_R);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall right, green taken from Follow IMU bitmap.
@@ -735,7 +735,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0b00000001;
 		bitmapCustomStore(red, green, LED_WALL_RIGHT_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall up, green taken from Follow IMU bitmap.
@@ -744,7 +744,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 1; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_UP_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// LED approach opponent's goal
@@ -760,7 +760,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_GOAL_APPROACH);
-		delay(1);
+		delayMs(1);
 	}
 
 	// LED approach opponent's goal
@@ -776,7 +776,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_IDLE);
-		delay(1);
+		delayMs(1);
 	}
 	// LED approach opponent's goal
 	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_AVOID) != selectedImages.end()){
@@ -791,7 +791,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_LINE_AVOID);
-		delay(1);
+		delayMs(1);
 	}
 	// LED approach opponent's goal
 	if (std::find(selectedImages.begin(), selectedImages.end(), LED_CATCH) != selectedImages.end()){
@@ -806,7 +806,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_CATCH);
-		delay(1);
+		delayMs(1);
 	}
 }
 
@@ -940,7 +940,7 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 						//print("8x8 confirmed\n\r");
 						return true;
 					}
-					delay(1);
+					delayMs(1);
 				}
 			}
 			print("%s %i not responding.", _boardsName.c_str(), deviceNumber);
