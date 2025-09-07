@@ -850,10 +850,7 @@ bool Mrm_8x8a::messageDecode(CANMessage message) {
 					print("Test: %i\n\r", message.data[1]);
 					break;
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					print("\n\r");
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				} 
 			}
 			return true;

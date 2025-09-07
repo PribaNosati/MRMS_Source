@@ -58,7 +58,8 @@ Board::Board(uint8_t maxNumberOfBoards, uint8_t devicesOn1Board, std::string boa
 		Board::commandNames->insert({COMMAND_ID_CHANGE_REQUEST, "Id change re"});
 		Board::commandNames->insert({COMMAND_NOTIFICATION, "Notification"});
 		Board::commandNames->insert({COMMAND_OSCILLATOR_TEST, "Oscilla test"});
-		Board::commandNames->insert({COMMAND_ERROR, "Error       "});
+		Board::commandNames->insert({COMMAND_ERROR, "Error"});
+		Board::commandNames->insert({COMMAND_CAN_TEST, "CAN test"});
 		Board::commandNames->insert({COMMAND_REPORT_ALIVE,  "Report alive"});
 	}
 }
@@ -227,9 +228,9 @@ void Board::end(){
 }
 
 
-void Board::errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral){
+void Board::errorAdd(CANMessage message, uint8_t errorCode, bool peripheral, bool printNow){
 	if (errorAddParent)
-		errorAddParent(canId, errorCode, peripheral);
+		errorAddParent(message, errorCode, peripheral, printNow);
 	else{
 		print("errorAddParent() not defined.\n\r");
 		exit(1);
@@ -348,8 +349,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 	case COMMAND_DUPLICATE_ID_PING:
 		break;
 	case COMMAND_ERROR:
-		errorAdd(message.id, message.data[1], true);
-		print("Error %i in %s.\n\r", message.data[1], device.name.c_str());
+		errorAdd(message, message.data[1], true, true);
 		break;
 	case COMMAND_FIRMWARE_SENDING: {
 		uint16_t firmwareVersion = (message.data[2] << 8) | message.data[1];
@@ -646,9 +646,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 					break;
 				}
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					errorAddParent(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAddParent(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
 			return true;

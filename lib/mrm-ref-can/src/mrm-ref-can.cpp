@@ -422,9 +422,7 @@ for (Device& device : devices)
 					device.lastReadingsMs = millis();
 					break;
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 
 				if (anyReading)

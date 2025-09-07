@@ -151,7 +151,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 				while ((*readings)[deviceNumber] == 0){
 					noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
-						errorAdd(devices[deviceNumber].canIdIn, ERROR_TIMEOUT, false);
+						errorAdd(CANMessage(devices[deviceNumber].canIdIn, {0}, 0), ERROR_TIMEOUT, false, false);
 						break;
 					}
 				}
@@ -207,9 +207,7 @@ bool Mrm_lid_can_b::messageDecode(CANMessage message) {
 				}
 				break;
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
 			return true;

@@ -92,9 +92,7 @@ bool Mrm_ir_finder_can::messageDecode(CANMessage message) {
 					distance = message.data[3] << 8 | message.data[4];
 					break;
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 
 				if (any)

@@ -141,7 +141,7 @@ public:
 	uint8_t number; // Index in vector
 
 	// In order to avoid back-pointers to Robot class
-	std::function<void (uint16_t canId, uint8_t errorCode, bool peripheral)> errorAddParent;
+	std::function<void (CANMessage message, uint8_t errorCode, bool peripheral, bool printNow)> errorAddParent;
 	std::function<bool ()> userBreakParent;
 	std::function<bool ()> setupParent;
 	std::function<void()> endParent;
@@ -214,7 +214,7 @@ public:
 	void devicesScan(uint16_t mask = 0xFFFF);
 
 	void end();
-	void errorAdd(uint16_t canId, uint8_t errorCode, bool peripheral);
+	void errorAdd(CANMessage message, uint8_t errorCode, bool peripheral, bool printNow);
 
 	/** Request firmware version
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - for all devices.

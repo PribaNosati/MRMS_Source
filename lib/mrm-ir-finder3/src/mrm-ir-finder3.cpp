@@ -165,9 +165,7 @@ bool Mrm_ir_finder3::messageDecode(CANMessage message) {
 					device.lastReadingsMs = millis();
 					break;
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 
 				if (any)

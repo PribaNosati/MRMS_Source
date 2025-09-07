@@ -123,7 +123,7 @@ uint16_t Mrm_lid_d::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t 
 				while ((*readings)[deviceNumber][0] == 0){
 					noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
-						errorAdd(devices[deviceNumber].canIdIn, ERROR_TIMEOUT, false);
+						errorAdd(CANMessage(devices[deviceNumber].canIdIn, {0}, 0), ERROR_TIMEOUT, false, false);
 						break;
 					}
 				}
@@ -222,13 +222,11 @@ bool Mrm_lid_d::messageDecode(CANMessage message) {
 				}
 				break;
 				case COMMAND_INFO_SENDING_1:
-					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", device.name, message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
+					print("%s: %s dist., budget %i ms, %ix%i, intermeas. %i ms\n\r", device.name.c_str(), message.data[1] ? "short" : "long", message.data[2] | (message.data[3] << 8),
 						message.data[4] & 0xFF, message.data[5] & 0xFF, message.data[6] | (message.data[7] << 8));
 					break;
 				default:
-					print("Unknown command. ");
-					messagePrint(message, false);
-					errorAdd(message.id, ERROR_COMMAND_UNKNOWN, false);
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
 			return true;

@@ -506,9 +506,14 @@ void Robot::actionSet(std::string action){
 void Robot::add(Board* aBoard) {
 	boards.push_back(aBoard);
 	aBoard->number = _boardNextFree;
-
-	aBoard->errorAddParent = [this](uint16_t canId, uint8_t errorCode, bool peripheral){this->errors->add(canId, errorCode, peripheral);};
-	aBoard->userBreakParent = [this](){return this->userBreak();};
+	aBoard->errorAddParent = [this](CANMessage message, uint8_t errorCode, bool peripheral, bool printNow){
+		this->errors->add(message.id, errorCode, peripheral);
+		if (printNow){
+			print("%s, ", errors->find(errorCode).c_str());
+			messagePrint(&message);
+			print("\n\r");
+		}
+	};	aBoard->userBreakParent = [this](){return this->userBreak();};
 	aBoard->setupParent = [this](){return this->setup();};
 	aBoard->endParent = [this](){this->end();};
 	aBoard->messagePrintParent = [this] (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) 
@@ -679,7 +684,7 @@ void Robot::canIdChange() {
 	uint8_t lastBoardAndDeviceIndex;
 	if (boardDisplayAndSelect(&selectedBoardIndex, &selectedDeviceIndex, &maxInput, &lastBoardAndDeviceIndex)) {
 		// Enter new id
-		print(". %s\n\rEnter new board id [0..%i]: ", boards[selectedBoardIndex]->name(), maxInput);
+		print(". %s\n\rEnter new board id [0..%i]: ", boards[selectedBoardIndex]->name().c_str(), maxInput);
 		uint8_t newDeviceNumber = serialReadNumber(15000, 500, maxInput <= 9, maxInput);
 
 		if (newDeviceNumber != 0xFF) {
@@ -725,12 +730,10 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 		bool timeout = false;
 		CANMessage message[5];
 		int8_t found = -1;
-		uint16_t numberReceived = 0;
+		int8_t last;
 		while(found == -1){
-			int8_t last;
 			messagesReceive(message, last);
 			if (last >= 0){
-				numberReceived += last + 1;
 				for (uint8_t i = 0; i <= last; i++)
 					if (message[i].data[0] == COMMAND_CAN_TEST){
 						found = i;
@@ -745,9 +748,10 @@ bool Robot::canTestParam(int iterations, bool verbose) {
 		if (found == -1){
 			ok = false;
 			if (verbose)
-				print("No appropriate answer, %i received.\n\r", (int)numberReceived);
+				print("%i answer(s), 0 with right command.\n\r", (int)(last + 1));
 		}
 		else{
+			print(".");
 			for (uint8_t i = 0; i < 8; i++)
 				if (data[i] != message[found].data[i]){
 					if (verbose)
@@ -945,7 +949,7 @@ void Robot::deviceScan() {
 	uint8_t selectedDeviceIndex = serialReadNumber(60000, 500, false, 100);
 	print("%i\n\r", selectedDeviceIndex);
 
-	print("Scan %s\n\r", boards[selectedBoardIndex]->devices[selectedDeviceIndex].name);
+	print("Scan %s\n\r", boards[selectedBoardIndex]->devices[selectedDeviceIndex].name.c_str());
 	// board[selectedBoardIndex]->_aliveReport = true; // So that Board::messageDecodeCommon() prints board's name
 	uint8_t canData[8];
 	canData[0] = COMMAND_REPORT_ALIVE;
@@ -1353,10 +1357,10 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 		name = board->name() + ",dev?";
 	print("%.3lfs %s id:%s (0x%02X)", millis() / 1000.0, outbound ? "Out" : "In", name.c_str(), msg->id);
 
-	for (uint8_t i = 0; i < msg->dlc; i++) {
+	for (uint8_t i = 0; i < 8; i++) {
 		if (i == 0){
 			print(" command: ");
-			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] == 0xFF)
+			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] <= 0xFE)
 				print(Board::commandNameCommon(msg->data[0]).c_str());
 			else{	
 				if (board != NULL && board->commandName(msg->data[0]) != "")
@@ -1369,6 +1373,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 		else
 			print(" %02X", msg->data[i]);
 	}
+	print(" (DLC: %i)",  (int)msg->dlc);
 	print("\n\r");
 }
 
@@ -1714,7 +1719,7 @@ void Robot::stressTest() {
 			// digitalWrite(15, LOW);
 			if (cnt != count[i]) {
 				errors[i]++;
-				print("***** %s: found %i, not %i.\n\r", board->name(), cnt, count[i]);
+				print("***** %s: found %i, not %i.\n\r", board->name().c_str(), cnt, count[i]);
 				if (STOP_ON_ERROR) {
 					if (mrm_8x8a->aliveWithOptionalScan()) {
 						char buffer[50];
