@@ -102,7 +102,7 @@ bool messageDecode(CANMessage message);
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - cumulative value
 	*/
-	uint16_t reading(uint8_t receiverNumberInSensor, Device device);
+	uint16_t reading(uint8_t receiverNumberInSensor, Device& device);
 
 	/** Print all readings in a line
 	*/
