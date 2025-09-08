@@ -294,7 +294,7 @@ public:
 	@param commandRequestingNotification
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void notificationRequest(uint8_t commandRequestingNotification, Device device);
+	void notificationRequest(uint8_t commandRequestingNotification, Device& device);
 
 	/** Reserved for production
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -329,7 +329,7 @@ public:
 	@param deviceNumber1 - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param deviceNumber2 - Second device.
 	*/
-	void swapCANIds(Device device1, Device device2);
+	void swapCANIds(Device& device1, Device& device2);
 
 	/** Stops periodical CANBus messages that refresh values that can be read by reading()
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -356,7 +356,7 @@ protected:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - started or not
 	*/
-	bool started(Device device);
+	bool started(Device& device);
 public:
 
 	/**
@@ -374,7 +374,7 @@ public:
 	/** Changes rotation's direction
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void directionChange(Device device);
+	void directionChange(Device& device);
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
@@ -388,7 +388,7 @@ public:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - encoder value
 	*/
-	uint16_t reading(Device device);
+	uint16_t reading(Device& device);
 
 	/** Print all readings in a line
 	*/

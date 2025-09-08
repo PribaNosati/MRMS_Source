@@ -94,7 +94,7 @@ void Mrm_col_can::add(char * deviceName)
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorBlue(Device device) {
+uint16_t Mrm_col_can::colorBlue(Device& device) {
 	if (colorsStarted(device))
 		return(*readings)[device.number][0];
 	else
@@ -105,7 +105,7 @@ uint16_t Mrm_col_can::colorBlue(Device device) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorGreen(Device device) {
+uint16_t Mrm_col_can::colorGreen(Device& device) {
 	if (colorsStarted(device))
 		return(*readings)[device.number][1];
 	else
@@ -116,7 +116,7 @@ uint16_t Mrm_col_can::colorGreen(Device device) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorOrange(Device device) {
+uint16_t Mrm_col_can::colorOrange(Device& device) {
 	if (colorsStarted(device))
 		return(*readings)[device.number][2];
 	else
@@ -127,7 +127,7 @@ uint16_t Mrm_col_can::colorOrange(Device device) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorRed(Device device) {
+uint16_t Mrm_col_can::colorRed(Device& device) {
 	if (colorsStarted(device))
 		return(*readings)[device.number][3];
 	else
@@ -138,7 +138,7 @@ uint16_t Mrm_col_can::colorRed(Device device) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_col_can::colorsStarted(Device device) {
+bool Mrm_col_can::colorsStarted(Device& device) {
 	if ((*_hsv)[device.number] || millis() - device.lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
 		//print("Switch to 6 col. %i %i \n\r", (*_hsv)[deviceNumber], (*_last6ColorsMs)[deviceNumber]);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
@@ -164,7 +164,7 @@ bool Mrm_col_can::colorsStarted(Device device) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorViolet(Device device) {
+uint16_t Mrm_col_can::colorViolet(Device& device) {
 	if (colorsStarted(device))
 		return(*readings)[device.number][4];
 	else
@@ -175,7 +175,7 @@ uint16_t Mrm_col_can::colorViolet(Device device) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - color intensity
 */
-uint16_t Mrm_col_can::colorYellow(Device device) {
+uint16_t Mrm_col_can::colorYellow(Device& device) {
 	if (colorsStarted(device))
 		return(*readings)[device.number][5];
 	else
@@ -214,7 +214,7 @@ void Mrm_col_can::gain(Device * device, uint8_t gainValue) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_col_can::hsvStarted(Device device) {
+bool Mrm_col_can::hsvStarted(Device& device) {
 	if (!(*_hsv)[device.number] || millis() - device.lastReadingsMs > MRM_COL_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
 		//print("Switch to HSV.\n\r");
 
@@ -358,7 +358,7 @@ void Mrm_col_can::patternPrint() {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - patternNumber
 */
-uint8_t Mrm_col_can::patternRecognizedBy6Colors(Device device) {
+uint8_t Mrm_col_can::patternRecognizedBy6Colors(Device& device) {
 	if (hsvStarted(device))
 		return (*_patternBy6Colors)[device.number];
 	else
@@ -370,7 +370,7 @@ uint8_t Mrm_col_can::patternRecognizedBy6Colors(Device device) {
 @param includeValue - if true, HSV compared. If not, HS.
 @raturn - patternNumber
 */
-uint8_t Mrm_col_can::patternRecognizedByHSV(Device device) {
+uint8_t Mrm_col_can::patternRecognizedByHSV(Device& device) {
 	if (hsvStarted(device))
 		return (*_patternByHSV)[device.number];
 	else
@@ -381,7 +381,7 @@ uint8_t Mrm_col_can::patternRecognizedByHSV(Device device) {
 @param patternNumber - 0 - MRM_COL_CAN_PATTERN_COUNT-1
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_col_can::patternRecord(uint8_t patternNumber, Device device) {
+void Mrm_col_can::patternRecord(uint8_t patternNumber, Device& device) {
 	if (!_hsv || patternNumber >= MRM_COL_CAN_PATTERN_COUNT || device.number >= devices.size()) {
 		strcpy(errorMessage, "Patt. err.");
 		return;
@@ -514,7 +514,7 @@ void Mrm_col_can::test(bool hsvSelect)
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - value
 */
-uint8_t Mrm_col_can::value(Device device) {
+uint8_t Mrm_col_can::value(Device& device) {
 	if (hsvStarted(device))
 		return (*_value)[device.number];
 	else

@@ -428,7 +428,7 @@ void Board::noLoopWithoutThis(){
 @param commandRequestingNotification
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Board::notificationRequest(uint8_t commandRequestingNotification,  Device device) {
+void Board::notificationRequest(uint8_t commandRequestingNotification,  Device& device) {
 	printf("THIS FUNCTION DOESN'T WORK\n\r");
 	//while (1);
 	//uint8_t tries = 0;
@@ -584,7 +584,7 @@ If we want to change the order so that now the device 1 is the one with the smal
 @param deviceNumber1 - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @param deviceNumber2 - Second device.
 */
-void Board::swapCANIds(Device device1, Device device2) {
+void Board::swapCANIds(Device& device1, Device& device2) {
 	uint16_t idInTemp = device1.canIdIn;
 	uint16_t idOutTemp = device1.canIdOut;
 	device1.canIdIn = device2.canIdIn;
@@ -624,7 +624,7 @@ MotorBoard::~MotorBoard(){
 /** Changes rotation's direction
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void MotorBoard::directionChange(Device device) {
+void MotorBoard::directionChange(Device& device) {
 	(*reversed)[device.number] = !(*reversed)[device.number];
 }
 
@@ -659,7 +659,7 @@ bool MotorBoard::messageDecode(CANMessage message) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - encoder value
 */
-uint16_t MotorBoard::reading(Device device) {
+uint16_t MotorBoard::reading(Device& device) {
 	aliveWithOptionalScan(&device, true);
 	if (started(device))
 		return (*encoderCount)[device.number];
@@ -703,7 +703,7 @@ void MotorBoard::speedSet(uint8_t motorNumber, int8_t speed, bool force) {
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool MotorBoard::started(Device device) {
+bool MotorBoard::started(Device& device) {
 	if (millis() - device.lastReadingsMs > MRM_MOTORS_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
 		// print("Start mrm-bldc4x2.5%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
