@@ -133,7 +133,7 @@ protected:
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - command found
 	*/
-	bool messageDecodeCommon(CANMessage message, Device& device);
+	bool messageDecodeCommon(CANMessage& message, Device& device);
 
 public:
 	std::vector<Device> devices; // List of devices on this board
@@ -141,12 +141,12 @@ public:
 	uint8_t number; // Index in vector
 
 	// In order to avoid back-pointers to Robot class
-	std::function<void (CANMessage message, uint8_t errorCode, bool peripheral, bool printNow)> errorAddParent;
+	std::function<void (CANMessage& message, uint8_t errorCode, bool peripheral, bool printNow)> errorAddParent;
 	std::function<bool ()> userBreakParent;
 	std::function<bool ()> setupParent;
 	std::function<void()> endParent;
-	std::function<void (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix)> messagePrintParent;
-	std::function<void (CANMessage message, uint8_t deviceNumber)> messageSendParent;
+	std::function<void (CANMessage& message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix)> messagePrintParent;
+	std::function<void (CANMessage& message, uint8_t deviceNumber)> messageSendParent;
 	std::function<void (uint16_t)> delayMsParent;
 	std::function<void ()> noLoopWithoutThisParent;
 	std::function<uint16_t (uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
@@ -265,7 +265,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(CANMessage message)= 0;
+	virtual bool messageDecode(CANMessage& message)= 0;
 
 	/** Prints a frame
 	@param msgId - messageId
@@ -274,7 +274,7 @@ public:
 	@param outbound - otherwise inbound
 	@return -if true, foundand printed
 	*/
-	void messagePrint(CANMessage message, bool outbound);
+	void messagePrint(CANMessage& message, bool outbound);
 
 	/** Send CAN Bus message
 	@param dlc - data length
@@ -382,7 +382,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	bool messageDecode(CANMessage message);
+	bool messageDecode(CANMessage& message);
 
 	/** Encoder readings
 	@param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -439,7 +439,7 @@ public:
 	@param length - number of data bytes
 	@return - true if canId for this class
 	*/
-	virtual bool messageDecode(CANMessage message){return false;}
+	virtual bool messageDecode(CANMessage& message){return false;}
 
 	/** All readings
 	@param subsensorNumberInSensor - like a single IR transistor in mrm-ref-can

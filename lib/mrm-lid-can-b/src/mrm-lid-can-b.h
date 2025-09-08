@@ -103,7 +103,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(CANMessage message);
+	bool messageDecode(CANMessage& message);
 
 	/** Ranging type
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

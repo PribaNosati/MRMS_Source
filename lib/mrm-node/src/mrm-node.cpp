@@ -94,7 +94,7 @@ std::string Mrm_node::commandName(uint8_t byte){
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_node::messageDecode(CANMessage message) {
+bool Mrm_node::messageDecode(CANMessage& message) {
 	for (Device& device : devices)
 		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {

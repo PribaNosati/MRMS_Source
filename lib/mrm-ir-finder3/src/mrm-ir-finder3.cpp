@@ -139,7 +139,7 @@ uint16_t Mrm_ir_finder3::distance(uint8_t deviceNumber) {
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_ir_finder3::messageDecode(CANMessage message) {
+bool Mrm_ir_finder3::messageDecode(CANMessage& message) {
 	// Todo: a problem: one message can be for short range sensors, the other for long. A mixed data will be the result.
 		for (Device& device : devices)
 		if (isForMe(message.id, device)) {

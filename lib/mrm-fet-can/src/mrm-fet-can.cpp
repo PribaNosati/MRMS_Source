@@ -113,7 +113,7 @@ void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_fet_can::messageDecode(CANMessage message) {
+bool Mrm_fet_can::messageDecode(CANMessage& message) {
 	for (Device& device : devices)
 		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {

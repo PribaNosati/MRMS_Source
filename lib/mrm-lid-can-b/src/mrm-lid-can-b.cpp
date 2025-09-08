@@ -195,7 +195,7 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_lid_can_b::messageDecode(CANMessage message) {
+bool Mrm_lid_can_b::messageDecode(CANMessage& message) {
 	for (Device& device : devices)
 		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {

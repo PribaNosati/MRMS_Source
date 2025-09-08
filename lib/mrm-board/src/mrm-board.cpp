@@ -340,7 +340,7 @@ bool Board::isFromMe(uint32_t canId, Device& device) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - command found
 */
-bool Board::messageDecodeCommon(CANMessage message, Device& device) {
+bool Board::messageDecodeCommon(CANMessage& message, Device& device) {
 	device.lastMessageReceivedMs = millis();
 	bool found = true;
 	uint8_t command = message.data[0];
@@ -396,7 +396,7 @@ bool Board::messageDecodeCommon(CANMessage message, Device& device) {
 @param outbound - otherwise inbound
 @return - if true, found and printed
 */
-void Board::messagePrint(CANMessage message, bool outbound) {
+void Board::messagePrint(CANMessage& message, bool outbound) {
 	messagePrintParent(message, this, 0xFF, outbound, false, "");
 }
 
@@ -406,8 +406,10 @@ void Board::messagePrint(CANMessage message, bool outbound) {
 @param deviceNumber - Devices's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Board::messageSend(uint8_t* data, uint8_t dlc, uint8_t deviceNumber) {
-	if (messageSendParent)
-		messageSendParent(CANMessage(devices[deviceNumber].canIdIn, data, dlc), deviceNumber);
+	if (messageSendParent){
+		CANMessage message(devices[deviceNumber].canIdIn, data, dlc);
+		messageSendParent(message, deviceNumber);
+	}
 	else{
 		print("messageSendParent() not defined.\n\r");
 		exit(1);
@@ -634,7 +636,7 @@ void MotorBoard::directionChange(Device& device) {
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool MotorBoard::messageDecode(CANMessage message) {
+bool MotorBoard::messageDecode(CANMessage& message) {
 	for (Device& device : devices)
 		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {

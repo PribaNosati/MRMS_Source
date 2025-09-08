@@ -46,7 +46,7 @@ public:
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
 	*/
-	virtual bool messageDecode(CANMessage message) = 0;
+	virtual bool messageDecode(CANMessage& message) = 0;
 
 	/** Ranging type
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.

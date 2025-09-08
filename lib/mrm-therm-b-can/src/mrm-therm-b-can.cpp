@@ -68,7 +68,7 @@ void Mrm_therm_b_can::add(char * deviceName)
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_therm_b_can::messageDecode(CANMessage message) {
+bool Mrm_therm_b_can::messageDecode(CANMessage& message) {
 	for (Device& device : devices)
 		if (isForMe(message.id, device)) {
 			if (!messageDecodeCommon(message, device)) {

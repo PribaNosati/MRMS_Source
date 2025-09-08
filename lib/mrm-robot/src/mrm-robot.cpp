@@ -506,7 +506,7 @@ void Robot::actionSet(std::string action){
 void Robot::add(Board* aBoard) {
 	boards.push_back(aBoard);
 	aBoard->number = _boardNextFree;
-	aBoard->errorAddParent = [this](CANMessage message, uint8_t errorCode, bool peripheral, bool printNow){
+	aBoard->errorAddParent = [this](CANMessage& message, uint8_t errorCode, bool peripheral, bool printNow){
 		this->errors->add(message.id, errorCode, peripheral);
 		if (printNow){
 			print("%s, ", errors->find(errorCode).c_str());
@@ -516,9 +516,9 @@ void Robot::add(Board* aBoard) {
 	};	aBoard->userBreakParent = [this](){return this->userBreak();};
 	aBoard->setupParent = [this](){return this->setup();};
 	aBoard->endParent = [this](){this->end();};
-	aBoard->messagePrintParent = [this] (CANMessage message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) 
+	aBoard->messagePrintParent = [this] (CANMessage& message, Board* board, uint8_t deviceNumber, bool outbound, bool clientInitiated, std::string postfix) 
 		{messagePrint(&message, board, deviceNumber, outbound, clientInitiated, postfix);};
-	aBoard->messageSendParent = [this](CANMessage message, uint8_t deviceNumber){this->messageSend(message);};
+	aBoard->messageSendParent = [this](CANMessage& message, uint8_t deviceNumber){this->messageSend(message);};
 	aBoard->delayMsParent = [this](uint16_t pauseMs){delayMs(pauseMs);};
 	aBoard->noLoopWithoutThisParent = [this](){noLoopWithoutThis();};
 	aBoard->serialReadNumberParent = [this](uint16_t timeoutFirst, uint16_t timeoutBetween, bool onlySingleDigitInput, 
@@ -1427,7 +1427,7 @@ void Robot::messagesReceive(CANMessage message[5], int8_t& last) {
 @param data - payload
 @return - true if CAN Bus return message received
 */
-bool Robot::messageSend(CANMessage message) {
+bool Robot::messageSend(CANMessage& message) {
 	mrm_can_bus->messageSend(message.id, message.dlc, message.data);
 
 	if (_sniff)

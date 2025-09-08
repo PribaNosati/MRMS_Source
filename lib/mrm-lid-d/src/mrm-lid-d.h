@@ -126,7 +126,7 @@ public:
 	@param canId - CAN Bus id
 	@param data - 8 bytes from CAN Bus message.
 	*/
-	bool messageDecode(CANMessage message);
+	bool messageDecode(CANMessage& message);
 
 	/** Analog readings
 	@param receiverNumberInSensor - always 0

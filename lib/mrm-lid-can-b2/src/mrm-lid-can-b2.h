@@ -123,7 +123,7 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(CANMessage message);
+	bool messageDecode(CANMessage& message);
 
 	void rangingType(Device * device = nullptr, uint8_t value = 0) {print("Not implemented");exit(1);};
 
