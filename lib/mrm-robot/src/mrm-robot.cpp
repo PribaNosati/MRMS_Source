@@ -1210,7 +1210,7 @@ void Robot::lidarCalibrate() {
 	int8_t selected2Or4 = -1;
 	uint32_t lastMs;
 	while (selected2Or4 != 2 && selected2Or4 != 4) {
-		print("Enter max distance [2 or 4]m or wait to abort ");
+		print("Enter max distance [2 or 4]m or wait to abort\n\r");
 		lastMs = millis();
 		selected2Or4 = -1;
 		while (millis() - lastMs < 10000 && selected2Or4 == -1)
@@ -1229,16 +1229,18 @@ void Robot::lidarCalibrate() {
 	if (selected2Or4 != -1) {
 		// Select lidar
 		uint8_t count = selected2Or4 == 2 ? mrm_lid_can_b->devices.size() : mrm_lid_can_b2->devices.size();
-		print("Enter lidar number [0-%i] or wait to abort", count - 1);
+		print("Enter lidar number [0-%i] or wait to abort\n\r", count - 1);
 		uint16_t selected = serialReadNumber(3000, 1000, count - 1 < 9, count - 1, false);
 		if (selected == 0xFFFF)
 			print("\n\rAbort\n\r");
 		else {
-			if (selected2Or4 == 2 ? mrm_lid_can_b->aliveWithOptionalScan(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->aliveWithOptionalScan(&mrm_lid_can_b2->devices[selected])) {
-				print("\n\rCalibrate lidar %s\n\r", mrm_lid_can_b->devices[selected].name.c_str());
-				selected2Or4 == 2 ? mrm_lid_can_b->calibration(&mrm_lid_can_b->devices[selected]) : mrm_lid_can_b2->calibration(&mrm_lid_can_b2->devices[selected]);			}
+			if (selected2Or4 == 2 ? mrm_lid_can_b->devices[selected].alive : mrm_lid_can_b2->devices[selected].alive) {
+				print("\n\rCalibrate lidar %s\n\r", 
+					selected2Or4 ? mrm_lid_can_b->devices[selected].name.c_str() : mrm_lid_can_b2->devices[selected].name.c_str());
+				selected2Or4 == 2 ? mrm_lid_can_b->calibration(&mrm_lid_can_b->devices[selected]) : 
+					mrm_lid_can_b2->calibration(&mrm_lid_can_b2->devices[selected]);			}
 			else
-				print("\n\rLidar %s dead\n\r", selected2Or4 == 2 ? mrm_lid_can_b->devices[selected].name.c_str() : mrm_lid_can_b2->devices[selected].name.c_str());
+				print("\n\rLidar %s not responding\n\r", selected2Or4 == 2 ? mrm_lid_can_b->devices[selected].name.c_str() : mrm_lid_can_b2->devices[selected].name.c_str());
 		}
 	}
 
