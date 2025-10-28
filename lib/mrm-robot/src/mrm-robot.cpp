@@ -133,6 +133,7 @@ if (actions == NULL) {
 		actions->insert({"6co", new ActionRobot(this, "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6)});
 		actions->insert({"hsv", new ActionRobot(this, "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV)});
 		actions->insert({"idc", new ActionRobot(this, "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange)});
+		actions->insert({"rst", new ActionRobot(this, "Device reset", 16, Board::BoardId::ID_ANY, signTest, &Robot::deviceReset)});
 		actions->insert({"fir", new ActionRobot(this, "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint)});
 		actions->insert({"fps", new ActionRobot(this, "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint)});
 		actions->insert({"ahe", new ActionRobot(this, "Go ahead", 1, Board::BoardId::ID_ANY, signTest, &Robot::goAhead)});
