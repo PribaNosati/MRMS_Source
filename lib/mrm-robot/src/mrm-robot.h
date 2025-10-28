@@ -286,6 +286,8 @@ public:
 	*/
 	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, Board * boardFound, Device * deviceFound, Board::BoardType boardType = Board::BoardType::ANY_BOARD);
 
+	void deviceReset();
+
 	void deviceScan();
 
 	/** Contacts all the CAN Bus devices and checks which one is alive.

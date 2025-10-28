@@ -925,6 +925,22 @@ void Robot::deviceInfo(uint8_t deviceGlobalOrdinalNumber, Board * boardFound, De
 	deviceFound->readingsCount = 0;
 }
 
+/** Change device's id
+*/
+void Robot::deviceReset() {
+	uint8_t selectedBoardIndex;
+	uint8_t selectedDeviceIndex;
+	uint8_t maxInput;
+	uint8_t lastBoardAndDeviceIndex;
+	if (boardDisplayAndSelect(&selectedBoardIndex, &selectedDeviceIndex, &maxInput, &lastBoardAndDeviceIndex)) {
+		Device& device = boards[selectedBoardIndex]->devices[selectedDeviceIndex];	
+		print("Resetting %s ", device.name.c_str());
+		boards[selectedBoardIndex]->reset(&device);
+	}
+
+	end();
+}
+
 /** Display number of CAN Bus devices using 8x8 display
 */
 void Robot::devicesLEDCount(){
