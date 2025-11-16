@@ -508,7 +508,7 @@ void Mrm_ref_can::refreshSet(uint16_t ms, uint8_t deviceNumber){
 */
 void Mrm_ref_can::test(bool analog)
 {
-#define TEST_REF_CAN_FOR_0 1
+#define TEST_REF_CAN_FOR_0 0 // If some transistors retun 0, break. However, if sensor has less than 9 transistors, the last ones will be 0.
 	static uint64_t lastMs = 0;
 #if TEST_REF_CAN_FOR_0
 	static uint32_t cnt;
@@ -526,7 +526,6 @@ void Mrm_ref_can::test(bool analog)
 					print(analog ? "%3i " : "%i", analog ? reading(i, device.number) : dark(i, device.number));
 #if TEST_REF_CAN_FOR_0
 					if (reading(i, device.number) == 0 && cnt > 10){ // At startup some zero, that's ok
-
 						end();
 					}
 #endif
