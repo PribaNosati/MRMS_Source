@@ -364,8 +364,8 @@ for (Device& device : devices)
 				case COMMAND_REF_CAN_CALIBRATION_DATA_DARK_1_TO_3:
 					// todo - dataFresh only 8 bits so the first 3 messages do not work
 					startIndex = 0;
-						anyCalibrationDataDark = true;
-						break;
+					anyCalibrationDataDark = true;
+					break;
 				case COMMAND_REF_CAN_CALIBRATION_DATA_DARK_4_TO_6:
 					startIndex = 3;
 					anyCalibrationDataDark = true;

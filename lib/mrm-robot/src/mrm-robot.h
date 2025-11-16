@@ -290,6 +290,8 @@ public:
 
 	void deviceScan();
 
+	void devicesList();
+
 	/** Contacts all the CAN Bus devices and checks which one is alive.
 	@verbose - if true, print.
 	@boardType - sensor, motor, or all boards.

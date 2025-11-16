@@ -159,7 +159,7 @@ std::string Board::commandName(uint8_t byte){
 std::string Board::commandNameCommon(uint8_t byte){
 	auto it = commandNames->find(byte);
 	if (it == commandNames->end())
-		return "Warning: no common command found for key " + (int)byte;
+		return "Warning: no common command found for key " + std::to_string((int)byte);
 	else
 		return it->second;
 }

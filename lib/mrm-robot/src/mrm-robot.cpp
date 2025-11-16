@@ -133,6 +133,7 @@ if (actions == NULL) {
 		actions->insert({"6co", new ActionRobot(this, "Test 6 colors", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6)});
 		actions->insert({"hsv", new ActionRobot(this, "Teset HSV", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorTest6HSV)});
 		actions->insert({"idc", new ActionRobot(this, "Device's id change", 16, Board::BoardId::ID_ANY, signTest, &Robot::canIdChange)});
+		actions->insert({"dli", new ActionRobot(this, "Devices list all", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesList)});
 		actions->insert({"rst", new ActionRobot(this, "Device reset", 16, Board::BoardId::ID_ANY, signTest, &Robot::deviceReset)});
 		actions->insert({"fir", new ActionRobot(this, "Firmware", 16, Board::BoardId::ID_ANY, signTest, &Robot::firmwarePrint)});
 		actions->insert({"fps", new ActionRobot(this, "FPS", 16, Board::BoardId::ID_ANY, signTest, &Robot::fpsPrint)});
@@ -975,6 +976,23 @@ void Robot::deviceScan() {
 	end();
 }
 
+void Robot::devicesList(){
+		int i = 0;
+	for(Board* board : boards){
+		print("%i. %s:",i++,  board->name().c_str());
+		bool first = true;
+		for (Device& device : board->devices){
+			if (first)
+				first = false;
+			else
+				print(",");
+			print(" %s", device.name.c_str());
+		}
+		print("\n\r");
+	}
+	end();
+}
+
 /** Contacts all the CAN Bus devices and checks which one is alive.
 @verbose - if true, print.
 @boardType - sensor, motor, or all boards
@@ -1379,7 +1397,7 @@ void Robot::messagePrint(CANMessage *msg, Board* board, uint8_t deviceNumber, bo
 	for (uint8_t i = 0; i < 8; i++) {
 		if (i == 0){
 			print(" command: ");
-			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] <= 0xFE)
+			if ((msg->data[0] > 0x0F && msg->data[0] < 0x50) || msg->data[0] >= 0xFE)
 				print(Board::commandNameCommon(msg->data[0]).c_str());
 			else{	
 				if (board != NULL && board->commandName(msg->data[0]) != "")

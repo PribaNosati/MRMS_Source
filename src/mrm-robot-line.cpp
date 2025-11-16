@@ -500,8 +500,12 @@ void RobotLine::loop() {
 
 /** Generic actions, use them as templates
 */
-void RobotLine::loop0() { armIdle(); end();}
-void RobotLine::loop1() { armCatchReady(); end(); }
+void RobotLine::loop0() {
+
+}
+void RobotLine::loop1() { 
+	boards[7]->reset(&(boards[7]->devices[3]));
+}
 void RobotLine::loop2() { armCatch(); end(); }
 void RobotLine::loop3() { armUp(); end(); }
 void RobotLine::loop4() { armDrop(); end(); }
