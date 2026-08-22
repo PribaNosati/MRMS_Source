@@ -37,7 +37,7 @@ public:
 	@param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 	@param maxNumberOfBoards - maximum number of boards
 	*/
-	Mrm_mot4x10(Robot* robot = NULL, uint8_t maxNumberOfBoards = 1);
+	Mrm_mot4x10(uint8_t maxNumberOfBoards = 1);
 
 	~Mrm_mot4x10();
 

@@ -1,8 +1,7 @@
 #include "mrm-8x8a.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_8x8a = new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_8x8a = new std::vector<String>();
+std::map<int, std::string>* Mrm_8x8a::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -10,8 +9,8 @@ std::vector<String>* commandNames_mrm_8x8a = new std::vector<String>();
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_8x8a::Mrm_8x8a(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "LED8x8", maxNumberOfBoards, ID_MRM_8x8A, MRM_8x8A_SWITCHES_COUNT) {
+Mrm_8x8a::Mrm_8x8a(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "LED8x8", maxNumberOfBoards, ID_MRM_8x8A, MRM_8x8A_SWITCHES_COUNT) {
 	displayedLast = new std::vector<uint8_t>(maxNumberOfBoards);
 	displayedTypeLast = new std::vector<uint8_t>(maxNumberOfBoards);
 	lastOn = new std::vector<bool[MRM_8x8A_SWITCHES_COUNT]>(maxNumberOfBoards);
@@ -20,43 +19,26 @@ Mrm_8x8a::Mrm_8x8a(Robot* robot, uint8_t maxNumberOfBoards) :
 	//mrm_can_bus = esp32CANBusSingleton;
 	nextFree = 0;
 
-	if (commandIndexes_mrm_8x8a->empty()){
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_DISPLAY);
-		commandNames_mrm_8x8a->push_back("Display");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_SWITCH_ON);
-		commandNames_mrm_8x8a->push_back("Switch on");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION);
-		commandNames_mrm_8x8a->push_back("Sw on req n");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8x8_TEST_CAN_BUS);
-		commandNames_mrm_8x8a->push_back("Test CAN b");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_DISPLAY_PART1);
-		commandNames_mrm_8x8a->push_back("Bitmap d.1");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_DISPLAY_PART2);
-		commandNames_mrm_8x8a->push_back("Bitmap d.2");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_DISPLAY_PART3);
-		commandNames_mrm_8x8a->push_back("Bitmap d.3");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORE_PART1);
-		commandNames_mrm_8x8a->push_back("Bitmap s.1");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORE_PART2);
-		commandNames_mrm_8x8a->push_back("Bitmap s.2");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORE_PART3);
-		commandNames_mrm_8x8a->push_back("Bitmap s.3");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_BITMAP_STORED_DISPLAY);
-		commandNames_mrm_8x8a->push_back("Bitm st di");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_ROTATION_SET);
-		commandNames_mrm_8x8a->push_back("Rotat. set");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_1);
-		commandNames_mrm_8x8a->push_back("Text 1");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_2);
-		commandNames_mrm_8x8a->push_back("Text 2");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_3);
-		commandNames_mrm_8x8a->push_back("Text 3");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_4);
-		commandNames_mrm_8x8a->push_back("Text 4");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_5);
-		commandNames_mrm_8x8a->push_back("Text 5");
-		commandIndexes_mrm_8x8a->push_back(COMMAND_8X8_TEXT_6);
-		commandNames_mrm_8x8a->push_back("Text 6");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_8X8_DISPLAY, 						"Display"});
+		commandNamesSpecific->insert({COMMAND_8X8_SWITCH_ON, 					"Switch on"});
+		commandNamesSpecific->insert({COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION, "Sw on req n"});
+		commandNamesSpecific->insert({COMMAND_8x8_TEST_CAN_BUS, 					"Test CAN b"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_DISPLAY_PART1, 			"Bitmap d.1"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_DISPLAY_PART2, 			"Bitmap d.2"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_DISPLAY_PART3, 			"Bitmap d.3"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORE_PART1, 			"Bitmap s.1"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORE_PART2, 			"Bitmap s.2"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORE_PART3, 			"Bitmap s.3"});
+		commandNamesSpecific->insert({COMMAND_8X8_BITMAP_STORED_DISPLAY, 		"Bitm st di"});
+		commandNamesSpecific->insert({COMMAND_8X8_ROTATION_SET, 					"Rotat. set"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_1, 						"Text 1"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_2, 						"Text 2"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_3,  						"Text 3"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_4, 						"Text 4"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_5, 						"Text 5"});
+		commandNamesSpecific->insert({COMMAND_8X8_TEXT_6, 						"Text 6"});
 	}
 }
 
@@ -66,13 +48,13 @@ Mrm_8x8a::~Mrm_8x8a()
 
 
 ActionBase* Mrm_8x8a::actionCheck() {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) { 
+	for (Device& device : devices) {
 		for (uint8_t switchNumber = 0; switchNumber < MRM_8x8A_SWITCHES_COUNT; switchNumber++){
-			if ((*lastOn)[deviceNumber][switchNumber] == false && switchRead(switchNumber, deviceNumber) && (*offOnAction)[deviceNumber][switchNumber] != NULL)
-				return (*offOnAction)[deviceNumber][switchNumber]; 
-			else if ((*lastOn)[deviceNumber][switchNumber] == true && !switchRead(switchNumber, deviceNumber)){
-				((*lastOn)[deviceNumber][switchNumber]) = false; 
-			} 
+			if ((*lastOn)[device.number][switchNumber] == false && switchRead(switchNumber, device.number) && (*offOnAction)[device.number][switchNumber] != NULL)
+				return (*offOnAction)[device.number][switchNumber];
+			else if ((*lastOn)[device.number][switchNumber] == true && !switchRead(switchNumber, device.number)){
+				((*lastOn)[device.number][switchNumber]) = false;
+			}
 		}
 	}
 	return NULL;
@@ -122,7 +104,7 @@ void Mrm_8x8a::add(char * deviceName)
 		canOut = CAN_ID_8x8A7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 	}
 
 	for (uint8_t i = 0; i < MRM_8x8A_SWITCHES_COUNT; i++) {
@@ -145,10 +127,10 @@ void Mrm_8x8a::bitmapDisplay(uint8_t bitmapId, uint8_t deviceNumber){
 	if (bitmapId != (*displayedLast)[deviceNumber] || (*displayedTypeLast)[deviceNumber] != LED8x8Type::LED_8X8_STORED) {
 		(*displayedLast)[deviceNumber] = bitmapId;
 		(*displayedTypeLast)[deviceNumber] = LED8x8Type::LED_8X8_STORED;
-		alive(deviceNumber, true);
+		aliveWithOptionalScan(&devices[deviceNumber], true);
 		canData[0] = COMMAND_8X8_DISPLAY;
 		canData[1] = bitmapId;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+		messageSend(canData, 2, devices[deviceNumber].canIdIn);
 	}
 }
 
@@ -158,22 +140,22 @@ void Mrm_8x8a::bitmapDisplay(uint8_t bitmapId, uint8_t deviceNumber){
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Mrm_8x8a::bitmapCustomDisplay(uint8_t red[], uint8_t green[], uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART1;
 	for (uint8_t i = 0; i < 7; i++) 
 		canData[i + 1] = green[i];
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART2;
 	canData[1] = green[7];
 	for (uint8_t i = 0; i < 6; i++) 
 		canData[i + 2] = red[i];
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_DISPLAY_PART3;
 	for (uint8_t i = 0; i < 2; i++) 
 		canData[i + 1] = red[i + 6];
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 3, canData);
+	messageSend(canData, 3, deviceNumber);
 
 	(*displayedTypeLast)[deviceNumber] = LED8x8Type::LED_8X8_CUSTOM;
 }
@@ -185,24 +167,24 @@ void Mrm_8x8a::bitmapCustomDisplay(uint8_t red[], uint8_t green[], uint8_t devic
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Mrm_8x8a::bitmapCustomStore(uint8_t red[], uint8_t green[], uint8_t address, uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART1;
 	for (uint8_t i = 0; i < 7; i++)
 		canData[i + 1] = green[i];
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART2;
 	canData[1] = green[7];
 	for (uint8_t i = 0; i < 6; i++)
 		canData[i + 2] = red[i];
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 8, canData);
+	messageSend(canData, 8, deviceNumber);
 
 	canData[0] = COMMAND_8X8_BITMAP_STORE_PART3;
 	for (uint8_t i = 0; i < 2; i++)
 		canData[i + 1] = red[i + 6];
 	canData[3] = address;
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 4, canData);
+	messageSend(canData, 4, deviceNumber);
 }
 
 /** Display custom stored bitmap
@@ -213,10 +195,10 @@ void Mrm_8x8a::bitmapCustomStoredDisplay(uint8_t address, uint8_t deviceNumber) 
 	if (address != (*displayedLast)[deviceNumber] || (*displayedTypeLast)[deviceNumber] != LED8x8Type::LED_8X8_STORED_CUSTOM) {
 		(*displayedLast)[deviceNumber] = address;
 		(*displayedTypeLast)[deviceNumber] = LED8x8Type::LED_8X8_STORED_CUSTOM;
-		alive(deviceNumber, true);
+		aliveWithOptionalScan(&devices[deviceNumber], true);
 		canData[0] = COMMAND_8X8_BITMAP_STORED_DISPLAY;
 		canData[1] = address;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+		messageSend(canData, 2, deviceNumber);
 	}
 }
 
@@ -250,7 +232,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000011;
 		red[7] = 0b00000001;
 		bitmapCustomStore(red, green, LED_CUSTOM);
-		delay(1);
+		delayMs(1);
 	}
 
 
@@ -267,7 +249,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_CURVE_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Curve right.
@@ -283,7 +265,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_CURVE_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Evacuation zone
@@ -299,7 +281,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		green[6] = 0b11100001;
 		green[7] = 0b11111111;
 		bitmapCustomStore(red, green, LED_EVACUATION_ZONE);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, both marks.
@@ -322,7 +304,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_BOTH_MARKS);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, mark left.
@@ -345,7 +327,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, mark right.
@@ -368,7 +350,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_MARK_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full crossing, no marks.
@@ -384,7 +366,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_FULL_CROSSING_NO_MARK);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing, mark right.
@@ -407,7 +389,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing, mark left.
@@ -430,7 +412,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_MARK_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing right, no mark.
@@ -453,7 +435,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_RIGHT_NO_MARK);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Half crossing left, no mark
@@ -476,7 +458,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_HALF_CROSSING_LEFT_NO_MARK);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow IMU.
@@ -492,7 +474,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_IMU_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, no marks
@@ -502,7 +484,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_LINE_FULL);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, both marks
@@ -520,7 +502,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		/* Store this bitmap in mrm-8x8a. The 3rd parameter is bitmap's address. If You want to define new bitmaps, expand LedSign enum with
 		Your names, and use the new values for Your bitmaps. This parameter can be a plain number, but enum keeps thing tidy.*/
 		bitmapCustomStore(red, green, LED_LINE_FULL_BOTH_MARKS);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, left mark.
@@ -536,7 +518,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_LINE_FULL_MARK_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Full line, right mark.
@@ -552,7 +534,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		red[6] = 0b00000000;
 		red[7] = 0b00000000;
 		bitmapCustomStore(red, green, LED_LINE_FULL_MARK_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Interrupted line.
@@ -568,7 +550,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_LINE_INTERRUPTED);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Obstacle.
@@ -584,7 +566,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_OBSTACLE);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Around obstacle left.
@@ -600,7 +582,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_LEFT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Around obstacle right.
@@ -616,7 +598,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_OBSTACLE_AROUND_RIGHT);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Pause.
@@ -632,7 +614,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_PAUSE);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Play.
@@ -648,7 +630,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_PLAY);
-		delay(1);
+		delayMs(1);
 	}
 
 	// T-crossing approached by left side.
@@ -664,7 +646,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_T_CROSSING_BY_L);
-		delay(1);
+		delayMs(1);
 	}
 
 	// T-crossing approached by right side.
@@ -680,7 +662,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_T_CROSSING_BY_R);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Wall ahead
@@ -696,7 +678,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_AHEAD);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall down, green taken from Follow IMU bitmap.
@@ -705,7 +687,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 			red[i] = 0;
 		red[7] = 0b11111111;
 		bitmapCustomStore(red, green, LED_WALL_DOWN_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Wall on the left side
@@ -721,7 +703,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_L);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall left, green taken from Follow IMU bitmap.
@@ -729,7 +711,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0b10000000;
 		bitmapCustomStore(red, green, LED_WALL_LEFT_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Wall on the right side
@@ -745,7 +727,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_R);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall right, green taken from Follow IMU bitmap.
@@ -753,7 +735,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0b00000001;
 		bitmapCustomStore(red, green, LED_WALL_RIGHT_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// Follow wall up, green taken from Follow IMU bitmap.
@@ -762,7 +744,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 1; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_WALL_UP_FOLLOW);
-		delay(1);
+		delayMs(1);
 	}
 
 	// LED approach opponent's goal
@@ -778,7 +760,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_GOAL_APPROACH);
-		delay(1);
+		delayMs(1);
 	}
 
 	// LED approach opponent's goal
@@ -794,7 +776,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_IDLE);
-		delay(1);
+		delayMs(1);
 	}
 	// LED approach opponent's goal
 	if (std::find(selectedImages.begin(), selectedImages.end(), LED_LINE_AVOID) != selectedImages.end()){
@@ -809,7 +791,7 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_LINE_AVOID);
-		delay(1);
+		delayMs(1);
 	}
 	// LED approach opponent's goal
 	if (std::find(selectedImages.begin(), selectedImages.end(), LED_CATCH) != selectedImages.end()){
@@ -824,10 +806,18 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 		for (uint8_t i = 0; i < 8; i++)
 			red[i] = 0;
 		bitmapCustomStore(red, green, LED_CATCH);
-		delay(1);
+		delayMs(1);
 	}
 }
 
+
+std::string Mrm_8x8a::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
+}
 
 /** Read CAN Bus message into local variables
 @param canId - CAN Bus id
@@ -835,36 +825,32 @@ void Mrm_8x8a::bitmapsSet(const std::vector<ledSign>& selectedImages) {
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_8x8a::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) { 
+bool Mrm_8x8a::messageDecode(CANMessage& message) {
+	for (Device& device : devices)
+		if (isForMe(message.id, device)) {
+			if (!messageDecodeCommon(message, device)) {
+				switch (message.data[0]) {
 				case COMMAND_8X8_SWITCH_ON:
 				case COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION: {
-					uint8_t switchNumber = data[1] >> 1;
-					if (switchNumber > 4) {
-						strcpy(errorMessage, "No 8x8a switch");
-						return false;
-					}
-					(*on)[deviceNumber][switchNumber] = data[1] & 1;
-					if (data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {
-						canData[0] = COMMAND_NOTIFICATION;
-						canData[1] = switchNumber; //todo - deviceNumber not taken into account
-						robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
-					}
-					(*_lastReadingMs)[deviceNumber] = millis();
+					uint8_t switchNumber = message.data[1] >> 1;
+						if (switchNumber > 4) {
+							sprintf(errorMessage, "No %s: %i.", _boardsName.c_str(), switchNumber);
+							return false;
+						}
+					(*on)[device.number][switchNumber] = message.data[1] & 1;
+						if (message.data[0] == COMMAND_8X8_SWITCH_ON_REQUEST_NOTIFICATION) {
+							canData[0] = COMMAND_NOTIFICATION;
+							canData[1] = switchNumber; //todo - deviceNumber not taken into account
+							messageSend(canData, 2, device.number);
+						}
+						device.lastReadingsMs = millis();
 				}
 					break;
 				case COMMAND_8x8_TEST_CAN_BUS:
-					print("Test: %i\n\r", data[1]);
+					print("Test: %i\n\r", message.data[1]);
 					break;
 				default:
-					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					print("\n\r");
-					errorCode = 203;
-					errorInDeviceNumber = deviceNumber;
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				} 
 			}
 			return true;
@@ -928,10 +914,10 @@ bool Mrm_8x8a::progressBar(uint32_t period, uint32_t current, bool reset) {
 @param deviceNumber - Displays's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
 void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	canData[0] = COMMAND_8X8_ROTATION_SET;
 	canData[1] = rotation;
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+	messageSend(canData, 2, deviceNumber);
 }
 
 /** If sensor not started, start it and wait for 1. message
@@ -939,20 +925,24 @@ void Mrm_8x8a::rotationSet(enum LED8x8Rotation rotation, uint8_t deviceNumber) {
 @return - started or not
 */
 bool Mrm_8x8a::started(uint8_t deviceNumber) {
-	if (_activeCheckIfStarted && (millis() - (*_lastReadingMs)[deviceNumber] > MRM_8X8A_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0)) {
-		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0);
-			// Wait for 1. message.
-			uint32_t startMs = millis();
-			while (millis() - startMs < 50) {
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
-					//print("8x8 confirmed\n\r"); 
-					return true;
+	static uint64_t lastTriedMs = 0;
+	if (_activeCheckIfStarted && (millis() - devices[deviceNumber].lastReadingsMs > MRM_8X8A_INACTIVITY_ALLOWED_MS || devices[deviceNumber].lastReadingsMs == 0)) {
+		if (millis() - lastTriedMs > 5000){
+			for (uint8_t i = 0; i < 2; i++) { // 2 tries
+				start(&devices[deviceNumber], 0);
+				// Wait for 1. message.
+				uint64_t startMs = millis();
+				while (millis() - startMs < 50) {
+					if (millis() - devices[deviceNumber].lastReadingsMs < 100) {
+						//print("8x8 confirmed\n\r");
+						return true;
+					}
+					delayMs(1);
 				}
-				robotContainer->delayMs(1);
 			}
+			print("%s %i not responding.", _boardsName.c_str(), deviceNumber);
+			lastTriedMs = millis();
 		}
-		strcpy(errorMessage, "mrm-8x8a dead.\n\r");
 		return false;
 	}
 	else
@@ -965,7 +955,7 @@ bool Mrm_8x8a::started(uint8_t deviceNumber) {
 @return - true if pressed, false otherwise
 */
 bool Mrm_8x8a::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
-	alive(deviceNumber, true);
+	aliveWithOptionalScan(&devices[deviceNumber], true);
 	if (deviceNumber >= nextFree || switchNumber >= MRM_8x8A_SWITCHES_COUNT) {
 		strcpy(errorMessage, "Switch doesn't exist");
 		return false;
@@ -982,14 +972,14 @@ bool Mrm_8x8a::switchRead(uint8_t switchNumber, uint8_t deviceNumber) {
 */
 void Mrm_8x8a::test()
 {
-#define MRM_8x8A_START_BITMAP_1 0x01
-#define MRM_8x8A_END_BITMAP_1 0x04
-#define MRM_8x8A_START_BITMAP_2 0x30
-#define MRM_8x8A_END_BITMAP_2 0x5A
+	#define MRM_8x8A_START_BITMAP_1 0x01
+	#define MRM_8x8A_END_BITMAP_1 0x04
+	#define MRM_8x8A_START_BITMAP_2 0x30
+	#define MRM_8x8A_END_BITMAP_2 0x5A
 	static uint32_t lastMs = 0;
 	static uint8_t bitmapId = MRM_8x8A_START_BITMAP_1;
 
-	if (robotContainer->setup()) {
+	if (setup()) {
 		uint8_t red[8] = { 0b00000000, 0b01100110, 0b11111111, 0b11111111, 0b11111111, 0b01111110, 0b00111100, 0b00011000 };
 		uint8_t green[8] = { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000000 };
 		bitmapCustomStore(red, green, 7);
@@ -999,14 +989,14 @@ void Mrm_8x8a::test()
 		uint8_t pass = 0;
 
 		// Built-in bitmap
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
-				bitmapDisplay(bitmapId, deviceNumber);
+		for (Device& device: devices){
+			if (device.alive) {
+				bitmapDisplay(bitmapId, device.number);
 				if (pass++)
 					print("| ");
 				print("Map 0x%02x, sw:", bitmapId);
 				for (uint8_t i = 0; i < MRM_8x8A_SWITCHES_COUNT; i++)
-					print("%i ", switchRead(i, deviceNumber));
+					print("%i ", switchRead(i, device.number));
 			}
 		}
 		bitmapId++;
@@ -1016,13 +1006,13 @@ void Mrm_8x8a::test()
 			bitmapId = MRM_8x8A_START_BITMAP_1;
 
 			// Custom bitmap.
-			robotContainer->delayMs(300);
+			delayMs(300);
 			uint8_t red[8] = { 0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00000100, 0b00111000, 0b00000000, 0b00111100 };
 			uint8_t green[8] = { 0b00111100, 0b01000010, 0b10101001, 0b10101001, 0b10000001, 0b10000001, 0b01000010, 0b00111100 };
 			bitmapCustomDisplay(red, green);
 
 			// Custom stored bitmap
-			robotContainer->delayMs(300);
+			delayMs(300);
 			bitmapCustomStoredDisplay(7);
 		}
 		lastMs = millis();

@@ -21,7 +21,7 @@ void setup() {
 void loop() {
   uint8_t startIndex = 0;
   // Receive a message
-  CANBusMessage* msg = can.messageReceive();                    // Receive a message, if any arrived.
+  CANMessage* msg = can.messageReceive();                    // Receive a message, if any arrived.
   if (msg != NULL){                                             // If not NULL, a message received.
     int16_t angle = ((msg->data[1] << 8) | msg->data[2]) - 180; // Reconstruct angle from 2 bytes.
     uint16_t distance = (msg->data[3] << 8) | msg->data[4];     // Reconstruct distance from 2 bytes.

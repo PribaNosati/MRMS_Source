@@ -1,8 +1,7 @@
 #include "mrm-lid-can-b.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_lid_can_b =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_lid_can_b =  new std::vector<String>();
+std::map<int, std::string>* Mrm_lid_can_b::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -10,15 +9,14 @@ std::vector<String>* commandNames_mrm_lid_can_b =  new std::vector<String>();
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_lid_can_b::Mrm_lid_can_b(Robot* robot, uint8_t maxNumberOfBoards) : 
-	SensorBoard(robot, 1, "Lid2m", maxNumberOfBoards, ID_MRM_LID_CAN_B, 1) {
+Mrm_lid_can_b::Mrm_lid_can_b(uint8_t maxNumberOfBoards) : 
+	SensorBoard(1, "Lid2m", maxNumberOfBoards, ID_MRM_LID_CAN_B, 1) {
 	readings = new std::vector<uint16_t>(maxNumberOfBoards);
 
-	if (commandIndexes_mrm_lid_can_b->empty()){
-		commandIndexes_mrm_lid_can_b->push_back(COMMAND_LID_CAN_B_CALIBRATE);
-		commandNames_mrm_lid_can_b->push_back("Calibrate");
-		commandIndexes_mrm_lid_can_b->push_back(COMMAND_LID_CAN_B_RANGING_TYPE);
-		commandNames_mrm_lid_can_b->push_back("Rang type");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B_CALIBRATE, 	"Calibrate"});
+		commandNamesSpecific->insert({COMMAND_LID_CAN_B_RANGING_TYPE, "Rang type"});
 	}
 }
 
@@ -98,7 +96,7 @@ void Mrm_lid_can_b::add(char * deviceName)
 		canOut = CAN_ID_LID_CAN_B15_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	SensorBoard::add(deviceName, canIn, canOut);
@@ -107,14 +105,22 @@ void Mrm_lid_can_b::add(char * deviceName)
 /** Calibration, only once after production
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 */
-void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			calibration(i);
-	else if (alive(deviceNumber)){
+void Mrm_lid_can_b::calibration(Device * device){
+	if (device == nullptr)
+		for (Device& dev : devices)
+			calibration(&dev);
+	else if (device->alive){
 		canData[0] = COMMAND_LID_CAN_B_CALIBRATE;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 1, canData);
+		messageSend(canData, 1, device->number);
 	}
+}
+
+std::string Mrm_lid_can_b::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
@@ -129,11 +135,11 @@ void Mrm_lid_can_b::calibration(uint8_t deviceNumber){
 uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint8_t sigmaCount){
 	const uint16_t TIMEOUT = 3000;
 	if (deviceNumber > nextFree) {
-		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName, deviceNumber);
+		sprintf(errorMessage, "%s %i doesn't exist.", _boardsName.c_str(), deviceNumber);
 		return 0;
 	}
-	alive(deviceNumber, true); // This command doesn't make sense
-	if (started(deviceNumber)){
+	aliveWithOptionalScan(&devices[deviceNumber], true); // This command doesn't make sense
+	if (started(devices[deviceNumber]))
 		if (sampleCount == 0)
 			return (*readings)[deviceNumber];
 		else{
@@ -143,9 +149,9 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 					(*readings)[deviceNumber] = 0;
 				uint32_t ms = millis();
 				while ((*readings)[deviceNumber] == 0){
-					robotContainer->noLoopWithoutThis();
+					noLoopWithoutThis();
 					if (millis() - ms > TIMEOUT){
-						errorCode = 73;
+						errorAdd(CANMessage(devices[deviceNumber].canIdIn, {0}, 0), ERROR_TIMEOUT, false, false);
 						break;
 					}
 				}
@@ -179,7 +185,6 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 			//print("Cnt %i\n\r", cnt);
 			return (uint16_t)(sum / cnt);
 		}
-	}
 	else
 		return 0;
 }
@@ -190,58 +195,39 @@ uint16_t Mrm_lid_can_b::distance(uint8_t deviceNumber, uint8_t sampleCount, uint
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_lid_can_b::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length){
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) {
+bool Mrm_lid_can_b::messageDecode(CANMessage& message) {
+	for (Device& device : devices)
+		if (isForMe(message.id, device)) {
+			if (!messageDecodeCommon(message, device)) {
+				switch (message.data[0]) {
 				case COMMAND_SENSORS_MEASURE_SENDING: {
-					uint16_t mm = (data[2] << 8) | data[1];
-					(*readings)[deviceNumber] = mm;
-					(*_lastReadingMs)[deviceNumber] = millis();
+					uint16_t mm = (message.data[2] << 8) | message.data[1];
+					(*readings)[device.number] = mm;
+					device.lastReadingsMs = millis();
 				}
 				break;
 				default:
-					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					errorCode = 206;
-					errorInDeviceNumber = deviceNumber;
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
 			return true;
 		}
-	}
 	return false;
 }
 
-/** Enable plug and play
-@param enable - enable or disable
-@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-*/
-void Mrm_lid_can_b::pnpSet(bool enable, uint8_t deviceNumber){
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			pnpSet(enable, i);
-	else if (alive(deviceNumber)) {
-		delay(1);
-		canData[0] = enable ? COMMAND_PNP_ENABLE : COMMAND_PNP_DISABLE;
-		canData[1] = enable;
-		messageSend(canData, 2, deviceNumber);
-	}
-}
 
 /** Ranging type
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @param value - long range 0, high speed 1, high accuracy 2
 */
-void Mrm_lid_can_b::rangingType(uint8_t deviceNumber, uint8_t value) {
-	if (deviceNumber == 0xFF)
-		for (uint8_t i = 0; i < nextFree; i++)
-			calibration(i);
+void Mrm_lid_can_b::rangingType(Device * device, uint8_t value) {
+	if (device == nullptr)
+		for (Device& dev : devices)
+			calibration(&dev);
 	else {
 		canData[0] = COMMAND_LID_CAN_B_RANGING_TYPE;
 		canData[1] = value;
-		robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+		messageSend(canData, 2, device->number);
 	}
 }
 
@@ -258,33 +244,31 @@ uint16_t Mrm_lid_can_b::reading(uint8_t receiverNumberInSensor, uint8_t deviceNu
 */
 void Mrm_lid_can_b::readingsPrint() {
 	print("Lid2m:");
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber))
-			print(" %4i", distance(deviceNumber));
+	for (Device& dev : devices)
+		if (dev.alive)
+			print(" %4i", (*readings)[dev.number]);
 }
 
 /** If sensor not started, start it and wait for 1. message
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 @return - started or not
 */
-bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
-	if (millis() - (*_lastReadingMs)[deviceNumber] > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || (*_lastReadingMs)[deviceNumber] == 0) {
-		// print("Start mrm-lid-can-b%i \n\r", deviceNumber); 
+bool Mrm_lid_can_b::started(Device& device) {
+	if (millis() - device.lastReadingsMs > MRM_LID_CAN_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
+		//print("Start mrm-lid-can-b%i \n\r", deviceNumber);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
-			start(deviceNumber, 0);
+			start(&device, 0);
 			// Wait for 1. message.
-			uint32_t startMs = millis();
+			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
-				//print("-try-");
-				if (millis() - (*_lastReadingMs)[deviceNumber] < 100) {
-					//print("%s confirmed\n\r", (char*)name(deviceNumber));
+				if (millis() - device.lastReadingsMs < 100) {
+					//print("Lidar confirmed\n\r");
 					return true;
 				}
-				robotContainer->delayMicros(1000);
+				delay(1); // Messages are exchanged here
 			}
 		}
-		sprintf(errorMessage, "%s %i dead.", _boardsName, deviceNumber);
-		print(errorMessage);
+		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
 		return false;
 	}
 	else
@@ -292,18 +276,19 @@ bool Mrm_lid_can_b::started(uint8_t deviceNumber) {
 }
 
 
+
 /**Test
 @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 @param betweenTestsMs - time in ms between 2 tests. 0 - default.
 */
-void Mrm_lid_can_b::test(uint8_t deviceNumber, uint16_t betweenTestsMs)
+void Mrm_lid_can_b::test(uint16_t betweenTestsMs)
 {
 	static uint32_t lastMs = 0;
-
+	static uint16_t deviceNumber = 0xFF;
 	if (millis() - lastMs > (betweenTestsMs == 0 ? 300 : betweenTestsMs)) {
 		uint8_t pass = 0;
 		for (uint8_t i = 0; i < nextFree; i++) {
-			bool isAlive = alive(i);
+			bool isAlive = aliveWithOptionalScan(&devices[i]);
 			// print("L%i:%s", i, isAlive ? "Y" : "N"); 
 			if (isAlive && (deviceNumber == 0xFF || i == deviceNumber)) {
 				if (pass++)

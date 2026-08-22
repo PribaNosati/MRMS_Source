@@ -7,7 +7,7 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_us::Mrm_us(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "US", maxNumberOfBoards, ID_MRM_US, 1) {
+Mrm_us::Mrm_us(uint8_t maxNumberOfBoards) : SensorBoard(1, "US", maxNumberOfBoards, ID_MRM_US, 1) {
 	readings = new std::vector<uint16_t[MRM_US_ECHOES_COUNT]>(maxNumberOfBoards);
 }
 
@@ -55,7 +55,7 @@ void Mrm_us::add(char * deviceName)
 		canOut = CAN_ID_US7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 
@@ -69,22 +69,21 @@ void Mrm_us::add(char * deviceName)
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_us::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) 
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				// bool any = false;
-				// uint8_t startIndex = 0;
-				switch (data[0]) {
-				case COMMAND_SENSORS_MEASURE_SENDING:
-					// startIndex = 0;
-					// any = true;
+bool Mrm_us::messageDecode(CANMessage& message) {
+	for (Device& device : devices)
+		if (isForMe(message.id, device)) {
+			if (!messageDecodeCommon(message, device)) {
+				switch (message.data[0]) {
+					case COMMAND_SENSORS_MEASURE_SENDING:
+					{
+						uint16_t mm = (message.data[2] << 8) | message.data[1];
+						(*readings)[device.number] = mm;
+						device.lastReadingsMs = millis();
+					}
 					break;
+				// }
 				default:
-					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					errorCode = 204;
-					errorInDeviceNumber = deviceNumber;
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
 			return true;
@@ -102,7 +101,11 @@ uint16_t Mrm_us::reading(uint8_t echoNumber, uint8_t deviceNumber) {
 		strcpy(errorMessage, "mrm-us doesn't exist");
 		return 0;
 	}
-	return (*readings)[deviceNumber][echoNumber];
+	aliveWithOptionalScan(&devices[deviceNumber], true);
+	if (started(deviceNumber))
+		return (*readings)[deviceNumber][echoNumber];
+	else
+		return 0;
 }
 
 /** Print all readings in a line
@@ -125,7 +128,7 @@ void Mrm_us::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
 					print("| ");
 				print("Echo:");

@@ -26,13 +26,12 @@ class Mrm_ir_finder2
 	int nextFree;
 	uint8_t anglePins[MAX_IR_FINDER2s];
 	uint8_t distancePins[MAX_IR_FINDER2s];
-	Robot* robotContainer;
 
 public:
 	/**Constructor
 	@param robot - robot containing this board
 	*/
-	Mrm_ir_finder2(Robot* robot);
+	Mrm_ir_finder2();
 
 	~Mrm_ir_finder2();
 

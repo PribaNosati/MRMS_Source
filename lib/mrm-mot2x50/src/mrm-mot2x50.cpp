@@ -7,7 +7,7 @@
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_mot2x50::Mrm_mot2x50(Robot* robot, uint8_t maxNumberOfBoards) : MotorBoard(robot, 2, "Mot2x50", maxNumberOfBoards, ID_MRM_MOT2X50){
+Mrm_mot2x50::Mrm_mot2x50(uint8_t maxNumberOfBoards) : MotorBoard(2, "Mot2x50", maxNumberOfBoards, ID_MRM_MOT2X50){
 }
 
 Mrm_mot2x50::~Mrm_mot2x50()
@@ -56,7 +56,7 @@ void Mrm_mot2x50::add(bool isReversed, char * deviceName)
 		canOut = CAN_ID_MOT2X50_1_MOTOR3_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	MotorBoard::add(deviceName, canIn, canOut);

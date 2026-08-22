@@ -1,6 +1,8 @@
 #pragma once
 #include "Arduino.h"
 #include "mrm-board.h"
+#include <Interfaces.h>
+#include <map>
 
 /**
 Purpose: mrm-lid-can-b interface to CANBus.
@@ -50,7 +52,7 @@ Licence: You can use this code any way you like.
 #define MRM_LID_CAN_INACTIVITY_ALLOWED_MS 10000
 
 
-class Mrm_lid_can_b : public SensorBoard
+class Mrm_lid_can_b : public SensorBoard, public DistanceInterface
 {
 	std::vector<uint16_t>* readings; // Analog readings of all sensors
 
@@ -58,9 +60,10 @@ class Mrm_lid_can_b : public SensorBoard
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - started or not
 	*/
-	bool started(uint8_t deviceNumber);
+	bool started(Device& device);
 	
 public:
+	static std::map<int, std::string>* commandNamesSpecific;
 	
 	/** Constructor
 	@param robot - robot containing this board
@@ -68,7 +71,7 @@ public:
 	@param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 	@param maxNumberOfBoards - maximum number of boards
 	*/
-	Mrm_lid_can_b(Robot* robot = NULL, uint8_t maxNumberOfBoards = 14);
+	Mrm_lid_can_b(uint8_t maxNumberOfBoards = 14);
 
 	~Mrm_lid_can_b();
 
@@ -80,8 +83,10 @@ public:
 	/** Calibration, only once after production
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	*/
-	void calibration(uint8_t deviceNumber = 0);
+	void calibration(Device * device = nullptr);
 
+	std::string commandName(uint8_t byte);
+	
 	/** Distance in mm. Warning - the function will take considerable amount of time to execute if sampleCount > 0!
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param sampleCount - Number or readings. 40% of the c, with extreme values, will be discarded and the
@@ -98,19 +103,13 @@ public:
 	@param data - 8 bytes from CAN Bus message.
 	@param length - number of data bytes
 	*/
-	bool messageDecode(uint32_t canId, uint8_t data[8], uint8_t dlc = 8);
-
-	/** Enable plug and play
-	@param enable - enable or disable
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-	void pnpSet(bool enable = true, uint8_t deviceNumber = 0);
+	bool messageDecode(CANMessage& message);
 
 	/** Ranging type
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@param value - long range 0, high speed 1, high accuracy 2
 	*/
-	void rangingType(uint8_t deviceNumber, uint8_t value = 0);
+	void rangingType(Device * device = nullptr, uint8_t value = 0);
 
 	/** Analog readings
 	@param receiverNumberInSensor - always 0
@@ -127,7 +126,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all devices.
 	@param betweenTestsMs - time in ms between 2 tests. 0 - default.
 	*/
-	void test(uint8_t deviceNumber = 0xFF, uint16_t betweenTestsMs = 0);
+	void test(uint16_t betweenTestsMs = 0);
 
 };
 

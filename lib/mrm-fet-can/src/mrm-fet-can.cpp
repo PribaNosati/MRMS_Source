@@ -1,8 +1,7 @@
 #include "mrm-fet-can.h"
 #include <mrm-robot.h>
 
-std::vector<uint8_t>* commandIndexes_mrm_fet_can =  new std::vector<uint8_t>(); // C++ 17 enables static variables without global initialization, but no C++ 17 here
-std::vector<String>* commandNames_mrm_fet_can =  new std::vector<String>();
+std::map<int, std::string>* Mrm_fet_can::commandNamesSpecific = NULL;
 
 /** Constructor
 @param robot - robot containing this board
@@ -10,14 +9,13 @@ std::vector<String>* commandNames_mrm_fet_can =  new std::vector<String>();
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_fet_can::Mrm_fet_can(Robot* robot, uint8_t maxNumberOfBoards) : 
-	MotorBoard(robot, 1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
+Mrm_fet_can::Mrm_fet_can(uint8_t maxNumberOfBoards) : 
+	MotorBoard(1, "FET", maxNumberOfBoards, ID_MRM_FET_CAN) {
 
-	if (commandIndexes_mrm_fet_can->empty()){
-		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_ON);
-		commandNames_mrm_fet_can->push_back("Turn on");
-		commandIndexes_mrm_fet_can->push_back(COMMAND_TURN_OFF);
-		commandNames_mrm_fet_can->push_back("Turn off");
+	if (commandNamesSpecific == NULL){
+		commandNamesSpecific = new std::map<int, std::string>();
+		commandNamesSpecific->insert({COMMAND_TURN_ON, 	"Turn on"});
+		commandNamesSpecific->insert({COMMAND_TURN_OFF, 	"Turn off"});
 	}
 }
 
@@ -65,10 +63,18 @@ void Mrm_fet_can::add(char * deviceName)
 		canOut = CAN_ID_FET7_OUT;
 		break;
 	default:
-		sprintf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	MotorBoard::add(deviceName, canIn, canOut);
+}
+
+std::string Mrm_fet_can::commandName(uint8_t byte){
+	auto it = commandNamesSpecific->find(byte);
+	if (it == commandNamesSpecific->end())
+		return "Warning: no command found for key " + (int)byte;
+	else
+		return it->second;//commandNamesSpecific->at(byte);
 }
 
 /** Turn output on
@@ -77,13 +83,13 @@ void Mrm_fet_can::add(char * deviceName)
 */
 void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 	if (outputNumber > 1) {
-		sprintf(errorMessage, "%s %i not found.", _boardsName, nextFree);
+		sprintf(errorMessage, "%s %i not found.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	canData[0] = COMMAND_TURN_ON;
 	canData[1] = outputNumber;
 
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+	messageSend(canData, 2, deviceNumber);
 }
 
 /** Turn output off
@@ -92,13 +98,13 @@ void Mrm_fet_can::turnOn(uint8_t outputNumber, uint8_t deviceNumber) {
 */
 void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 	if (outputNumber > 1) {
-		sprintf(errorMessage, "%s %i not found.", _boardsName, nextFree);
+		sprintf(errorMessage, "%s %i not found.", _boardsName.c_str(), nextFree);
 		return;
 	}
 	canData[0] = COMMAND_TURN_OFF;
 	canData[1] = outputNumber;
 
-	robotContainer->mrm_can_bus->messageSend((*idIn)[deviceNumber], 2, canData);
+	messageSend(canData, 2, deviceNumber);
 }
 
 /** Read CAN Bus message into local variables
@@ -107,16 +113,13 @@ void Mrm_fet_can::turnOff(uint8_t outputNumber, uint8_t deviceNumber) {
 @param length - number of data bytes
 @return - true if canId for this class
 */
-bool Mrm_fet_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length){
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)){
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
-				switch (data[0]) {
+bool Mrm_fet_can::messageDecode(CANMessage& message) {
+	for (Device& device : devices)
+		if (isForMe(message.id, device)) {
+			if (!messageDecodeCommon(message, device)) {
+				switch (message.data[0]) {
 				default:
-					print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					errorCode = 205;
-					errorInDeviceNumber = deviceNumber;
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
 			return true;
@@ -135,8 +138,8 @@ void Mrm_fet_can::test()
 
 	if ((millis() - lastMs > 200 && isOn) || (millis() - lastMs > 2000 && !isOn)) {
 		// uint8_t pass = 0;
-		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+		for (Device& device: devices) {
+			if (device.alive) {
 				isOn = !isOn;
 				if (isOn)
 					turnOn(fet);

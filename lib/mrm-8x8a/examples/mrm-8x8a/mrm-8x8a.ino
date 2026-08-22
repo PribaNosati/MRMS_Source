@@ -16,7 +16,7 @@ void setup() {
 }
 
 void loop() {
-  CANBusMessage* msg = can.messageReceive();      // Receive a message
+  CANMessage* msg = can.messageReceive();      // Receive a message
 
                                                   // If a CAN Bus message received (msg != NULL) and the content indicated that a switch was pressed, enter the if-part.
   if (msg != NULL && msg->data[0] == COMMAND_SWITCH_ON){

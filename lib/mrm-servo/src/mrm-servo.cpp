@@ -59,11 +59,16 @@ void Mrm_servo::add(uint8_t gpioPin, char* deviceName, uint16_t minDegrees, uint
 	float tickLength = (1000 / (float)MRM_SERVO_FREQUENCY_HZ) / ((1 << timerWidth) - 1); //tickLength = pulsePeriod/(2^timerWidthBits-1) * 1000, in ms. 
 	f = 1 / tickLength;
 	
-	//*****In the new Espressif verion there 2 commands will be obsolete and will have to be commented:
+	//API changed ( https://docs.espressif.com/projects/arduino-esp32/en/latest/migration_guides/2.x_to_3.0.html?highlight=ledcattachpin ) :
+	//"ledcAttach used to set up the LEDC pin (merged ledcSetup and ledcAttachPin functions)."
+	// Therefore for versions 3.0.0 and newer we must use ledcAttach(channel, freq, resolution_bits)
+	#ifdef  PLATFORMIO // Compiled in PlatformIO, use old API. If you want to use old API, change this line into "#if 1"
 	/*double resFreq = */ledcSetup(nextFree, MRM_SERVO_FREQUENCY_HZ, timerWidth); // nextFree is channel number, which can be 0 - 15.
 	ledcAttachPin(gpioPin, nextFree); // gpioPin assigned to channel nextFree
-	//*****Instead, this should be uncommented and tested:
-	//ledcAttach(nextFree, MRM_SERVO_FREQUENCY_HZ, timerWidth);
+	#else
+	ledcAttach(nextFree, MRM_SERVO_FREQUENCY_HZ, timerWidth);
+	#endif
+
 
 	nextFree++;
 
@@ -129,7 +134,7 @@ void Mrm_servo::write( uint16_t degrees, uint8_t servoNumber, uint16_t ms) {
 	// 	uint16_t currentDegrees = map(millis(), startMs, startMs + ms, (*_currentDegrees)[servoNumber], degrees);
 	// 	ledcWrite(servoNumber, map(currentDegrees, (*_minDegrees)[servoNumber], (*_maxDegrees)[servoNumber], 
 	// 		(*_minDegreesPulseMs)[servoNumber] * f, (*_maxDegreesPulseMs)[servoNumber] * f));
-	// 	robotContainer->delayMs(10);
+	// 	delayMs(10);
 	// }
 	(*_currentDegrees)[servoNumber] = degrees;
 

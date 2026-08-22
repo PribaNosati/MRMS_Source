@@ -5,7 +5,7 @@
 @param robot - robot containing this board
 @param maxNumberOfBoards - maximum number of boards
 */
-Mrm_ir_finder_can::Mrm_ir_finder_can(Robot* robot, uint8_t maxNumberOfBoards) : SensorBoard(robot, 1, "IRFindCan", maxNumberOfBoards, ID_MRM_IR_FINDER_CAN) {
+Mrm_ir_finder_can::Mrm_ir_finder_can(uint8_t maxNumberOfBoards) : SensorBoard(1, "IRFindCan", maxNumberOfBoards, ID_MRM_IR_FINDER_CAN) {
 	readings = new std::vector<uint16_t[MRM_IR_FINDER_CAN_SENSOR_COUNT]>(maxNumberOfBoards);
 }
 
@@ -64,13 +64,13 @@ void Mrm_ir_finder_can::add(char * deviceName)
 @param data - 8 bytes from CAN Bus message.
 @param length - number of data bytes
 */
-bool Mrm_ir_finder_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t length) {
-	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (isForMe(canId, deviceNumber)) {
-			if (!messageDecodeCommon(canId, data, deviceNumber)) {
+bool Mrm_ir_finder_can::messageDecode(CANMessage& message) {
+	for(Device& device : devices)
+		if (isForMe(message.id, device)) {
+			if (!messageDecodeCommon(message, device)) {
 				bool any = false;
 				uint8_t startIndex = 0;
-				switch (data[0]) {
+				switch (message.data[0]) {
 				case COMMAND_IR_FINDER_CAN_SENDING_SENSORS_1_TO_3:
 					startIndex = 0;
 					any = true;
@@ -88,19 +88,16 @@ bool Mrm_ir_finder_can::messageDecode(uint32_t canId, uint8_t data[8], uint8_t l
 					any = true;
 					break;
 				case COMMAND_SENSORS_MEASURE_CALCULATED_SENDING:
-					angle = (data[1] << 8 | data[2]) - 180;
-					distance = data[3] << 8 | data[4];
+					angle = (message.data[1] << 8 | message.data[2]) - 180;
+					distance = message.data[3] << 8 | message.data[4];
 					break;
 				default:
-					robotContainer->print("Unknown command. ");
-					messagePrint(canId, length, data, false);
-					errorCode = 201;
-					errorInDeviceNumber = deviceNumber;
+					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 
 				if (any)
 					for (uint8_t i = 0; i <= 2; i++)
-						(*readings)[deviceNumber][startIndex + i] = (data[2 * i + 1] << 8) | data[2 * i + 2];
+						(*readings)[deviceNumber][startIndex + i] = (message.data[2 * i + 1] << 8) | message.data[2 * i + 2];
 			}
 			return true;
 		}
@@ -123,11 +120,11 @@ uint16_t Mrm_ir_finder_can::reading(uint8_t receiverNumberInSensor, uint8_t devi
 /** Print all readings in a line
 */
 void Mrm_ir_finder_can::readingsPrint() {
-	robotContainer->print("IRBall:");
+	print("IRBall:");
 	for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++)
-		if (alive(deviceNumber)) {
+		if (aliveWithOptionalScan(&devices[deviceNumber])) {
 			for (uint8_t irNo = 0; irNo < MRM_IR_FINDER_CAN_SENSOR_COUNT; irNo++)
-				robotContainer->print(" %3i", (*readings)[deviceNumber][irNo]);
+				print(" %3i", (*readings)[deviceNumber][irNo]);
 		}
 }
 
@@ -140,16 +137,16 @@ void Mrm_ir_finder_can::test()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) {
+			if (aliveWithOptionalScan(&devices[deviceNumber])) {
 				if (pass++)
-					robotContainer->print("| ");
+					print("| ");
 				for (uint8_t i = 0; i < MRM_IR_FINDER_CAN_SENSOR_COUNT; i++)
-					robotContainer->print("%i ", (*readings)[deviceNumber][i]);
+					print("%i ", (*readings)[deviceNumber][i]);
 			}
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }
 
@@ -161,12 +158,12 @@ void Mrm_ir_finder_can::testCalculated()
 	if (millis() - lastMs > 300) {
 		uint8_t pass = 0;
 		for (uint8_t deviceNumber = 0; deviceNumber < nextFree; deviceNumber++) {
-			if (alive(deviceNumber)) 
-				robotContainer->print("%i deg., dist: %i\n\r", angle, distance);
+			if (aliveWithOptionalScan(&devices[deviceNumber])) 
+				print("%i deg., dist: %i\n\r", angle, distance);
 		}
 		lastMs = millis();
 		if (pass)
-			robotContainer->print("\n\r");
+			print("\n\r");
 	}
 }
 

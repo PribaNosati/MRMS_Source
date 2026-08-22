@@ -6,7 +6,7 @@
 @param esp32CANBusSingleton - a single instance of CAN Bus common library for all CAN Bus peripherals.
 @param hardwareSerial - Serial, Serial1, Serial2,... - an optional serial port, for example for Bluetooth communication
 */
-Mrm_bldc4x2_5::Mrm_bldc4x2_5(Robot* robot, uint8_t maxDevices) : MotorBoard(robot, 4, "Bld4x2.5", maxDevices, ID_MRM_BLDC4x2_5){
+Mrm_bldc4x2_5::Mrm_bldc4x2_5(uint8_t maxDevices) : MotorBoard(4, "Bld4x2.5", maxDevices, ID_MRM_BLDC4x2_5){
 }
 
 Mrm_bldc4x2_5::~Mrm_bldc4x2_5()
@@ -55,7 +55,7 @@ void Mrm_bldc4x2_5::add(bool isReversed, char * deviceName)
 		canOut = CAN_ID_BLDC4X2_5_1_MOTOR3_OUT;
 		break;
 	default:
-		printf(errorMessage, "Too many %s: %i.", _boardsName, nextFree);
+		sprintf(errorMessage, "Too many %s: %i.", _boardsName.c_str(), nextFree);
 	}
 	MotorBoard::add(deviceName, canIn, canOut);
 

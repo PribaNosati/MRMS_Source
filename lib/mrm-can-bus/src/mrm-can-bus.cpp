@@ -28,26 +28,27 @@ uint8_t lastBracketSend = 0;
 uint16_t _peakReceive = 0;
 uint16_t _peakSend = 0;
 
-CANBusMessage* receivedMessage = NULL;
+CANMessage* receivedMessage = NULL;
 
-CANBusMessage::CANBusMessage(Robot* robot){
-	robotContainer = robot;
+
+CANMessage::CANMessage(uint16_t id, uint8_t payload[8], uint8_t dlc) : id(id), dlc(dlc) {
+	for (uint8_t i = 0; i < 8; i++)
+		this->data[i] = payload[i];
 }
 
-void CANBusMessage::print() {
-	if (robotContainer != NULL){
-		::print("Id: 0x%04X, data:", messageId);
-		for (uint8_t i = 0; i < dlc; i++)
-			::print(" %02X", data[i]);
-		::print("\n\r");
-	}
+CANMessage::CANMessage() : id(0), dlc(0) {}
+
+void CANMessage::print() {
+	::print("Id: 0x%04X, data:", id);
+	for (uint8_t i = 0; i < dlc; i++)
+		::print(" %02X", data[i]);
+	::print("\n\r");
 }
 
 /** Constructor
 @param robot - robot containing this board
 */
-Mrm_can_bus::Mrm_can_bus(Robot* robot) {
-	robotContainer = robot;
+Mrm_can_bus::Mrm_can_bus() {
 	twai_general_config_t general_config = {
 	   .mode = TWAI_MODE_NORMAL,
 	   .tx_io = (gpio_num_t)GPIO_NUM_5,
@@ -67,13 +68,13 @@ Mrm_can_bus::Mrm_can_bus(Robot* robot) {
 	if (twai_start() != ESP_OK)
 		strcpy(errorMessage, "Error start CAN");
 
-	receivedMessage = new CANBusMessage(robotContainer);
+	receivedMessage = new CANMessage();
 }
 
 /**Receive a CANBus message
 @return non-NULL - a message received, NULL - none
 */
-CANBusMessage* Mrm_can_bus::messageReceive() {
+CANMessage* Mrm_can_bus::messageReceive() {
 	//Wait for message to be received
 	bool found = false;
 	twai_message_t message;
@@ -94,7 +95,7 @@ CANBusMessage* Mrm_can_bus::messageReceive() {
 
 		for (uint8_t i = 0; i < message.data_length_code; i++)
 			receivedMessage->data[i] = message.data[i];
-		receivedMessage->messageId = message.identifier;
+		receivedMessage->id = message.identifier;
 		receivedMessage->dlc = message.data_length_code;
 
 
@@ -159,7 +160,7 @@ void Mrm_can_bus::messagesReset() {
 @param data - up to 8 data bytes
 @return - true if a message received
 */
-void Mrm_can_bus::messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]) {
+void Mrm_can_bus::messageSend(uint16_t stdId, uint8_t dlc, uint8_t data[8]) {
 	twai_message_t message;
 	message.identifier = stdId;
 	message.flags = 0;

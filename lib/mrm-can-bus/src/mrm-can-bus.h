@@ -3,31 +3,31 @@
 
 class Robot;
 
-struct CANBusMessage {
-	uint32_t messageId;
+struct CANMessage {
+	uint32_t id;
 	uint8_t dlc;
 	uint8_t data[8];
-	Robot * robotContainer;
 
 	void print();
 
-	CANBusMessage(Robot* robot);
+	CANMessage(uint16_t id, uint8_t payload[8], uint8_t dlc);
+	CANMessage();
 };
+
 
 class Mrm_can_bus {
 private:
 	uint32_t lastSentMicros = 0;
-	Robot* robotContainer = NULL;
 public:
 	/*
 	@param robot - robot containing this board
 	*/
-	Mrm_can_bus(Robot* robot = NULL);
+	Mrm_can_bus();
 
 	/**Receive a CANBus message
 	@return true - a message received, false - none
 	*/
-	CANBusMessage* messageReceive();
+	CANMessage* messageReceive();
 
 	/**Send a CANBus message
 	@param stdId - CANBus message id
@@ -35,7 +35,7 @@ public:
 	@param data - up to 8 data bytes
 	@return - true if a message received
 	*/
-	void messageSend(uint32_t stdId, uint8_t dlc, uint8_t data[8]);
+	void messageSend(uint16_t stdId, uint8_t dlc, uint8_t data[8]);
 
 	/** Number of received CAN Bus messages per second
 	@return - number of messages

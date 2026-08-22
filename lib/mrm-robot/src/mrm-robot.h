@@ -1,11 +1,10 @@
 #pragma once
+#include "mrm-common.h"
 #include <Preferences.h>
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
 #include <mrm-board.h>
 
-#define ACTIONS_LIMIT 82 // Increase if more actions are needed.
-#define BOARDS_LIMIT 30 // Maximum number of different board types.
 #define EEPROM_SIZE 12 // EEPROM size
 #define LED_ERROR 15 // mrm-esp32's pin number, hardware defined.
 #define LED_OK 2 // mrm-esp32's pin number, hardware defined.
@@ -16,7 +15,7 @@
 
 class ActionBase;
 class Board;
-struct BoardInfo;
+struct Device;
 class Mrm_8x8a;
 class Mrm_bldc2x50;
 class Mrm_bldc4x2_5;
@@ -49,31 +48,18 @@ class Mrm_us1;
 /** Base class for all robots.
 */
 class Robot {
-
+private:
+	enum ErrorCodes {};
 protected:
-	ActionBase* _action[ACTIONS_LIMIT]; // Collection of all the robot's actions
-	uint8_t _actionNextFree = 0;
-
-	// Robot's actions that can be callect directly, not just by iterating _action collection
-	ActionBase* _actionCurrent;
-	ActionBase* _actionDoNothing;
-    ActionBase* _actionLoop;
-	ActionBase* _actionLoop0;
-	ActionBase* _actionLoop1;
-	ActionBase* _actionLoop2;
-	ActionBase* _actionLoop3;
-	ActionBase* _actionLoop4;
-	ActionBase* _actionMenuMain;
-    ActionBase* _actionPrevious;
-	ActionBase* _actionStop;
+	static std::map<std::string, ActionBase*>* actions;
+	ActionBase* _actionCurrent = NULL; // Current action
+	ActionBase* _actionPrevious = NULL; // Previous action
 
 	bool _actionTextDisplay = true;
 
-	Board* board[BOARDS_LIMIT]; // Collection of all the robot's boards
-	BoardInfo * boardInfo;
 	uint8_t _boardNextFree = 0;
 
-	uint8_t _devicesAtStartup = 0;
+	uint8_t _devicesAtStartup = 0xFF; // 0xFF - no scan yet
 	bool _devicesScanBeforeMenuAndSwitches = true;
 	bool _devicesScanOnStartup = true;
 	bool devicesScanMenu = true;
@@ -84,7 +70,7 @@ protected:
 	uint32_t fpsTopGap = 0;
 
 	uint8_t menuLevel = 1; // Submenus have bigger numbers
-	CANBusMessage* _msg;
+	CANMessage* _msg;
 	char _name[16];
 	Preferences* preferences; // EEPROM
 	bool _sniff = false;
@@ -104,6 +90,8 @@ protected:
 	/** User sets a new action, using keyboard or Bluetooth
 	*/
 	void actionSet();
+
+	void actionSet(std::string newAction);//ActionBase* newAction);
 
 	/** New action is set in the program
 	@param newAction - the new action.
@@ -159,7 +147,9 @@ protected:
 	void verbosePrint();
 
 public: 
+	std::vector<Board*> boards; // Collection of all the robot's boards
 
+	Errors* errors;
 	Mrm_can_bus* mrm_can_bus; // CANBus interface
 	Mrm_8x8a* mrm_8x8a;
 	Mrm_bldc2x50* mrm_bldc2x50;
@@ -193,11 +183,13 @@ public:
 	/** Add a new action to the collection of robot's possible actions.
 	@param action - the new action.
 	*/
-	void actionAdd(ActionBase* action);
+	void actionAdd(std::string, ActionBase* action);
 
 	/** End current action
 	*/
-	void actionEnd() { _actionCurrent = NULL; }
+	void actionEnd();
+
+	ActionBase* actionFind(std::string action);
 
 	/** Is this current action's initialization
 	@param andFinish - finish initialization
@@ -226,8 +218,6 @@ public:
 	*/
 	void bluetoothTest();
 
-	bool boardIdentify(uint32_t canId, bool out, Board** boardFound, int& index);
-
 	/** Display all the incomming and outcomming CAN Bus messages
 	*/
 	void canBusSniffToggle();
@@ -236,6 +226,10 @@ public:
 	@return - is there a gap.
 	*/
 	bool canGap();
+
+	void canTest();
+
+	bool canTestParam(int iterations, bool verbose);
 
 	/** Change device's id
 	*/
@@ -285,13 +279,19 @@ public:
 	*/
 	void delayMicros(uint16_t pauseMicros);
 
+	Board* deviceFind(uint16_t msgId, uint8_t& deviceNumber);
+
 	/** Lists all the alive (responded to last ping) CAN Bus devices.
 	@boardType - sensor, motor, or all boards
 	@return count
 	*/
-	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, BoardInfo * deviceInfo, Board::BoardType boardType = Board::ANY_BOARD);
+	void deviceInfo(uint8_t deviceOrdinadeviceGlobalOrdinalNumberlNumber, Board * boardFound, Device * deviceFound, Board::BoardType boardType = Board::BoardType::ANY_BOARD);
+
+	void deviceReset();
 
 	void deviceScan();
+
+	void devicesList();
 
 	/** Contacts all the CAN Bus devices and checks which one is alive.
 	@verbose - if true, print.
@@ -314,9 +314,11 @@ public:
 	*/
 	void end() { actionEnd(); }
 
+	void errorsDelete();
+
 	/** Displays errors and stops motors, if any.
 	*/
-	void errors();
+	void errorsDisplay();
 
 	/** Displays each CAN Bus device's firmware
 	*/
@@ -409,11 +411,14 @@ public:
 	@param msg - message
 	@param oubound - if not, inbound
 	*/
-	void messagePrint(CANBusMessage* msg, Board* board, uint8_t boardIndex, bool outbound);
+
+	void messagePrint(CANMessage * message, Board* board = NULL, uint8_t boardIndex = 0xFF, bool outbound = true, bool clientInitiated = false, std::string postfix = "") ;
 
 	/** Receives CAN Bus messages.
 	*/
-	void messagesReceive();
+	void messagesReceive(CANMessage message[5], int8_t& last);
+
+	bool messageSend(CANMessage& message); 
 
 	/** Tests motors
 	*/
