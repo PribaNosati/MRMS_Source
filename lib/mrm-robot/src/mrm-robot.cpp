@@ -711,8 +711,6 @@ void Robot::colorIlluminationOn() {
 void Robot::colorPatternErase() {
 	if (mrm_col_can->alive())
 		mrm_col_can->patternErase();
-	else if (mrm_col_b->alive())
-		mrm_col_b->patternErase();
 	end();
 }
 
@@ -721,8 +719,6 @@ void Robot::colorPatternErase() {
 void Robot::colorPatternPrint() {
 	if (mrm_col_can->alive())
 		mrm_col_can->patternPrint();
-	else if (mrm_col_b->alive())
-		mrm_col_b->patternPrint();
 	end();
 }
 
@@ -731,8 +727,6 @@ void Robot::colorPatternPrint() {
 void Robot::colorPatternRecord() {
 	if (mrm_col_can->alive())
 		mrm_col_can->patternsRecord();
-	else if (mrm_col_b->alive())
-		mrm_col_b->patternsRecord();
 	end();
 }
 
@@ -744,7 +738,7 @@ void Robot::colorPatternRecognize() {
 
 void Robot::colorTest10(){
 		// mrm_col_b->test(false);
-	mrm_col_b->test(false);
+	mrm_col_b->test();
 }
 
 void Robot::colorTest6(){
@@ -757,7 +751,7 @@ void Robot::colorTest6HSV(){
 
 void Robot::colorTestHSV(){
 	// mrm_col_b->test(true);
-	mrm_col_b->test(true);
+	//mrm_col_b->test(true);
 }
 
 /** The right way to use Arduino function delay

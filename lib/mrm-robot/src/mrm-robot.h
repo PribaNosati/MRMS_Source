@@ -2,7 +2,7 @@
 #include <Preferences.h>
 #include <mrm-action.h>
 #include <mrm-can-bus.h>
-#include <mrm-col-b.h>
+#include <mrm-board.h>
 
 #define ACTIONS_LIMIT 82 // Increase if more actions are needed.
 #define BOARDS_LIMIT 30 // Maximum number of different board types.
@@ -22,6 +22,7 @@ class Mrm_bldc2x50;
 class Mrm_bldc4x2_5;
 class Mrm_can_bus;
 class Mrm_col_can;
+class Mrm_col_b;
 class Mrm_fet_can;
 class Mrm_imu;
 // class Mrm_ir_finder2;
