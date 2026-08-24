@@ -812,8 +812,6 @@ void Robot::colorIlluminationOn() {
 void Robot::colorPatternErase() {
 	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->patternErase();
-	else if (mrm_col_b->aliveWithOptionalScan())
-		mrm_col_b->patternErase();
 	end();
 }
 
@@ -822,8 +820,6 @@ void Robot::colorPatternErase() {
 void Robot::colorPatternPrint() {
 	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->patternPrint();
-	else if (mrm_col_b->aliveWithOptionalScan())
-		mrm_col_b->patternPrint();
 	end();
 }
 
@@ -832,8 +828,7 @@ void Robot::colorPatternPrint() {
 void Robot::colorPatternRecord() {
 	if (mrm_col_can->aliveWithOptionalScan())
 		mrm_col_can->patternsRecord();
-	else if (mrm_col_b->aliveWithOptionalScan())
-		mrm_col_b->patternsRecord();
+
 	end();
 }
 

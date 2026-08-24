@@ -60,29 +60,71 @@ public:
 	*/
 	void add(char * deviceName = (char*)"");
 
+	/** Violet
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorViolet(uint8_t deviceNumber) ;
+
+	/** Violet / deep blue
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorVioletDeepBlue(uint8_t deviceNumber);
+
+	/** Broad blue
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorBroadBlue(uint8_t deviceNumber);	
+
 	/** Blue
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t colorBlue(uint8_t deviceNumber);
+	uint16_t colorBlue(uint8_t deviceNumber) ;
 
-	/** Blue greenish
+	/** Green 1
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t colorBlueGreenish(uint8_t deviceNumber);
+	uint16_t  colorGreen1(uint8_t deviceNumber);
 
-	/** Blue violetish
+	/** Broad green / yellow
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t colorBlueVioletish(uint8_t deviceNumber);
+	uint16_t colorBroadGreenYellow(uint8_t deviceNumber) ;
 
-	/** Green
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 
+	/** Green 2
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t colorGreen(uint8_t deviceNumber);
+	uint16_t colorGreen2(uint8_t deviceNumber);
+
+	/** Broad yellow / orange
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorBroadYellowOrange(uint8_t deviceNumber);
+
+	/** Red
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t  colorRed(uint8_t deviceNumber);
+
+	/** Deep red
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorDeepRed(uint8_t deviceNumber);
+
+	/** Far red
+	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
+	@return - color intensity
+	*/
+	uint16_t colorFarRed(uint8_t deviceNumber);
 
 	/** Near IR
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -90,35 +132,17 @@ public:
 	*/
 	uint16_t colorNearIR(uint8_t deviceNumber);
 
-	/** Orange
+	/** Flicker detection
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t colorOrange(uint8_t deviceNumber);
+	uint16_t colorFlicker(uint8_t deviceNumber);
 
-	/** Red
+	/** Clear - non-filtered - white
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t colorRed(uint8_t deviceNumber);
-
-	/** Violet
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 
-	@return - color intensity
-	*/
-	uint16_t colorViolet(uint8_t deviceNumber);
-
-	/** White
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - color intensity
-	*/
-	uint16_t colorWhite(uint8_t deviceNumber);
-
-	/** Yellow
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 
-	@return - color intensity
-	*/
-	uint16_t colorYellow(uint8_t deviceNumber);
+	uint16_t colorClear(uint8_t deviceNumber);
 
 	std::string commandName(uint8_t byte);
 
@@ -207,6 +231,8 @@ public:
 	/** Print all readings in a line
 	*/
 	void readingsPrint();
+
+	bool started(Device& device);
 
 	/** Instruction to sensor to switch to converting R, G, and B on board and return hue, saturation and value
 	@param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0. 0xFF - all sensors.
