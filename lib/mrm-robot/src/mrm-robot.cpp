@@ -109,7 +109,7 @@ Robot::Robot(char name[15], char ssid[15], char wiFiPassword[15]) {
 	// Also, if an action is to be assigned to a button, it will have to be defined here.
 if (actions == NULL) {
 		actions = new std::map<std::string, ActionBase*>();
-	actions->insert({"noa", new ActionRobot(this, "No action", 0, Board::BoardId::ID_ANY, NULL, NULL)});
+		actions->insert({"noa", new ActionRobot(this, "No action", 0, Board::BoardId::ID_ANY, NULL, NULL)});
 		actions->insert({"loop", new ActionRobot(this, "Loop", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop)});
 		actions->insert({"lo0", new ActionRobot(this, "Loop 0", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop0)});
 		actions->insert({"lo1", new ActionRobot(this, "Loop 1", 8, Board::BoardId::ID_ANY, signTest, &Robot::loop1)});

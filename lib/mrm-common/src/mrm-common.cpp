@@ -84,12 +84,10 @@ void startBT(const char* name){
 /** Print to all serial ports, pointer to list
 */
 void vprint(const char* fmt, va_list argp) {
-	if (strlen(fmt) >= 100)
-		return;
 	static char buffer[100];
-	vsprintf(buffer, fmt, argp);
+	vsnprintf(buffer, sizeof(buffer), fmt, argp);
 
-    printf(buffer);
+    printf("%s",buffer);
 	if (serialBT != NULL)
 		serialBT->print(buffer);
 }

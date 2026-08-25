@@ -318,36 +318,45 @@ bool Mrm_col_b::messageDecode(CANMessage& message) {
 				case COMMAND_SENSORS_MEASURE_SENDING:
 					break;
 				case MRM_COL_B_SENDING_COLORS_1_TO_3:
-					(*readings)[device.number][0] = (message.data[1] << 8) | message.data[2]; // violet
-					// print("Data1: %i %i %i\n\r",(int)message.data[0], (int)message.data[1], (int)message.data[2]);
-					(*readings)[device.number][1] = (message.data[3] << 8) | message.data[4]; // blue violetish
-					(*readings)[device.number][2] = (message.data[5] << 8) | message.data[6]; // blue
+					(*readings)[device.number][0] = (message.data[1] << 8) | message.data[2]; 
+					// print("Data1: %i %i %i",(int)message.data[0], (int)message.data[1], (int)message.data[2]);
+					(*readings)[device.number][1] = (message.data[3] << 8) | message.data[4]; 
+					(*readings)[device.number][2] = (message.data[5] << 8) | message.data[6]; 
 					device.lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_4_TO_6:
-					(*readings)[device.number][3] = (message.data[1] << 8) | message.data[2]; // blue greenish
-					// print("Data2: %i %i %i\n\r", (int)message.data[0], (int)message.data[1], (int)message.data[2]);
-					(*readings)[device.number][4] = (message.data[3] << 8) | message.data[4]; // green
-					(*readings)[device.number][5] = (message.data[5] << 8) | message.data[6]; // yellow
+					(*readings)[device.number][3] = (message.data[1] << 8) | message.data[2]; 
+					// print("Data2: %i %i %i", (int)message.data[0], (int)message.data[1], (int)message.data[2]);
+					(*readings)[device.number][4] = (message.data[3] << 8) | message.data[4]; 
+					(*readings)[device.number][5] = (message.data[5] << 8) | message.data[6]; 
 					device.lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_7_TO_9:
-					// print("Data3: %i %i %i\n\r", (int)message.data[0], (int)message.data[1], (int)message.data[2]);
-					(*readings)[device.number][6] = (message.data[1] << 8) | message.data[2]; // orange
-					(*readings)[device.number][7] = (message.data[3] << 8) | message.data[4]; // red
-					(*readings)[device.number][8] = (message.data[5] << 8) | message.data[6]; // near IR
+					// print("Data3: %i %i %i", (int)message.data[0], (int)message.data[1], (int)message.data[2]);
+					(*readings)[device.number][6] = (message.data[1] << 8) | message.data[2]; 
+					(*readings)[device.number][7] = (message.data[3] << 8) | message.data[4]; 
+					(*readings)[device.number][8] = (message.data[5] << 8) | message.data[6]; 
 
 					device.lastReadingsMs = millis();
 					break;
 				case MRM_COL_B_SENDING_COLORS_10_TO_12:
-					(*readings)[device.number][9] = (message.data[1] << 8) | message.data[2]; // clear (white)
-					// print("Data4: %i %i %i %i\n\r", (int)message.data[0], (int)message.data[1], (int)message.data[2], (int)(*readings)[deviceNumber][9]);
+					(*readings)[device.number][9] = (message.data[1] << 8) | message.data[2]; 
+					(*readings)[device.number][10] = (message.data[3] << 8) | message.data[4]; 
+					(*readings)[device.number][11] = (message.data[5] << 8) | message.data[6]; 
+					// print("Data4: %i %i %i %i", (int)message.data[0], (int)message.data[1], (int)message.data[2], (int)(*readings)[device.number][9]);
+					device.lastReadingsMs = millis();
+					break;
+				case MRM_COL_B_SENDING_COLORS_13_TO_14:
+					(*readings)[device.number][12] = (message.data[1] << 8) | message.data[2]; 
+					(*readings)[device.number][13] = (message.data[3] << 8) | message.data[4]; 
+					// print("Data5: %i %i %i %i", (int)message.data[0], (int)message.data[1], (int)message.data[2], (int)(*readings)[device.number][9]);
 					device.lastReadingsMs = millis();
 					break;
 				default:
 					errorAdd(message, ERROR_COMMAND_UNKNOWN, false, true);
 				}
 			}
+			// print(".\n\r"); 
 			return true;
 		}
 	return false;
@@ -385,15 +394,15 @@ void Mrm_col_b::readingsPrint() {
 @return - started or not
 */
 bool Mrm_col_b::started(Device& device) {
-	if (millis() - device.lastReadingsMs > MRM_COL_B_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {
-		//print("Start mrm-lid-can-b2%i \n\r", deviceNumber);
+	if (millis() - device.lastReadingsMs > MRM_COL_B_INACTIVITY_ALLOWED_MS || device.lastReadingsMs == 0) {//Restart sensor if no readings for 10s or never started
+		// print("Start mrm-col-b %i \n\r", device.number);
 		for (uint8_t i = 0; i < 8; i++) { // 8 tries
 			start(&device, 0);
 			// Wait for 1. message.
 			uint64_t startMs = millis();
 			while (millis() - startMs < 50) {
 				if (millis() - device.lastReadingsMs < 100) {
-					//print("Lidar confirmed\n\r");
+					// print("mrm-col-b started\n\r");
 					return true;
 				}
 				delay(1);
@@ -425,11 +434,16 @@ void Mrm_col_b::test()
 				if (pass++)
 					print(" | ");
 
-					print("Vi:%3i B1:%3i B2:%3i B3:%3i Gr:%3i Ye:%3i Or:%3i Re:%3i IR:%3i Wh:%3i", 
+					print("Vi:%3i ViB:%3i BB:%3i B:%3i",
 						colorViolet(device.number), colorVioletDeepBlue(device.number), colorBroadBlue(device.number),
-						colorBlue(device.number),	colorGreen1(device.number), colorBroadGreenYellow(device.number), 
-						colorGreen2(device.number), colorBroadYellowOrange(device.number), colorRed(device.number), 
-						colorDeepRed(device.number), colorFarRed(device.number), colorNearIR(device.number),
+						colorBlue(device.number));
+					print(" G1:%3i GY:%3i G2:%3i YO:%3i",
+						colorGreen1(device.number), colorBroadGreenYellow(device.number), colorGreen2(device.number), 
+						colorBroadYellowOrange(device.number));
+					print(" R:%3i DR:%3i FR:%3i NIR:%3i", 
+						colorRed(device.number), colorDeepRed(device.number), colorFarRed(device.number), 
+						colorNearIR(device.number));
+					print(" Fl:%3i Cl:%3i", 
 						colorFlicker(device.number), colorClear(device.number));
 			}
 		}

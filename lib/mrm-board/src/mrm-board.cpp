@@ -538,8 +538,10 @@ void Board::start(Device* device, uint8_t measuringModeNow, uint16_t refreshMs) 
 #if REQUEST_NOTIFICATION
 			notificationRequest(COMMAND_SENSORS_MEASURE_CONTINUOUS_REQUEST_NOTIFICATION, device);
 #else
-			if (measuringModeNow == 0 || measuringModeLimit == 0)
+			if (measuringModeNow == 0 || measuringModeLimit == 0){
 				canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS;
+				// print("Start reading: %s\n\r", _boardsName.c_str());
+			}
 			else if (measuringModeNow == 1 || measuringModeLimit >= 1)
 				canData[0] = COMMAND_SENSORS_MEASURE_CONTINUOUS_VERSION_2;
 			else
