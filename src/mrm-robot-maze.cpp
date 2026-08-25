@@ -1,5 +1,6 @@
 #include <mrm-8x8a.h>
 #include <mrm-col-can.h>
+#include <mrm-col-b.h>
 #include <mrm-imu.h>
 #include <mrm-lid-can-b.h>
 #include <mrm-lid-can-b2.h>

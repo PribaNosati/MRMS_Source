@@ -88,7 +88,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t  colorGreen1(uint8_t deviceNumber);
+	uint16_t colorGreen1(uint8_t deviceNumber);
 
 	/** Broad green / yellow
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -112,7 +112,7 @@ public:
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
 	@return - color intensity
 	*/
-	uint16_t  colorRed(uint8_t deviceNumber);
+	uint16_t colorRed(uint8_t deviceNumber);
 
 	/** Deep red
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
@@ -163,24 +163,18 @@ public:
 	*/
 	void gain(Device* device = nullptr, uint8_t gainValue = 0);
 
-	/** Hue
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@return - Hue
-	*/
-	uint8_t hue(uint8_t deviceNumber);
-
 	/** Set illumination intensity
 	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
 	@param current - 0 - 3
 	*/
 	void illumination(Device* device = nullptr, uint8_t current = 0);
 
-	/** Set integration time
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
-	@param time - sets the ATIME parameter for integration time from 0 to 255, integration time = (ATIME + 1) * (ASTEP + 1) * 2.78µS.
-	@param step - sets STEP.
-	*/
-	void integrationTime(Device* device = nullptr, uint8_t time = 0, uint16_t step = 0);
+	// /** Set integration time
+	// @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
+	// @param time - sets the ATIME parameter for integration time from 0 to 255, integration time = (ATIME + 1) * (ASTEP + 1) * 2.78µS.
+	// @param step - sets STEP.
+	// */
+	// void integrationTime(Device* device = nullptr, uint8_t time = 0, uint16_t step = 0);
 
 	/** Read CAN Bus message into local variables
 	@param canId - CAN Bus id
@@ -188,38 +182,6 @@ public:
 	@param length - number of data bytes
 	*/
 	bool messageDecode(CANMessage& message);
-
-	/** Erase all patterns
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - in all sensors
-	*/
-	void patternErase(Device * device = nullptr);
-
-	/** Print HSV patterns
-	*/
-	void patternPrint();
-
-	/** Choose a pattern closest to the current 8 colors
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@raturn - patternNumber
-	*/
-	uint8_t patternRecognizedBy8Colors(uint8_t deviceNumber);
-
-	/** Choose a pattern closest to the current HSV values
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	@param includeValue - if true, HSV compared. If not, HS.
-	@raturn - patternNumber
-	*/
-	uint8_t patternRecognizedByHSV(uint8_t deviceNumber);
-
-	/** Record a HSV pattern
-	@param patternNumber - 0 - PATTERN_COUNT-1
-	@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0.
-	*/
-	void patternRecord(uint8_t patternNumber = 0, uint8_t deviceNumber = 0);
-
-	/** Record patterns manually
-	*/
-	void patternsRecord();
 
 	/** Analog readings
 	@param color - one of 14 colors
@@ -233,16 +195,6 @@ public:
 	void readingsPrint();
 
 	bool started(Device& device);
-
-	/** Instruction to sensor to switch to converting R, G, and B on board and return hue, saturation and value
-	@param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0. 0xFF - all sensors.
-	*/
-	void switchToHSV(Device* device = nullptr);
-
-	/** Instruction to sensor to start returning 10 raw colors
-	@param sensorNumber - Sensor's ordinal number. Each call of function add() assigns a increasing number to the sensor, starting with 0. 0xFF - all sensors.
-	*/
-	void switchTo8Colors(Device* device = nullptr);
 
 	/**Test
 	*/

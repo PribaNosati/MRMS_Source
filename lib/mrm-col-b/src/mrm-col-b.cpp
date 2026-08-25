@@ -18,17 +18,6 @@ Mrm_col_b::Mrm_col_b(uint8_t maxNumberOfBoards) :
 	// _patternByHSV = new std::vector<uint8_t>(maxNumberOfBoards);
 	// _patternBy8Colors = new std::vector<uint8_t>(maxNumberOfBoards);
 	// _patternRecognizedAtMs = new std::vector<uint32_t>(maxNumberOfBoards);
-
-	// if (commandNamesSpecific == NULL){
-	// 	commandNamesSpecific = new std::map<int, std::string>();
-	// 	commandNamesSpecific->insert({MRM_COL_B_SENDING_COLORS_1_TO_3, 	"Send 1-3"});
-	// 	commandNamesSpecific->insert({MRM_COL_B_SENDING_COLORS_4_TO_6, 	"Send 4-6"});
-	// 	commandNamesSpecific->insert({MRM_COL_B_SENDING_COLORS_7_TO_9, 	"Send 7-9"});
-	// 	commandNamesSpecific->insert({MRM_COL_B_SENDING_COLORS_10_TO_12,	"Send10-11"});
-	// 	commandNamesSpecific->insert({MRM_COL_B_ILLUMINATION_CURRENT, 	"Illu curr"});
-	// 	commandNamesSpecific->insert({MRM_COL_B_INTEGRATION_TIME, 		"Inte time"});
-	// 	commandNamesSpecific->insert({MRM_COL_B_GAIN, 					"Gain"});
-	// }
 }
 
 Mrm_col_b::~Mrm_col_b()
@@ -256,8 +245,10 @@ std::string Mrm_col_b::commandName(uint8_t byte){
 	6	32x
 	7	64x
 	8	128x
-	9	256x (default)
+	9	256x
 	10	512x
+	11	1024×
+	12	2048×
 */
 void Mrm_col_b::gain(Device * device, uint8_t gainValue) {
 	if (device == nullptr)
@@ -287,23 +278,23 @@ void Mrm_col_b::illumination(Device* device, uint8_t current) {
 	}
 }
 
-/** Set integration time
-@param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
-@param time - sets the ATIME parameter for integration time from 0 to 255, integration time = (ATIME + 1) * (ASTEP + 1) * 2.78µS.
-@param step - sets STEP.
-*/
-void Mrm_col_b::integrationTime(Device * device, uint8_t time, uint16_t step) {
-	if (device == nullptr)
-		for (Device& dev : devices)
-			integrationTime(&dev, time, step);
-	else {
-		canData[0] = MRM_COL_B_INTEGRATION_TIME;
-		canData[1] = time;
-		canData[2] = step >> 8;
-		canData[3] = step & 0xFF;
-		messageSend(canData, 4, device->number);
-	}
-}
+// /** Set integration time
+// @param deviceNumber - Device's ordinal number. Each call of function add() assigns a increasing number to the device, starting with 0. 0xFF - all sensors.
+// @param time - sets the ATIME parameter for integration time from 0 to 255, integration time = (ATIME + 1) * (ASTEP + 1) * 2.78µS.
+// @param step - sets STEP.
+// */
+// void Mrm_col_b::integrationTime(Device * device, uint8_t time, uint16_t step) {
+// 	if (device == nullptr)
+// 		for (Device& dev : devices)
+// 			integrationTime(&dev, time, step);
+// 	else {
+// 		canData[0] = MRM_COL_B_INTEGRATION_TIME;
+// 		canData[1] = time;
+// 		canData[2] = step >> 8;
+// 		canData[3] = step & 0xFF;
+// 		messageSend(canData, 4, device->number);
+// 	}
+// }
 
 /** Read CAN Bus message into local variables
 @param data - 8 bytes from CAN Bus message.

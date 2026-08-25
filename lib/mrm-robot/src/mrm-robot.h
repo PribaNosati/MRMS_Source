@@ -261,7 +261,7 @@ public:
 	*/
 	void colorPatternRecord();
 
-	void colorTest10();
+	void colorTest14();
 
 	void colorTest6();
 

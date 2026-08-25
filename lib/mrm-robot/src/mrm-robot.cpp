@@ -122,7 +122,7 @@ if (actions == NULL) {
 		actions->insert({"blt", new ActionRobot(this, "Test Bluetooh", 16, Board::BoardId::ID_ANY, signTest, &Robot::bluetoothTest)});
 		actions->insert({"can", new ActionRobot(this, "Report devices", 16, Board::BoardId::ID_ANY, signTest, &Robot::devicesScan)});
 		actions->insert({"sni", new ActionRobot(this, "Sniff bus toggle", 16, Board::BoardId::ID_ANY, signTest, &Robot::canBusSniffToggle)});
-		actions->insert({"10c", new ActionRobot(this, "Test 10 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest10)});
+		actions->insert({"14c", new ActionRobot(this, "Test 14 colors", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTest14)});
 		actions->insert({"hsv", new ActionRobot(this, "Test HSV", 4, Board::BoardId::ID_MRM_COL_B, signTest, &Robot::colorTestHSV)});
 		actions->insert({"lof", new ActionRobot(this, "Light off", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOff)});
 		actions->insert({"lon", new ActionRobot(this, "Light on", 4, Board::BoardId::ID_MRM_COL_CAN, signTest, &Robot::colorIlluminationOn)});
@@ -838,8 +838,7 @@ void Robot::colorPatternRecognize() {
 	end();
 }
 
-void Robot::colorTest10(){
-		// mrm_col_b->test(false);
+void Robot::colorTest14(){
 	mrm_col_b->test();
 }
 

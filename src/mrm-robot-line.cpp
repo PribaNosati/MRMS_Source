@@ -1,4 +1,5 @@
 #include <mrm-8x8a.h>
+#include <mrm-col-b.h>
 #include <mrm-col-can.h>
 #include <mrm-fet-can.h>
 #include <mrm-imu.h>
@@ -501,10 +502,12 @@ void RobotLine::loop() {
 /** Generic actions, use them as templates
 */
 void RobotLine::loop0() {
-
+	mrm_col_b->gain(0, 5); // Set color sensor's illumination to maximum.
+	end();
 }
 void RobotLine::loop1() { 
-	boards[7]->reset(&(boards[7]->devices[3]));
+	mrm_col_b->gain(0, 8); // Set color sensor's illumination to maximum for both sensors.
+	end();
 }
 void RobotLine::loop2() { armCatch(); end(); }
 void RobotLine::loop3() { armUp(); end(); }
