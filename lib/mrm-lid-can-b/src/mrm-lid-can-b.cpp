@@ -265,7 +265,7 @@ bool Mrm_lid_can_b::started(Device& device) {
 					//print("Lidar confirmed\n\r");
 					return true;
 				}
-				delay(1); // Messages are exchanged here
+				delayMs(1); // Messages are exchanged here
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);

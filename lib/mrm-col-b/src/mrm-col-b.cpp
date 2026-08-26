@@ -396,7 +396,7 @@ bool Mrm_col_b::started(Device& device) {
 					// print("mrm-col-b started\n\r");
 					return true;
 				}
-				delay(1);
+				delayMs(1);
 			}
 		}
 		sprintf(errorMessage, "%s %i dead.", _boardsName.c_str(), device.number);
